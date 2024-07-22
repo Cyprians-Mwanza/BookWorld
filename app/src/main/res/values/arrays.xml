@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="genre_array">
+        <item>Art</item>
+        <item>Technology</item>
+        <item>Business</item>
+        <item>Animation</item>
+        <item>Health Sciences</item>
+        <item>Comics</item>
+        <item>Fantasy</item>
+        <item>History</item>
+        <item>Non-fiction</item>
+        <item>Fiction</item>
+        <item>New Releases Books</item>
+    </string-array>
+</resources>
+
+

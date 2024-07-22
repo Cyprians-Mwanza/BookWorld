@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id="@+id/top"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:background="@drawable/cardview_background">
+
+        <ImageView
+            android:id="@+id/backButton"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="1dp"
+            android:layout_marginTop="18dp"
+            android:layout_alignParentTop="true"
+            android:background="@drawable/baseline_arrow_back_24"/>
+
+
+        <ImageView
+            android:id="@+id/three_dotButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginTop="14dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:background="@drawable/ic_dot"/>
+    </RelativeLayout>
+
+    <!-- Book Title EditText -->
+    <EditText
+        android:layout_below="@+id/top"
+        android:id="@+id/book_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:background="@drawable/rectangle_shape"
+        android:hint="Book Title"
+        android:padding="10dp"
+        android:inputType="textShortMessage"
+        android:layout_centerHorizontal="true" />
+
+    <!-- Book Author EditText -->
+    <EditText
+        android:layout_below="@+id/book_title"
+        android:id="@+id/book_author"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="14dp"
+        android:background="@drawable/rectangle_shape"
+        android:hint="Book Author"
+        android:padding="10dp"
+        android:inputType="textShortMessage"
+        android:layout_centerHorizontal="true" />
+
+    <!-- Book Description EditText -->
+    <EditText
+        android:id="@+id/book_desc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/book_author"
+        android:layout_margin="14dp"
+        android:maxLines="14"
+        android:background="@drawable/rectangle_shape"
+        android:hint="Book Description"
+        android:padding="10dp"
+        android:inputType="textMultiLine|textLongMessage" />
+
+    <EditText
+        android:id="@+id/book_price"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/book_desc"
+        android:layout_margin="14dp"
+        android:maxLines="14"
+        android:background="@drawable/rectangle_shape"
+        android:hint="Book Price"
+
+        android:padding="10dp"
+        android:inputType="textMultiLine|textLongMessage" />
+
+
+    <RelativeLayout
+        android:id="@+id/genreLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/book_price"
+        android:padding="5dp"
+        android:layout_margin="8dp">
+
+
+            <!-- EditText with dropdown icon -->
+            <EditText
+                android:id="@+id/genreEditText"
+                android:layout_width="170dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="20dp"
+                android:padding="5dp"
+                android:hint="Select Genre"
+                android:background="@drawable/rectangle_shape"
+                android:focusable="false"
+                android:clickable="true"
+                android:drawableEnd="@drawable/ic_dropdown"
+                android:inputType="none" />
+
+
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/thumbnail_image"
+        android:layout_width="150dp"
+        android:layout_height="100dp"
+        android:src="@drawable/baseline_library_books_24"
+        android:tooltipText="Upload thumbnail"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/genreLayout"
+        android:layout_marginTop="10dp"/>
+
+    <!-- Upload Thumbnail Button -->
+    <Button
+        android:id="@+id/thumbnail_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/thumbnail_image"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:text="Upload Thumbnail" />
+
+    <!-- Upload Book File Button -->
+    <Button
+        android:id="@+id/book_file_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/thumbnail_button"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:text="Upload Book File" />
+
+    <!-- Submit Button -->
+    <Button
+        android:id="@+id/submit_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/book_file_button"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:text="Submit" />
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_centerInParent="true" />
+
+</RelativeLayout>

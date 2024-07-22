@@ -1,0 +1,5 @@
+<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
+    android:src="@drawable/help_icon"
+    android:width="24dp"
+    android:height="20dp"
+    android:tint="@color/royal_blue" />

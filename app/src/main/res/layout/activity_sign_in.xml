@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="@drawable/blue_back">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/find_books_online"
+        android:gravity="center"
+        android:textColor="@color/amber"
+        android:textSize="36sp"
+        android:layout_marginTop="9dp"/>
+
+
+        <TextView
+            android:id="@+id/create"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="76dp"
+            android:textSize="30sp"
+            android:text="@string/create_account"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:textColor="@color/warm_orange"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+           android:layout_below="@+id/create"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="25dp"
+                >
+
+                <EditText
+                    android:id="@+id/Email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="1dp"
+                    android:textColor="@color/black"
+                    android:textStyle="bold"
+                    android:padding="11dp"
+                    android:background="@drawable/cardview"
+                    android:elevation="14dp"
+                    android:alpha="0.6"
+                    android:drawableStart="@drawable/email"
+                   android:inputType="textWebEmailAddress"
+                    android:hint="@string/input_email"/>
+
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="13dp"
+                >
+
+                <EditText
+                    android:id="@+id/Username"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="1dp"
+                    android:textColor="@color/black"
+                    android:textStyle="bold"
+                    android:alpha="0.6"
+                    android:padding="14dp"
+                    android:background="@drawable/cardview"
+                    android:elevation="14dp"
+                    android:drawableStart="@drawable/baseline_person_24"
+                    android:inputType="textWebEmailAddress"
+                    android:hint="@string/username"/>
+
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="13dp"
+                >
+
+                <EditText
+                    android:id="@+id/Contact"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="1dp"
+                    android:textColor="@color/black"
+                    android:textStyle="bold"
+                    android:alpha="0.6"
+                    android:padding="14dp"
+                    android:background="@drawable/cardview"
+                    android:elevation="14dp"
+                    android:drawableStart="@drawable/baseline_add_call_24"
+                    android:inputType="phone"
+                    android:hint="@string/phone_contact"/>
+
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="13dp"
+                >
+
+                <EditText
+                    android:id="@+id/Password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="1dp"
+                    android:textColor="@color/black"
+                    android:textStyle="bold"
+                    android:alpha="0.6"
+                    android:padding="14dp"
+                    android:background="@drawable/cardview"
+                    android:drawableStart="@drawable/lock"
+                    android:inputType="textPassword"
+                    android:hint="@string/enter_password"/>
+
+
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="13dp"
+                >
+
+                <EditText
+                    android:id="@+id/ConPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="1dp"
+                    android:alpha="0.6"
+                    android:textColor="@color/black"
+                    android:textStyle="bold"
+                    android:padding="14dp"
+                    android:background="@drawable/cardview"
+                    android:drawableStart="@drawable/lock"
+                    android:inputType="textPassword"
+                    android:hint="@string/confirm_password"/>
+
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/buttonLogin"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_gravity="center"
+                android:textSize="29sp"
+                android:textColor="@color/amber"
+                android:text="@string/sign_up"/>
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/login"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:textSize="16sp"
+                    android:padding="11dp"
+                    android:text="@string/have_an_account"/>
+                <TextView
+                    android:id="@+id/CreateAccount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/amber"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:textSize="22sp"
+                    android:layout_marginTop="18dp"
+                    android:text="@string/log_in"
+                    android:padding="11dp"
+                    />
+
+            </RelativeLayout>
+        </LinearLayout>
+</RelativeLayout>

@@ -1,0 +1,10 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- White Card Background -->
+    <item android:bottom="5dp">
+        <shape>
+            <solid android:color="@color/light_purple"
+                />
+<corners android:radius="10dp"/>
+        </shape>
+    </item>
+</layer-list>

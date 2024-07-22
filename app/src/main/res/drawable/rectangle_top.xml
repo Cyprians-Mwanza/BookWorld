@@ -1,0 +1,18 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Top Elevation -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#D3D3D3" /> <!-- Light gray color for elevation -->
+            <corners android:radius="4dp" /> <!-- Adjust radius as needed -->
+        </shape>
+    </item>
+
+    <!-- Background -->
+    <item android:top="2dp"> <!-- Adjust top padding for elevation -->
+        <shape android:shape="rectangle">
+            <solid android:color="@color/light_purple" /> <!-- Mint background color -->
+                  </shape>
+    </item>
+
+</layer-list>

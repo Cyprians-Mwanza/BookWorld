@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="@color/white">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:cardElevation="12dp"
+        android:layout_margin="7dp"
+        app:cardCornerRadius="40dp">
+
+        <TextView
+            android:id="@+id/mail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Get Your Code"
+            android:gravity="center"
+            android:textSize="29sp"
+            android:textStyle="bold"
+            android:layout_marginTop="80dp"
+            android:textColor="@color/material_500"/>
+
+        <TextView
+            android:id="@+id/main"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Please Enter 4-digit Code sent to Your Email"
+            android:gravity="center"
+            android:textSize="22sp"
+            android:layout_marginTop="119dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="135dp"
+            android:padding="35dp">
+
+            <LinearLayout
+                android:id="@+id/otpLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp"
+                android:layout_gravity="center"
+                android:gravity="center">
+
+                <EditText
+                    android:id="@+id/otpDigit1"
+                    android:layout_width="35dp"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:maxLength="1"
+                    android:gravity="center"
+                    android:textSize="25sp"
+                    android:background="@drawable/square"/>
+
+                <EditText
+                    android:id="@+id/otpDigit2"
+                    android:layout_width="35dp"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:maxLength="1"
+                    android:gravity="center"
+                    android:textSize="25sp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/square"/>
+
+                <EditText
+                    android:id="@+id/otpDigit3"
+                    android:layout_width="35dp"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:maxLength="1"
+                    android:gravity="center"
+                    android:textSize="25sp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/square"/>
+
+                <EditText
+                    android:id="@+id/otpDigit4"
+                    android:layout_width="35dp"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:maxLength="1"
+                    android:gravity="center"
+                    android:textSize="25sp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/square"/>
+                <EditText
+                    android:id="@+id/otpDigit5"
+                    android:layout_width="35dp"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:maxLength="1"
+                    android:gravity="center"
+                    android:textSize="25sp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/square"/>
+                <EditText
+                    android:id="@+id/otpDigit6"
+                    android:layout_width="35dp"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:maxLength="1"
+                    android:gravity="center"
+                    android:textSize="25sp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/square"/>
+
+            </LinearLayout>
+            <TextView
+                android:id="@+id/resend"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="Resend"
+                android:textSize="13sp"
+                android:layout_marginTop="5dp"
+                android:textColor="@color/black"/>
+
+            <Button
+                android:id="@+id/buttonVerify"
+                android:layout_width="190dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:layout_gravity="center"
+                android:padding="8dp"
+                android:textSize="29sp"
+                android:background="@drawable/rectangle_back"
+                android:textColor="@color/material_50"
+                android:text="Verify"/>
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</RelativeLayout>

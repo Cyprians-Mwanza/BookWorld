@@ -1,0 +1,22 @@
+<!-- search_bar_background.xml -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Background shape for the EditText -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#FFFFFF" /> <!-- Background color of the EditText -->
+        </shape>
+    </item>
+    <!-- DrawableStart with search icon -->
+    <item android:left="16dp"> <!-- Adjust this value to align with your needs -->
+        <bitmap
+            android:src="@drawable/ic_search"
+            android:tint="@color/amber" /> <!-- Tint color for the search icon -->
+    </item>
+    <!-- DrawableEnd with clickable button -->
+    <item android:right="16dp"> <!-- Adjust this value to align with your needs -->
+        <shape android:shape="rectangle">
+            <solid android:color="#FFA500" /> <!-- Background color of the button -->
+            <corners android:radius="4dp" /> <!-- Rounded corners for button -->
+        </shape>
+    </item>
+</layer-list>

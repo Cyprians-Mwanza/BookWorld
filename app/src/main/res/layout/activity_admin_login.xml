@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/login"
+    android:orientation="vertical"
+    android:background="@drawable/blue_back">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/find_books_onlne"
+        android:gravity="center"
+        android:textColor="@color/amber"
+        android:textSize="36sp"
+        android:layout_marginTop="19dp"/>
+
+
+
+    <TextView
+        android:id="@+id/welcome"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="30sp"
+        android:text="@string/welcome_back"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:layout_marginTop="153dp"
+        android:textColor="@color/warm_orange"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/welcome"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="14dp">
+
+            <EditText
+                android:id="@+id/textEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="1dp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:padding="11dp"
+                android:background="@drawable/cardview"
+                android:elevation="14dp"
+                android:alpha="0.6"
+                android:drawableStart="@drawable/email"
+                android:inputType="textEmailAddress"
+                android:hint="@string/input_email"/>
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="20dp">
+
+            <EditText
+                android:id="@+id/Password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="1dp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:alpha="0.6"
+                android:padding="14dp"
+                android:background="@drawable/cardview"
+                android:drawableStart="@drawable/lock"
+                android:inputType="textPassword"
+                android:hint="@string/enter_password"/>
+
+        </LinearLayout>
+
+
+        <CheckBox
+            android:id="@+id/checkBoxShowPassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/Password"
+            android:layout_marginTop="1dp"
+            android:inputType="textVisiblePassword"
+            android:text="Show Password"
+            android:textColor="@color/amber"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp">
+
+        </RelativeLayout>
+        <Button
+            android:id="@+id/buttonLogin"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_gravity="center"
+            android:textSize="29sp"
+            android:textColor="@color/amber"
+            android:text="Login"/>
+
+    </LinearLayout>
+</RelativeLayout>
+

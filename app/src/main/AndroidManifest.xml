@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@drawable/launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@drawable/launcher"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.BookWorld"
+        tools:targetApi="31">
+        <activity
+            android:name=".CartActivity"
+            android:exported="false" />
+        <activity
+            android:name=".BookContents"
+            android:exported="false" />
+        <activity
+            android:name=".BorrowPage"
+            android:exported="false" />
+        <activity
+            android:name=".BookDetails"
+            android:exported="false" />
+        <activity
+            android:name=".Admindashboard"
+            android:exported="false" />
+        <activity
+            android:name=".adminLogin"
+            android:exported="false" />
+        <activity
+            android:name=".Fiction"
+            android:exported="false" />
+        <activity
+            android:name=".Non_Fiction"
+            android:exported="false" />
+        <activity
+            android:name=".Group"
+            android:exported="false" />
+        <activity
+            android:name=".LendBookActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ViewBorrowedBooksActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MainActivity2"
+            android:exported="false" />
+        <activity
+            android:name=".LendBooksActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AddBookActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Business"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan|adjustResize" />
+        <activity
+            android:name=".History"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan|adjustResize" />
+        <activity
+            android:name=".More"
+            android:exported="false" />
+        <activity
+            android:name=".Notifications"
+            android:exported="false" />
+        <activity
+            android:name=".MyBooks"
+            android:exported="false" />
+        <activity
+            android:name=".Art"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan|adjustResize" />
+        <activity
+            android:name=".HealthSciences"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan|adjustResize" />
+        <activity
+            android:name=".comics"
+            android:exported="false" />
+        <activity
+            android:name=".Technology"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan|adjustResize" />
+        <activity
+            android:name=".animation"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan|adjustResize" />
+        <activity
+            android:name=".fantasy"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan|adjustResize" />
+        <activity
+            android:name=".search_discovery"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan|adjustResize" />
+        <activity
+            android:name=".Account_Settings"
+            android:exported="false" />
+        <activity
+            android:name=".three_dots"
+            android:exported="false" />
+        <activity
+            android:name=".Home"
+            android:exported="false" />
+        <activity
+            android:name=".reset_password"
+            android:exported="false" />
+        <activity
+            android:name=".Recovery_code"
+            android:exported="false" />
+        <activity
+            android:name=".Password_recovery"
+            android:exported="false" />
+        <activity
+            android:name=".login"
+            android:exported="false" />
+        <activity
+            android:name=".sign_in"
+            android:exported="false" />
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
