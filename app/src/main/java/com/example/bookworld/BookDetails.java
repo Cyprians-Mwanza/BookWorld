@@ -23,18 +23,6 @@ import java.util.Map;
 
 public class BookDetails extends AppCompatActivity {
 
-    private TextView titleTextView;
-    private TextView authorTextView;
-    private TextView descriptionTextView;
-    private TextView priceTextView;
-    private ImageView thumbnailImageView;
-
-    private Button addcartButton;
-    private ImageView backButton;
-    private ImageView threeDotsButton;
-
-    private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
     private CollectionReference cartRef;
 
     @Override
@@ -43,21 +31,22 @@ public class BookDetails extends AppCompatActivity {
         setContentView(R.layout.activity_book_details);
 
         // Initialize Firebase components
-        mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
         String userId = currentUser.getUid();
         cartRef = db.collection("users").document(userId).collection("cartItems");
 
         // Initialize views
-        titleTextView = findViewById(R.id.bookTitle);
-        authorTextView = findViewById(R.id.bookAuthor);
-        descriptionTextView = findViewById(R.id.bookDescription);
-        priceTextView = findViewById(R.id.bookPrice);
-        thumbnailImageView = findViewById(R.id.bookThumbnail);
-        addcartButton = findViewById(R.id.add_to_cart_button);
-        backButton = findViewById(R.id.backButton);
-        threeDotsButton = findViewById(R.id.three_dotButton);
+        TextView titleTextView = findViewById(R.id.bookTitle);
+        TextView authorTextView = findViewById(R.id.bookAuthor);
+        TextView descriptionTextView = findViewById(R.id.bookDescription);
+        TextView priceTextView = findViewById(R.id.bookPrice);
+        ImageView thumbnailImageView = findViewById(R.id.bookThumbnail);
+        Button addcartButton = findViewById(R.id.add_to_cart_button);
+        Button borrowButton = findViewById(R.id.borrowButton);
+        ImageView backButton = findViewById(R.id.backButton);
+        ImageView threeDotsButton = findViewById(R.id.three_dotButton);
 
         // Set back button click listener
         backButton.setOnClickListener(v -> finish());
@@ -68,6 +57,13 @@ public class BookDetails extends AppCompatActivity {
             Intent intent = new Intent(BookDetails.this, three_dots.class);
             startActivity(intent);
         });
+
+        borrowButton.setOnClickListener(v -> {
+            // Navigate to the "three dots" activity
+            Intent intent = new Intent(BookDetails.this, BorrowPage1.class);
+            startActivity(intent);
+        });
+
 
         // Retrieve book details from intent extras
         Bundle extras = getIntent().getExtras();
