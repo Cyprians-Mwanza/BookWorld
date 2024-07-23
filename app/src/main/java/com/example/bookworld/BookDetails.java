@@ -15,6 +15,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.SetOptions;
 import com.squareup.picasso.Picasso;
 
@@ -82,7 +83,7 @@ public class BookDetails extends AppCompatActivity {
 
             // Set retrieved data to TextViews and ImageView
             titleTextView.setText(title);
-            authorTextView.setText(author);
+            authorTextView.setText("by " + author);
             descriptionTextView.setText(description);
             priceTextView.setText("Ksh " + price);
             Picasso.get().load(thumbnailUrl).into(thumbnailImageView);
@@ -106,12 +107,21 @@ public class BookDetails extends AppCompatActivity {
                 bookData.put("price", book.getPrice());
                 bookData.put("rating", book.getRating());
 
-                // Save the book to the user's cart in Firestore
-                cartRef.add(bookData).addOnSuccessListener(documentReference -> {
-                    Toast.makeText(BookDetails.this, "Book added to cart", Toast.LENGTH_SHORT).show();
-                }).addOnFailureListener(e -> {
-                    Toast.makeText(BookDetails.this, "Error adding to cart", Toast.LENGTH_SHORT).show();
-                });
+                // Check if the book is already in the cart
+                cartRef.whereEqualTo("id", book.getId()).get()
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                                // Book is already in the cart
+                                Toast.makeText(BookDetails.this, "Book already in cart", Toast.LENGTH_SHORT).show();
+                            } else {
+                                // Book is not in the cart, add it
+                                cartRef.add(bookData).addOnSuccessListener(documentReference -> {
+                                    Toast.makeText(BookDetails.this, "Book added to cart", Toast.LENGTH_SHORT).show();
+                                }).addOnFailureListener(e -> {
+                                    Toast.makeText(BookDetails.this, "Error adding to cart", Toast.LENGTH_SHORT).show();
+                                });
+                            }
+                        });
 
                 // Pass book details to CartActivity
                 Intent intent = new Intent(BookDetails.this, CartActivity.class);

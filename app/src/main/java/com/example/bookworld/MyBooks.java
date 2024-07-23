@@ -131,8 +131,8 @@ public class MyBooks extends AppCompatActivity implements BookAdapter.OnBookClic
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Finish the current activity to go back to the previous one
-                finish();
+                Intent intent = new Intent(MyBooks.this, Home.class);
+                startActivity(intent);
             }
         });
     }
