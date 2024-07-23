@@ -153,49 +153,6 @@
                 </HorizontalScrollView>
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginTop="10dp">
-
-                <LinearLayout
-                    android:id="@+id/row_1"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <Button
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginEnd="5dp"
-                        android:background="@color/dark_green"
-                        android:text="@string/want_to_read1"
-                        android:textColor="@color/white" />
-
-                    <Button
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginEnd="5dp"
-                        android:background="@color/dark_green"
-                        android:text="@string/want_to_read2"
-                        android:textAllCaps="false"
-                        android:textColor="@color/white" />
-
-                    <Button
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginEnd="5dp"
-                        android:background="@color/dark_green"
-                        android:textAllCaps="false"
-                        android:textColor="@color/white"
-                        android:text="Borrow Book" />
-                </LinearLayout>
-            </LinearLayout>
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
