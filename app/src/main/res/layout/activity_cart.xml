@@ -40,36 +40,6 @@
                 android:clipToPadding="false"
                 android:scrollbars="vertical" />
 
-            <!-- Bottom controls for Select All checkbox and Checkout button -->
-            <RelativeLayout
-                android:id="@+id/bottomview"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:background="@drawable/cardview_background"
-                android:padding="16dp">
-
-                <CheckBox
-                    android:id="@+id/select_checkbox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Select All"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerVertical="true" />
-
-                <TextView
-                    android:background="@color/warm_orange"
-                    android:textStyle="bold"
-                    android:id="@+id/checkout_text"
-                    android:layout_width="75dp"
-                    android:gravity="center"
-                    android:textSize="17dp"
-                    android:layout_height="40dp"
-                    android:text="Checkout"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true" />
-
-            </RelativeLayout>
         </RelativeLayout>
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
