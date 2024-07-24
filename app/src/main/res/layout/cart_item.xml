@@ -7,14 +7,15 @@
     android:padding="5dp">
 
     <!-- Normal Checkbox for Selection -->
-    <CheckBox
-        android:id="@+id/select_checkbox"
-        android:layout_width="15dp"
-        android:layout_height="24dp"
+    <ImageButton
+        android:id="@+id/delete_button"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
         android:layout_gravity="end"
-        android:checked="false"
-        android:gravity="end" />
-
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="delete"
+        android:tint="@android:color/holo_red_dark"
+        android:src="@drawable/delete_icon" />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -4,7 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -12,23 +12,23 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.bookworld.R;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder> {
 
     private Context mContext;
     private List<Book> mCartItems;
-    private Set<Book> selectedBooks;
-    private boolean selectAllChecked;
+    private FirebaseFirestore mFirestore;
+    private String userId;
 
-    public CartAdapter(Context context, List<Book> cartItems, Set<Book> selectedBooks) {
+    public CartAdapter(Context context, List<Book> cartItems, String userId) {
         mContext = context;
         mCartItems = cartItems;
-        this.selectedBooks = this.selectedBooks != null ? this.selectedBooks : new HashSet<>();
+        mFirestore = FirebaseFirestore.getInstance();
+        this.userId = userId;
     }
 
     @NonNull
@@ -54,7 +54,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         private TextView titleTextView;
         private TextView authorTextView;
         private TextView priceTextView;
-        private CheckBox selectCheckBox;
+        private ImageButton deleteButton;
 
         public CartViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -62,63 +62,41 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             titleTextView = itemView.findViewById(R.id.bookTitle);
             authorTextView = itemView.findViewById(R.id.bookAuthor);
             priceTextView = itemView.findViewById(R.id.bookPrice);
-            selectCheckBox = itemView.findViewById(R.id.select_checkbox);
-
-            // Handle checkbox state changes
-            selectCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                int adapterPosition = getAdapterPosition();
-                if (adapterPosition != RecyclerView.NO_POSITION) {
-                    Book book = mCartItems.get(adapterPosition);
-                    if (isChecked) {
-                        selectedBooks.add(book);
-                    } else {
-                        selectedBooks.remove(book);
-                    }
-                }
-            });
-
-            // Set up click listener to toggle selection
-            itemView.setOnClickListener(v -> {
-                selectCheckBox.setChecked(!selectCheckBox.isChecked());
-                int adapterPosition = getAdapterPosition();
-                if (adapterPosition != RecyclerView.NO_POSITION) {
-                    Book book = mCartItems.get(adapterPosition);
-                    if (selectCheckBox.isChecked()) {
-                        selectedBooks.add(book);
-                    } else {
-                        selectedBooks.remove(book);
-                    }
-                }
-            });
+            deleteButton = itemView.findViewById(R.id.delete_button);
         }
 
         public void bind(int position) {
-            Book book = mCartItems.get(position);
-            if (book != null) {
-                Picasso.get().load(book.getThumbnailUrl()).into(thumbnailImageView);
-                titleTextView.setText(book.getTitle());
-                authorTextView.setText("by " + book.getAuthor());
-                priceTextView.setText("Ksh " + book.getPrice());
+            if (position < mCartItems.size()) {
+                Book book = mCartItems.get(position);
+                if (book != null) {
+                    Picasso.get().load(book.getThumbnailUrl()).into(thumbnailImageView);
+                    titleTextView.setText(book.getTitle());
+                    authorTextView.setText("by " + book.getAuthor());
+                    priceTextView.setText("Ksh " + book.getPrice());
 
-                if (selectAllChecked) {
-                    selectCheckBox.setChecked(true);
-                    selectedBooks.add(book);
-                } else {
-                    selectCheckBox.setChecked(selectedBooks.contains(book));
+                    deleteButton.setOnClickListener(v -> {
+                        removeItem(position, book);
+                    });
                 }
             }
         }
     }
 
-    // Update the selectedBooks set
-    public void setSelectedBooks(Set<Book> selectedBooks) {
-        this.selectedBooks = selectedBooks != null ? selectedBooks : new HashSet<>();
-        notifyDataSetChanged(); // Notify adapter to refresh view
-    }
+    private void removeItem(int position, Book book) {
+        mCartItems.remove(position);
+        notifyItemRemoved(position);
 
-    // Update selectAllChecked state
-    public void setSelectAllChecked(boolean selectAllChecked) {
-        this.selectAllChecked = selectAllChecked;
-        notifyDataSetChanged(); // Notify adapter to refresh view
+        // Remove the book from Firestore using the book's ID
+        mFirestore.collection("users")
+                .document(userId)
+                .collection("cartItems")
+                .document(book.getId())
+                .delete()
+                .addOnSuccessListener(aVoid -> {
+                    // Item successfully removed from Firestore
+                })
+                .addOnFailureListener(e -> {
+                    // Handle failure
+                });
     }
 }
