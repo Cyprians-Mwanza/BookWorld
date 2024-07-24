@@ -28,12 +28,7 @@ public class ChapterList extends AppCompatActivity {
         Button borrowSelectedChaptersButton = findViewById(R.id.borrowSelectedChaptersButton);
 
         // Get the book ID from the intent
-        String bookId = getIntent().getStringExtra("bookId");
-
-        if (bookId == null) {
-            Toast.makeText(this, "No book ID provided", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        String bookId = getIntent().getStringExtra("BOOK_ID");
 
         // Set up the ListView and its adapter
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_multiple_choice, chapters);
@@ -41,14 +36,22 @@ public class ChapterList extends AppCompatActivity {
         chapterListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 
         // Load chapters from Firestore
-        FirestoreChapterExtractor.extractChapters(this, bookId, extractedChapters -> {
-            chapters.clear();
-            chapters.addAll(extractedChapters);
-            adapter.notifyDataSetChanged();
+        FirestoreChapterExtractor.extractChapters(this, bookId, new FirestoreChapterExtractor.OnChaptersExtractedListener() {
+            @Override
+            public void onChaptersExtracted(List<String> extractedChapters) {
+                chapters.clear();
+                chapters.addAll(extractedChapters);
+                adapter.notifyDataSetChanged(); // Ensure the adapter is notified of data changes
+            }
         });
 
         // Set up the button click listener
-        borrowSelectedChaptersButton.setOnClickListener(v -> borrowSelectedChapters());
+        borrowSelectedChaptersButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                borrowSelectedChapters();
+            }
+        });
     }
 
     private void borrowSelectedChapters() {

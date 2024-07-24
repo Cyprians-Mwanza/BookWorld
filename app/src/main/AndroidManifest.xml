@@ -16,6 +16,15 @@
         android:theme="@style/Theme.BookWorld"
         tools:targetApi="31">
         <activity
+            android:name=".group2"
+            android:exported="false" />
+        <activity
+            android:name=".ChapterList"
+            android:exported="false" />
+        <activity
+            android:name=".BorrowPage1"
+            android:exported="false" />
+        <activity
             android:name=".CartActivity"
             android:exported="false" />
         <activity
@@ -47,9 +56,6 @@
             android:exported="false" />
         <activity
             android:name=".ViewBorrowedBooksActivity"
-            android:exported="false" />
-        <activity
-            android:name=".MainActivity2"
             android:exported="false" />
         <activity
             android:name=".LendBooksActivity"

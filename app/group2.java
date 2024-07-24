@@ -48,7 +48,7 @@ public class Group extends AppCompatActivity {
         LinearLayout searchLayout = findViewById(R.id.searchlayout);
         LinearLayout moreLayout = findViewById(R.id.morelayout);
         TextView findFriendsTextView = findViewById(R.id.findFriends);
-        LinearLayout friendsLayout = findViewById(R.id.usersLayout);
+        friendsLayout = findViewById(R.id.friendsLayout);
 
         // Set click listeners
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -99,7 +99,6 @@ public class Group extends AppCompatActivity {
             public void onClick(View view) {
                 // Inflate the layout for the pop-up window
                 View popupView = getLayoutInflater().inflate(R.layout.activity_more, null);
-
 
                 PopupWindow popupWindow = new PopupWindow(popupView,
                         LinearLayout.LayoutParams.WRAP_CONTENT,

@@ -15,8 +15,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
@@ -58,13 +57,6 @@ public class BookDetails extends AppCompatActivity {
             Intent intent = new Intent(BookDetails.this, three_dots.class);
             startActivity(intent);
         });
-
-        borrowButton.setOnClickListener(v -> {
-            // Navigate to the "three dots" activity
-            Intent intent = new Intent(BookDetails.this, BorrowPage1.class);
-            startActivity(intent);
-        });
-
 
         // Retrieve book details from intent extras
         Bundle extras = getIntent().getExtras();
@@ -122,6 +114,13 @@ public class BookDetails extends AppCompatActivity {
                 // Pass book details to CartActivity
                 Intent intent = new Intent(BookDetails.this, CartActivity.class);
                 intent.putExtra("BOOK", book);  // Pass the Book object directly
+                startActivity(intent);
+            });
+
+            // Set borrow button click listener
+            borrowButton.setOnClickListener(v -> {
+                Intent intent = new Intent(BookDetails.this, BorrowPage1.class);
+                intent.putExtra("BOOK_ID", id);
                 startActivity(intent);
             });
         }

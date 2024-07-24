@@ -193,5 +193,4 @@ public class Home extends AppCompatActivity implements BookAdapter.OnBookClickLi
                     }
                 });
     }
-
 }

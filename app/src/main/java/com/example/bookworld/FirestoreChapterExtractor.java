@@ -1,6 +1,7 @@
 package com.example.bookworld;
 
 import android.content.Context;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -14,6 +15,8 @@ import java.util.List;
 
 public class FirestoreChapterExtractor {
 
+    private static final String TAG = "FirestoreChapterExtractor";
+
     public interface OnChaptersExtractedListener {
         void onChaptersExtracted(List<String> chapters);
     }
@@ -24,6 +27,7 @@ public class FirestoreChapterExtractor {
 
         // Define the path to the book's chapters collection
         String path = "books/" + bookId + "/chapters";
+        Log.d(TAG, "Extracting chapters from path: " + path);
 
         db.collection(path)
                 .get()
@@ -38,6 +42,9 @@ public class FirestoreChapterExtractor {
                                     String chapterContent = document.getString("content");
                                     if (chapterTitle != null && chapterContent != null) {
                                         chapters.add(chapterTitle + "\n" + chapterContent);
+                                        Log.d(TAG, "Chapter added: " + chapterTitle);
+                                    } else {
+                                        Log.d(TAG, "Missing title or content for document: " + document.getId());
                                     }
                                 }
                                 if (context instanceof android.app.Activity) {
@@ -45,9 +52,11 @@ public class FirestoreChapterExtractor {
                                 }
                             } else {
                                 showToast(context, "No chapters found");
+                                Log.d(TAG, "No chapters found in querySnapshot");
                             }
                         } else {
                             showToast(context, "Error fetching chapters");
+                            Log.e(TAG, "Error fetching chapters", task.getException());
                         }
                     }
                 });
