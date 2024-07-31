@@ -47,7 +47,7 @@
         android:layout_below="@id/topscreen"
         android:orientation="vertical"
         android:padding="16dp"
-        android:background="@android:color/white">
+        android:background="@color/light_blue">
 
 
         <!-- Messages will be dynamically added here -->
