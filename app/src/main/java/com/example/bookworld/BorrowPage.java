@@ -97,7 +97,7 @@ public class BorrowPage extends AppCompatActivity {
                 String selectedChapterTitle = chapterList.get(position);
                 if (selectedChapterTitle != null) {
                     // Launch BookContents activity with selected chapter
-                    Intent intent = new Intent(BorrowPage.this, BookContents.class);
+                    Intent intent = new Intent(BorrowPage.this, ContentActivity.class);
                     intent.putExtra("chapter_title", selectedChapterTitle);
                     startActivity(intent);
                 } else {

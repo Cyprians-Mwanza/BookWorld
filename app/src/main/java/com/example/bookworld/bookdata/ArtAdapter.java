@@ -10,7 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.bookworld.R;
-import com.example.bookworld.Technology;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -36,7 +35,8 @@ public class ArtAdapter extends RecyclerView.Adapter<ArtAdapter.BookViewHolder> 
     public void onBindViewHolder(@NonNull BookViewHolder holder, int position) {
         Book book = bookList.get(position);
         holder.title.setText(book.getTitle());
-        holder.author.setText(book.getAuthor());
+        holder.author.setText("by " + book.getAuthor());
+        holder.price.setText("Ksh " + book.getPrice()); // Set price directly as a string
         Picasso.get().load(book.getThumbnailUrl()).into(holder.thumbnail);
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -54,20 +54,18 @@ public class ArtAdapter extends RecyclerView.Adapter<ArtAdapter.BookViewHolder> 
         return bookList.size();
     }
 
-    public void setOnBookClickListener(Technology technology) {
-
-    }
-
     static class BookViewHolder extends RecyclerView.ViewHolder {
         ImageView thumbnail;
         TextView title;
         TextView author;
+        TextView price;
 
         public BookViewHolder(@NonNull View itemView) {
             super(itemView);
             thumbnail = itemView.findViewById(R.id.bookThumbnail);
             title = itemView.findViewById(R.id.bookTitle);
             author = itemView.findViewById(R.id.bookAuthor);
+            price = itemView.findViewById(R.id.bookPrice); // Reference to book price TextView in item layout
         }
     }
 

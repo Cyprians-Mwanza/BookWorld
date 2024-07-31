@@ -1,5 +1,6 @@
 package com.example.bookworld;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -139,6 +140,7 @@ public class History extends AppCompatActivity implements HistoryAdapter.OnBookC
                                 String author = document.getString("author");
                                 String description= document.getString("description");
                                 String price = document.getString("price");
+                                String pdfUrl = document.getString("pdfUrl");
 
                                 float rating = 0.0f; // Default value if not found or conversion fails
                                 Object ratingObj = document.get("rating");
@@ -149,7 +151,7 @@ public class History extends AppCompatActivity implements HistoryAdapter.OnBookC
                                 }
 
                                 // Create a Book object and add it to the list
-                                Book book = new Book(id, thumbnailUrl, title, author,description, price, rating);
+                                Book book = new Book(id, thumbnailUrl, title, author,description, price,rating, pdfUrl);
                                 bookList.add(book);
                             }
                             // Notify the adapter that the data set has changed
@@ -163,6 +165,7 @@ public class History extends AppCompatActivity implements HistoryAdapter.OnBookC
                 });
     }
 
+    @SuppressLint("SetTextI18n")
     private void searchBooks(String query) {
         db.collection("History")
                 .whereEqualTo("title", query)
@@ -177,6 +180,7 @@ public class History extends AppCompatActivity implements HistoryAdapter.OnBookC
                             String author = document.getString("author");
                             String description= document.getString("description");
                             String price = document.getString("rating");
+                            String pdfUrl = document.getString("pdfUrl");
 
                             float rating = 0.0f; // Default value if not found or conversion fails
                             Object ratingObj = document.get("rating");
@@ -186,7 +190,7 @@ public class History extends AppCompatActivity implements HistoryAdapter.OnBookC
                                 rating = (Float) ratingObj;
                             }
                             // Create a Book object and add it to the list
-                            Book book = new Book(id, thumbnailUrl, title, author, description, price, rating);
+                            Book book = new Book(id, thumbnailUrl, title, author, description, price, rating, pdfUrl);
                             bookList.add(book);
                         }
                         // Notify adapter of data change

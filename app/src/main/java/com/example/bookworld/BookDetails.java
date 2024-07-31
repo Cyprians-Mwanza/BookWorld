@@ -15,7 +15,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
@@ -65,8 +64,9 @@ public class BookDetails extends AppCompatActivity {
             String title = extras.getString("BOOK_TITLE", "Default Title");
             String author = extras.getString("BOOK_AUTHOR", "Unknown Author");
             String description = extras.getString("BOOK_DESCRIPTION", "No Description");
-            String price = extras.getString("BOOK_PRICE", "0.0"); // Retrieve price as a string
+            String price = extras.getString("BOOK_PRICE", "0.0");
             String thumbnailUrl = extras.getString("BOOK_THUMBNAIL");
+            String pdfUrl = extras.getString("PDF_URL");
             float rating = extras.getFloat("BOOK_RATING", 0.0f);
 
             // Set retrieved data to TextViews and ImageView
@@ -83,7 +83,8 @@ public class BookDetails extends AppCompatActivity {
             // Set add to cart button click listener
             addcartButton.setOnClickListener(v -> {
                 // Create a Book object
-                Book book = new Book(id, thumbnailUrl, title, author, description, price, rating);
+                Book book = new Book(id, thumbnailUrl, title, author, description, price, rating, pdfUrl);
+
 
                 // Create a map for the book data
                 Map<String, Object> bookData = new HashMap<>();
@@ -119,8 +120,14 @@ public class BookDetails extends AppCompatActivity {
 
             // Set borrow button click listener
             borrowButton.setOnClickListener(v -> {
-                Intent intent = new Intent(BookDetails.this, BorrowPage1.class);
+                Intent intent = new Intent(BookDetails.this, BorrowPop.class);
                 intent.putExtra("BOOK_ID", id);
+                intent.putExtra("BOOK_AUTHOR", author);
+                intent.putExtra("BOOK_TITLE", title);
+                intent.putExtra("BOOK_DESCRIPTION", description);
+                intent.putExtra("BOOK_PRICE", price);
+                intent.putExtra("BOOK_THUMBNAIL_URL",thumbnailUrl);
+                intent.putExtra("PDF_URL", pdfUrl);  // Add PDF URL
                 startActivity(intent);
             });
         }

@@ -72,6 +72,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
     }
 
     public interface OnBookClickListener {
+        void onBookClick(Book book);
     }
 
     public static class BookViewHolder extends RecyclerView.ViewHolder {

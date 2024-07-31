@@ -16,11 +16,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.bookworld.bookdata.ArtAdapter;
 import com.example.bookworld.bookdata.Book;
-import com.example.bookworld.bookdata.BusinessAdapter;
 import com.example.bookworld.bookdata.FictionAdapter;
-import com.example.bookworld.bookdata.TechnologyAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -34,13 +31,13 @@ public class Fiction extends AppCompatActivity implements FictionAdapter.OnBookC
 
     private FirebaseFirestore db;
     private FictionAdapter trendingAdapter;
-
     private List<Book> bookList;
     private EditText searchEditText;
     private TextView searchButton;
     private TextView messageTextView;
     private ImageView backButton;
     private ImageView threeDotsButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,7 +89,7 @@ public class Fiction extends AppCompatActivity implements FictionAdapter.OnBookC
             @Override
             public void onClick(View v) {
                 // Navigate to the "three dots" activity
-                Intent intent = new Intent(Fiction.this,three_dots.class);
+                Intent intent = new Intent(Fiction.this, three_dots.class);
                 startActivity(intent);
             }
         });
@@ -120,9 +117,9 @@ public class Fiction extends AppCompatActivity implements FictionAdapter.OnBookC
         intent.putExtra("BOOK_PRICE", book.getPrice());
         intent.putExtra("BOOK_THUMBNAIL", book.getThumbnailUrl());
         intent.putExtra("BOOK_RATING", book.getRating());
+        intent.putExtra("PDF_URL", book.getPdfUrl());
         startActivity(intent);
     }
-
 
     private void retrieveBooks() {
         db.collection("Fiction")
@@ -137,7 +134,10 @@ public class Fiction extends AppCompatActivity implements FictionAdapter.OnBookC
                                 String thumbnailUrl = document.getString("thumbnailUrl");
                                 String title = document.getString("title");
                                 String author = document.getString("author");
-                                String description= document.getString("description");
+                                String description = document.getString("description");
+                                String pdfUrl = document.getString("pdfUrl");
+
+                                // Retrieve price as a string (ensure it's stored as string in Firestore)
                                 String price = document.getString("price");
 
                                 float rating = 0.0f; // Default value if not found or conversion fails
@@ -149,15 +149,15 @@ public class Fiction extends AppCompatActivity implements FictionAdapter.OnBookC
                                 }
 
                                 // Create a Book object and add it to the list
-                                Book book = new Book(id, thumbnailUrl, title, author,description, price, rating);
+                                Book book = new Book(id, thumbnailUrl, title, author, description, price, rating, pdfUrl);
                                 bookList.add(book);
                             }
                             // Notify the adapter that the data set has changed
                             trendingAdapter.notifyDataSetChanged();
                         } else {
                             // Handle errors
-                            // Log the error message
                             Log.e("FirestoreError", "Error getting books: ", task.getException());
+                            Toast.makeText(Fiction.this, "Error fetching books", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -175,8 +175,11 @@ public class Fiction extends AppCompatActivity implements FictionAdapter.OnBookC
                             String thumbnailUrl = document.getString("thumbnailUrl");
                             String title = document.getString("title");
                             String author = document.getString("author");
-                            String description= document.getString("description");
-                            String price = document.getString("rating");
+                            String description = document.getString("description");
+                            String pdfUrl = document.getString("pdfUrl");
+
+                            // Retrieve price as a string (ensure it's stored as string in Firestore)
+                            String price = document.getString("price");
 
                             float rating = 0.0f; // Default value if not found or conversion fails
                             Object ratingObj = document.get("rating");
@@ -185,8 +188,9 @@ public class Fiction extends AppCompatActivity implements FictionAdapter.OnBookC
                             } else if (ratingObj instanceof Float) {
                                 rating = (Float) ratingObj;
                             }
+
                             // Create a Book object and add it to the list
-                            Book book = new Book(id, thumbnailUrl, title, author, description, price, rating);
+                            Book book = new Book(id, thumbnailUrl, title, author, description, price, rating, pdfUrl);
                             bookList.add(book);
                         }
                         // Notify adapter of data change

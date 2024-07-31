@@ -139,6 +139,7 @@ public class fantasy extends AppCompatActivity implements FantasyAdapter.OnBookC
                                 String author = document.getString("author");
                                 String description= document.getString("description");
                                 String price = document.getString("price");
+                                String pdfUrl = document.getString("pdfUrl");
 
                                 float rating = 0.0f; // Default value if not found or conversion fails
                                 Object ratingObj = document.get("rating");
@@ -149,7 +150,7 @@ public class fantasy extends AppCompatActivity implements FantasyAdapter.OnBookC
                                 }
 
                                 // Create a Book object and add it to the list
-                                Book book = new Book(id, thumbnailUrl, title, author,description, price, rating);
+                                Book book = new Book(id, thumbnailUrl, title, author,description, price, rating, pdfUrl);
                                 bookList.add(book);
                             }
                             // Notify the adapter that the data set has changed
@@ -177,6 +178,7 @@ public class fantasy extends AppCompatActivity implements FantasyAdapter.OnBookC
                             String author = document.getString("author");
                             String description= document.getString("description");
                             String price = document.getString("rating");
+                            String pdfUrl = document.getString("pdfUrl");
 
                             float rating = 0.0f; // Default value if not found or conversion fails
                             Object ratingObj = document.get("rating");
@@ -186,7 +188,7 @@ public class fantasy extends AppCompatActivity implements FantasyAdapter.OnBookC
                                 rating = (Float) ratingObj;
                             }
                             // Create a Book object and add it to the list
-                            Book book = new Book(id, thumbnailUrl, title, author, description, price, rating);
+                            Book book = new Book(id, thumbnailUrl, title, author, description, price, rating, pdfUrl);
                             bookList.add(book);
                         }
                         // Notify adapter of data change

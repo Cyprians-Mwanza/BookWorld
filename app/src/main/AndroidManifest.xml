@@ -16,6 +16,12 @@
         android:theme="@style/Theme.BookWorld"
         tools:targetApi="31">
         <activity
+            android:name=".ContentActivity"
+            android:exported="false" />
+        <activity
+            android:name=".BorrowPop"
+            android:exported="false" />
+        <activity
             android:name=".group2"
             android:exported="false" />
         <activity

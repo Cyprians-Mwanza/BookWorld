@@ -11,13 +11,14 @@ public class Book implements Parcelable {
     private String description;
     private String price;
     private float rating;
+    private String pdfUrl; // Ensure pdfUrl is included
 
     // No-argument constructor required for Firestore
     public Book() {
     }
 
     // Constructor with arguments
-    public Book(String id, String thumbnailUrl, String title, String author, String description, String price, float rating) {
+    public Book(String id, String thumbnailUrl, String title, String author, String description, String price, float rating, String pdfUrl) {
         this.id = id;
         this.thumbnailUrl = thumbnailUrl;
         this.title = title;
@@ -25,6 +26,7 @@ public class Book implements Parcelable {
         this.description = description;
         this.price = price;
         this.rating = rating;
+        this.pdfUrl = pdfUrl;
     }
 
     // Parcelable implementation
@@ -36,6 +38,7 @@ public class Book implements Parcelable {
         description = in.readString();
         price = in.readString();
         rating = in.readFloat();
+        pdfUrl = in.readString();
     }
 
     public static final Creator<Book> CREATOR = new Creator<Book>() {
@@ -59,6 +62,7 @@ public class Book implements Parcelable {
         dest.writeString(description);
         dest.writeString(price);
         dest.writeFloat(rating);
+        dest.writeString(pdfUrl);
     }
 
     @Override
@@ -123,8 +127,11 @@ public class Book implements Parcelable {
         this.rating = rating;
     }
 
-    // Method to retrieve price as a string from database
-    public String getPriceAsString() {
-        return String.format("KSh %s", price);
+    public String getPdfUrl() {
+        return pdfUrl;
+    }
+
+    public void setPdfUrl(String pdfUrl) {
+        this.pdfUrl = pdfUrl;
     }
 }

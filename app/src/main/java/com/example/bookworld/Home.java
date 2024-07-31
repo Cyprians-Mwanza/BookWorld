@@ -126,6 +126,7 @@ public class Home extends AppCompatActivity implements BookAdapter.OnBookClickLi
                                 String title = document.getString("title");
                                 String author = document.getString("author");
                                 String description = document.getString("description");
+                                String pdfUrl = document.getString("pdfUrl");
 
                                 // Retrieve price as a string (ensure it's stored as string in Firestore)
                                 String price = document.getString("price");
@@ -139,7 +140,7 @@ public class Home extends AppCompatActivity implements BookAdapter.OnBookClickLi
                                 }
 
                                 // Create a Book object and add it to the trending books list
-                                Book book = new Book(id, thumbnailUrl, title, author, description, price, rating);
+                               Book book = new Book(id, thumbnailUrl, title, author, description, price, rating, pdfUrl);
                                 trendingBooksList.add(book);
                             }
                             // Notify the adapter that the data set has changed
@@ -167,6 +168,7 @@ public class Home extends AppCompatActivity implements BookAdapter.OnBookClickLi
                                 String title = document.getString("title");
                                 String author = document.getString("author");
                                 String description = document.getString("description");
+                                String pdfUrl = document.getString("pdfUrl");
 
                                 // Retrieve price as a string (ensure it's stored as string in Firestore)
                                 String price = document.getString("price");
@@ -180,7 +182,7 @@ public class Home extends AppCompatActivity implements BookAdapter.OnBookClickLi
                                 }
 
                                 // Create a Book object and add it to the new releases list
-                                Book book = new Book(id, thumbnailUrl, title, author, description, price, rating);
+                                Book book = new Book(id, thumbnailUrl, title, author, description, price, rating, pdfUrl);
                                 newReleasesList.add(book);
                             }
                             // Notify the adapter that the data set has changed
