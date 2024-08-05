@@ -35,7 +35,7 @@ android {
 }
 
 dependencies {
-
+    implementation 'com.jjoe64:graphview:4.2.2'
     implementation platform('com.google.firebase:firebase-bom:33.1.2')
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-auth:21.0.6'  // Example for Firebase Auth
@@ -78,6 +78,12 @@ dependencies {
         implementation 'org.tensorflow:tensorflow-lite:2.8.0'
         implementation 'org.tensorflow:tensorflow-lite-support:0.3.1'
         implementation 'org.tensorflow:tensorflow-lite-gpu:2.8.0' // Optional: for GPU acceleration
+
+    implementation 'org.tensorflow:tensorflow-lite:2.8.0'
+    implementation 'org.tensorflow:tensorflow-lite-support:0.3.1'
+    implementation 'org.tensorflow:tensorflow-lite-gpu:2.8.0' // Optional: for GPU acceleration
+
+
 
 
 

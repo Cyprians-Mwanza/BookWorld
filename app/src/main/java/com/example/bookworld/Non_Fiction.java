@@ -41,6 +41,7 @@ public class Non_Fiction extends AppCompatActivity implements NonFictionAdapter.
     private TextView messageTextView;
     private ImageView backButton;
     private ImageView threeDotsButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -120,6 +121,7 @@ public class Non_Fiction extends AppCompatActivity implements NonFictionAdapter.
         intent.putExtra("BOOK_PRICE", book.getPrice());
         intent.putExtra("BOOK_THUMBNAIL", book.getThumbnailUrl());
         intent.putExtra("BOOK_RATING", book.getRating());
+        intent.putExtra("PDF_URL", book.getPdfUrl());
         startActivity(intent);
     }
 

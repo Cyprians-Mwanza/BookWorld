@@ -6,6 +6,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,6 +18,8 @@ import com.example.bookworld.bookdata.Book;
 import com.example.bookworld.bookdata.BookAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -30,6 +34,7 @@ public class Home extends AppCompatActivity implements BookAdapter.OnBookClickLi
     private BookAdapter newReleasesAdapter;
     private List<Book> trendingBooksList;
     private List<Book> newReleasesList;
+    private TextView messageTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +43,7 @@ public class Home extends AppCompatActivity implements BookAdapter.OnBookClickLi
 
         // Initialize layouts and button
         LinearLayout myBooksLayout = findViewById(R.id.mybookslayout);
+        messageTextView = findViewById(R.id.messageText);
         LinearLayout searchLayout = findViewById(R.id.searchbutton);
         LinearLayout moreLayout = findViewById(R.id.morelayout);
         ImageView threeDotButton = findViewById(R.id.three_dotButton); // Ensure this ID matches your XML
@@ -101,6 +107,7 @@ public class Home extends AppCompatActivity implements BookAdapter.OnBookClickLi
         retrieveNewReleases();
     }
 
+    @Override
     public void onBookClick(Book book) {
         Intent intent = new Intent(Home.this, BookDetails.class);
         intent.putExtra("BOOK_ID", book.getId());
@@ -110,6 +117,7 @@ public class Home extends AppCompatActivity implements BookAdapter.OnBookClickLi
         intent.putExtra("BOOK_PRICE", book.getPrice());
         intent.putExtra("BOOK_THUMBNAIL", book.getThumbnailUrl());
         intent.putExtra("BOOK_RATING", book.getRating());
+        intent.putExtra("PDF_URL", book.getPdfUrl()); // Pass the PDF URL
         startActivity(intent);
     }
 
@@ -140,7 +148,7 @@ public class Home extends AppCompatActivity implements BookAdapter.OnBookClickLi
                                 }
 
                                 // Create a Book object and add it to the trending books list
-                               Book book = new Book(id, thumbnailUrl, title, author, description, price, rating, pdfUrl);
+                                Book book = new Book(id, thumbnailUrl, title, author, description, price, rating, pdfUrl);
                                 trendingBooksList.add(book);
                             }
                             // Notify the adapter that the data set has changed
@@ -194,5 +202,67 @@ public class Home extends AppCompatActivity implements BookAdapter.OnBookClickLi
                         }
                     }
                 });
+    }
+    private void searchBooks(String query) {
+        List<String> collections = List.of("Fiction", "Technology", "Fantasy", "Comics", "Fantasy", "Health Sciences"); // Add all your collection names here
+        List<Task<QuerySnapshot>> tasks = new ArrayList<>();
+
+        // Query each collection
+        for (String collection : collections) {
+            tasks.add(db.collection(collection)
+                    .whereGreaterThanOrEqualTo("title", query)
+                    .whereLessThanOrEqualTo("title", query + "\uf8ff")
+                    .get());
+        }
+
+        // Wait for all tasks to complete
+        Tasks.whenAllSuccess(tasks).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                trendingBooksList.clear();
+                boolean hasResults = false;
+
+                for (Object result : task.getResult()) {
+                    QuerySnapshot querySnapshot = (QuerySnapshot) result;
+                    for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+                        String id = document.getId();
+                        String thumbnailUrl = document.getString("thumbnailUrl");
+                        String title = document.getString("title");
+                        String author = document.getString("author");
+                        String description = document.getString("description");
+                        String pdfUrl = document.getString("pdfUrl");
+
+                        // Retrieve price as a string (ensure it's stored as string in Firestore)
+                        String price = document.getString("price");
+
+                        float rating = 0.0f; // Default value if not found or conversion fails
+                        Object ratingObj = document.get("rating");
+                        if (ratingObj instanceof Double) {
+                            rating = ((Double) ratingObj).floatValue();
+                        } else if (ratingObj instanceof Float) {
+                            rating = (Float) ratingObj;
+                        }
+
+                        // Create a Book object and add it to the list
+                        Book book = new Book(id, thumbnailUrl, title, author, description, price, rating, pdfUrl);
+                        trendingBooksList.add(book);
+                        hasResults = true;
+                    }
+                }
+
+                // Notify adapter of data change
+                trendingAdapter.notifyDataSetChanged();
+
+                // Show/hide messageTextView based on search result
+                if (hasResults) {
+                    messageTextView.setVisibility(View.GONE);
+                } else {
+                    messageTextView.setText("Book not available");
+                    messageTextView.setVisibility(View.VISIBLE);
+                }
+            } else {
+                Log.e("FirestoreError", "Error getting documents: ", task.getException());
+                Toast.makeText(getApplicationContext(), "Error fetching data", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

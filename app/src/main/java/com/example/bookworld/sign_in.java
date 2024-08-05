@@ -15,15 +15,15 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.HashMap;
 import java.util.Map;
 
 public class sign_in extends AppCompatActivity {
 
-    private EditText emailEditText, usernameEditText, passwordEditText, confirmPasswordEditText;
+    private EditText emailEditText, usernameEditText, passwordEditText, confirmPasswordEditText, phoneEditText;
     private Button signUpButton;
     private TextView loginTextView;
     private FirebaseAuth mAuth;
@@ -43,6 +43,7 @@ public class sign_in extends AppCompatActivity {
         usernameEditText = findViewById(R.id.Username);
         passwordEditText = findViewById(R.id.Password);
         confirmPasswordEditText = findViewById(R.id.ConPassword);
+        phoneEditText = findViewById(R.id.Phone);
         signUpButton = findViewById(R.id.buttonLogin);
         loginTextView = findViewById(R.id.CreateAccount);
 
@@ -71,6 +72,7 @@ public class sign_in extends AppCompatActivity {
         String username = usernameEditText.getText().toString().trim();
         String password = passwordEditText.getText().toString().trim();
         String confirmPassword = confirmPasswordEditText.getText().toString().trim();
+        String phone = phoneEditText.getText().toString().trim();
 
         if (TextUtils.isEmpty(email)) {
             emailEditText.setError("Email address is required");
@@ -108,6 +110,14 @@ public class sign_in extends AppCompatActivity {
             isValid = false;
         }
 
+        if (TextUtils.isEmpty(phone)) {
+            phoneEditText.setError("Phone contact is required");
+            isValid = false;
+        } else if (!Patterns.PHONE.matcher(phone).matches()) {
+            phoneEditText.setError("Invalid phone number");
+            isValid = false;
+        }
+
         return isValid;
     }
 
@@ -134,13 +144,14 @@ public class sign_in extends AppCompatActivity {
         final String email = emailEditText.getText().toString().trim();
         final String username = usernameEditText.getText().toString().trim();
         final String password = passwordEditText.getText().toString().trim();
+        final String phone = phoneEditText.getText().toString().trim();
 
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            saveUserDetails(email, username);
+                            saveUserDetails(email, username, phone);
                         } else {
                             Toast.makeText(sign_in.this, "Sign Up Failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                         }
@@ -148,11 +159,12 @@ public class sign_in extends AppCompatActivity {
                 });
     }
 
-    private void saveUserDetails(final String email, final String username) {
+    private void saveUserDetails(final String email, final String username, final String phone) {
         final String userId = mAuth.getCurrentUser().getUid();
         final Map<String, Object> user = new HashMap<>();
         user.put("email", email);
         user.put("username", username);
+        user.put("phone", phone);
 
         // Save to Firestore
         db.collection("users").document(userId)

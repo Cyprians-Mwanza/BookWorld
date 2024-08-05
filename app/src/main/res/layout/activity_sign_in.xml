@@ -28,6 +28,7 @@
             android:textColor="@color/warm_orange"/>
 
         <LinearLayout
+           android:gravity="center"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
            android:layout_below="@+id/create"
@@ -40,21 +41,21 @@
                 android:orientation="horizontal"
                 android:layout_marginTop="25dp"
                 >
-
                 <EditText
                     android:id="@+id/Email"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:drawablePadding="12dp"
                     android:layout_marginStart="1dp"
                     android:textColor="@color/black"
                     android:textStyle="bold"
-                    android:padding="11dp"
+                    android:alpha="0.6"
+                    android:padding="14dp"
                     android:background="@drawable/cardview"
                     android:elevation="14dp"
-                    android:alpha="0.6"
                     android:drawableStart="@drawable/email"
-                   android:inputType="textWebEmailAddress"
-                    android:hint="@string/input_email"/>
+                    android:inputType="textWebEmailAddress"
+                    android:hint="Email"/>
 
             </LinearLayout>
             <LinearLayout
@@ -68,6 +69,7 @@
                     android:id="@+id/Username"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:drawablePadding="12dp"
                     android:layout_marginStart="1dp"
                     android:textColor="@color/black"
                     android:textStyle="bold"
@@ -88,13 +90,14 @@
                 >
 
                 <EditText
-                    android:id="@+id/Contact"
+                    android:id="@+id/Phone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="1dp"
                     android:textColor="@color/black"
                     android:textStyle="bold"
                     android:alpha="0.6"
+                    android:drawablePadding="12dp"
                     android:padding="14dp"
                     android:background="@drawable/cardview"
                     android:elevation="14dp"
@@ -119,6 +122,7 @@
                     android:textStyle="bold"
                     android:alpha="0.6"
                     android:padding="14dp"
+                    android:drawablePadding="12dp"
                     android:background="@drawable/cardview"
                     android:drawableStart="@drawable/lock"
                     android:inputType="textPassword"
@@ -139,6 +143,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="1dp"
                     android:alpha="0.6"
+                    android:drawablePadding="12dp"
                     android:textColor="@color/black"
                     android:textStyle="bold"
                     android:padding="14dp"

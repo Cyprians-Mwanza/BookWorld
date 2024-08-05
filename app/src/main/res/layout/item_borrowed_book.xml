@@ -1,39 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="150dp"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="200dp"
+    android:layout_height="110dp"
+    android:orientation="horizontal"
+    android:layout_marginBottom="3dp"
     android:background="@drawable/cardview_book"
-    android:padding="16dp">
+    android:padding="8dp">
 
     <ImageView
-        android:id="@+id/bookThumbnail"
-        android:layout_width="130dp"
-        android:layout_height="150dp"
-        android:scaleType="centerCrop"
+        android:id="@+id/bookThumbnailImageView"
+        android:layout_width="70dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:contentDescription="TODO"
         android:src="@drawable/placeholder_image"/>
-    <TextView
-        android:id="@+id/textBookTittle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Book Name"
-        android:textSize="18sp"
-        android:textColor="@android:color/black"/>
 
-    <TextView
-        android:id="@+id/textBorrower"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Borrower Name"
-        android:textSize="14sp"
-        android:textColor="@android:color/darker_gray"/>
+    <LinearLayout
+        android:layout_width="20dp"
+        android:layout_height="90dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/textDaysRemaining"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Days Remaining: "
-        android:textSize="14sp"
-        android:textColor="@android:color/darker_gray"/>
+        <TextView
+            android:layout_marginTop="5dp"
+            android:id="@+id/bookTitleTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold|italic"
+            android:text="Book Title" />
+
+        <TextView
+            android:layout_marginTop="5dp"
+            android:id="@+id/borrowerNameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Borrower Name" />
+
+        <TextView
+            android:id="@+id/daysTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Days Borrowed" />
+
+        <TextView
+            android:id="@+id/countdownTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Countdown" />
+    </LinearLayout>
 </LinearLayout>

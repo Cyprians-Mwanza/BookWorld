@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,7 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.bookworld.bookdata.Book;
 import com.example.bookworld.bookdata.BusinessAdapter;
-import com.example.bookworld.bookdata.TechnologyAdapter;
+import com.example.bookworld.bookdata.FictionAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -35,6 +36,8 @@ public class Business extends AppCompatActivity implements BusinessAdapter.OnBoo
     private EditText searchEditText;
     private TextView searchButton;
     private TextView messageTextView;
+    private ImageView backButton;
+    private ImageView threeDotsButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +52,8 @@ public class Business extends AppCompatActivity implements BusinessAdapter.OnBoo
         searchEditText = findViewById(R.id.searchEditText);
         searchButton = findViewById(R.id.searchButton);
         messageTextView = findViewById(R.id.messageTextView);
+        backButton = findViewById(R.id.backButton);
+        threeDotsButton = findViewById(R.id.logoutButton);
 
         // Setup RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)); // Set horizontal layout
@@ -69,6 +74,24 @@ public class Business extends AppCompatActivity implements BusinessAdapter.OnBoo
                 } else {
                     Toast.makeText(Business.this, "Please enter a search query", Toast.LENGTH_SHORT).show();
                 }
+            }
+        });
+
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Navigate to the "three dots" activity
+                Intent intent = new Intent(Business.this, search_discovery.class);
+                startActivity(intent);
+            }
+        });
+
+        threeDotsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Navigate to the "three dots" activity
+                Intent intent = new Intent(Business.this, three_dots.class);
+                startActivity(intent);
             }
         });
 
@@ -95,9 +118,9 @@ public class Business extends AppCompatActivity implements BusinessAdapter.OnBoo
         intent.putExtra("BOOK_PRICE", book.getPrice());
         intent.putExtra("BOOK_THUMBNAIL", book.getThumbnailUrl());
         intent.putExtra("BOOK_RATING", book.getRating());
+        intent.putExtra("PDF_URL", book.getPdfUrl());
         startActivity(intent);
     }
-
 
     private void retrieveBooks() {
         db.collection("Business")
@@ -112,9 +135,12 @@ public class Business extends AppCompatActivity implements BusinessAdapter.OnBoo
                                 String thumbnailUrl = document.getString("thumbnailUrl");
                                 String title = document.getString("title");
                                 String author = document.getString("author");
-                                String description= document.getString("description");
-                                String price = document.getString("price");
+                                String description = document.getString("description");
                                 String pdfUrl = document.getString("pdfUrl");
+
+                                // Retrieve price as a string (ensure it's stored as string in Firestore)
+                                String price = document.getString("price");
+
                                 float rating = 0.0f; // Default value if not found or conversion fails
                                 Object ratingObj = document.get("rating");
                                 if (ratingObj instanceof Double) {
@@ -125,15 +151,14 @@ public class Business extends AppCompatActivity implements BusinessAdapter.OnBoo
 
                                 // Create a Book object and add it to the list
                                 Book book = new Book(id, thumbnailUrl, title, author, description, price, rating, pdfUrl);
-
                                 bookList.add(book);
                             }
                             // Notify the adapter that the data set has changed
                             trendingAdapter.notifyDataSetChanged();
                         } else {
                             // Handle errors
-                            // Log the error message
                             Log.e("FirestoreError", "Error getting books: ", task.getException());
+                            Toast.makeText(Business.this, "Error fetching books", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -151,9 +176,11 @@ public class Business extends AppCompatActivity implements BusinessAdapter.OnBoo
                             String thumbnailUrl = document.getString("thumbnailUrl");
                             String title = document.getString("title");
                             String author = document.getString("author");
-                            String description= document.getString("description");
-                            String price = document.getString("rating");
+                            String description = document.getString("description");
                             String pdfUrl = document.getString("pdfUrl");
+
+                            // Retrieve price as a string (ensure it's stored as string in Firestore)
+                            String price = document.getString("price");
 
                             float rating = 0.0f; // Default value if not found or conversion fails
                             Object ratingObj = document.get("rating");
@@ -162,9 +189,9 @@ public class Business extends AppCompatActivity implements BusinessAdapter.OnBoo
                             } else if (ratingObj instanceof Float) {
                                 rating = (Float) ratingObj;
                             }
+
                             // Create a Book object and add it to the list
                             Book book = new Book(id, thumbnailUrl, title, author, description, price, rating, pdfUrl);
-
                             bookList.add(book);
                         }
                         // Notify adapter of data change

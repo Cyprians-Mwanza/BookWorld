@@ -1,6 +1,9 @@
 package com.example.bookworld;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,6 +29,7 @@ public class CartActivity extends AppCompatActivity {
     private RecyclerView cartRecyclerView;
     private CartAdapter cartAdapter;
     private List<Book> cartItemList;
+    private ImageView backButton;
     private SwipeRefreshLayout swipeRefreshLayout;
 
     private FirebaseAuth mAuth;
@@ -40,6 +44,7 @@ public class CartActivity extends AppCompatActivity {
         // Initialize views
         swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
         cartRecyclerView = findViewById(R.id.cart_recycler_view);
+        backButton = findViewById(R.id.backButton);
 
         // Set GridLayoutManager with 2 columns
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
@@ -57,6 +62,15 @@ public class CartActivity extends AppCompatActivity {
         // Initialize and set up CartAdapter
         cartAdapter = new CartAdapter(CartActivity.this, cartItemList, userId);
         cartRecyclerView.setAdapter(cartAdapter);
+
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Navigate to the "three dots" activity
+                Intent intent = new Intent(CartActivity.this, MyBooks.class);
+                startActivity(intent);
+            }
+        });
 
         // Set up SwipeRefreshLayout
         swipeRefreshLayout.setOnRefreshListener(this::refreshCart);

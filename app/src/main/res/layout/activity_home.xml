@@ -9,16 +9,6 @@
         android:layout_height="70dp"
         android:background="@drawable/cardview_background">
 
-        <ImageView
-            android:id="@+id/backButton"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_marginStart="1dp"
-            android:layout_marginTop="18dp"
-            android:layout_alignParentTop="true"
-            android:background="@drawable/baseline_arrow_back_24"
-            android:contentDescription="TODO" />
-
         <EditText
             android:id="@+id/searchEditText"
             android:layout_width="0dp"
@@ -45,7 +35,17 @@
             android:layout_alignParentEnd="true"
             android:background="@drawable/ic_dot"/>
     </RelativeLayout>
-   
+
+    <TextView
+        android:id="@+id/messageText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/warm_orange"
+        android:layout_marginStart="15dp"
+        android:text=""
+        android:visibility="gone"
+        android:layout_marginTop="75dp"
+        android:textStyle="bold" />
 
     <!-- Currently Reading Section -->
     <TextView
@@ -56,7 +56,7 @@
         android:textColor="@color/warm_orange"
         android:layout_marginStart="15dp"
         android:textSize="18sp"
-        android:layout_marginTop="75dp"
+        android:layout_marginTop="85dp"
         android:textStyle="bold" />
 
     <HorizontalScrollView

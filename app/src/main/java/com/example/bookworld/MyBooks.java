@@ -2,6 +2,7 @@ package com.example.bookworld;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Html;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -175,9 +176,10 @@ public class MyBooks extends AppCompatActivity implements BookAdapter.OnBookClic
     }
 
     private void updateWelcomeMessage(String username) {
-        String welcomeMessage = "Hi " + username + ", Welcome back to your reading, check your cart to see the books that you wish to read.";
-        welcomeTextView.setText(welcomeMessage);
+        String welcomeMessage = "Hi <font color='#FF6F00'>" + username + "</font>, Welcome back to your reading, check your cart to see the books that you wish to read.";
+        welcomeTextView.setText(Html.fromHtml(welcomeMessage));
     }
+
 
     @Override
     public void onBookClick(Book book) {

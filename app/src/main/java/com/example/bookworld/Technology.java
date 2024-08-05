@@ -16,8 +16,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.bookworld.bookdata.AnimationAdapter;
 import com.example.bookworld.bookdata.Book;
+import com.example.bookworld.bookdata.FictionAdapter;
 import com.example.bookworld.bookdata.TechnologyAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -48,7 +48,7 @@ public class Technology extends AppCompatActivity implements TechnologyAdapter.O
         db = FirebaseFirestore.getInstance();
 
         // Initialize views
-        RecyclerView recyclerView = findViewById(R.id.recyclerNewRelease);
+        RecyclerView recyclerView = findViewById(R.id.recyclerTechnology);
         searchEditText = findViewById(R.id.searchEditText);
         searchButton = findViewById(R.id.searchButton);
         messageTextView = findViewById(R.id.messageTextView);
@@ -80,7 +80,7 @@ public class Technology extends AppCompatActivity implements TechnologyAdapter.O
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Navigate to the "search_discovery" activity
+                // Navigate to the "three dots" activity
                 Intent intent = new Intent(Technology.this, search_discovery.class);
                 startActivity(intent);
             }
@@ -89,7 +89,7 @@ public class Technology extends AppCompatActivity implements TechnologyAdapter.O
         threeDotsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Navigate to the "three_dots" activity
+                // Navigate to the "three dots" activity
                 Intent intent = new Intent(Technology.this, three_dots.class);
                 startActivity(intent);
             }
@@ -118,12 +118,12 @@ public class Technology extends AppCompatActivity implements TechnologyAdapter.O
         intent.putExtra("BOOK_PRICE", book.getPrice());
         intent.putExtra("BOOK_THUMBNAIL", book.getThumbnailUrl());
         intent.putExtra("BOOK_RATING", book.getRating());
-        intent.putExtra("BOOK_PDF_URL", book.getPdfUrl()); // Pass the PDF URL to BookDetails
+        intent.putExtra("PDF_URL", book.getPdfUrl());
         startActivity(intent);
     }
 
     private void retrieveBooks() {
-        db.collection("Animation")
+        db.collection("Technology")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -136,8 +136,10 @@ public class Technology extends AppCompatActivity implements TechnologyAdapter.O
                                 String title = document.getString("title");
                                 String author = document.getString("author");
                                 String description = document.getString("description");
+                                String pdfUrl = document.getString("pdfUrl");
+
+                                // Retrieve price as a string (ensure it's stored as string in Firestore)
                                 String price = document.getString("price");
-                                String pdfUrl = document.getString("pdfUrl"); // Retrieve pdfUrl from Firestore
 
                                 float rating = 0.0f; // Default value if not found or conversion fails
                                 Object ratingObj = document.get("rating");
@@ -156,13 +158,14 @@ public class Technology extends AppCompatActivity implements TechnologyAdapter.O
                         } else {
                             // Handle errors
                             Log.e("FirestoreError", "Error getting books: ", task.getException());
+                            Toast.makeText(Technology.this, "Error fetching books", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
     }
 
     private void searchBooks(String query) {
-        db.collection("Animation")
+        db.collection("Technology")
                 .whereEqualTo("title", query)
                 .get()
                 .addOnCompleteListener(task -> {
@@ -174,8 +177,10 @@ public class Technology extends AppCompatActivity implements TechnologyAdapter.O
                             String title = document.getString("title");
                             String author = document.getString("author");
                             String description = document.getString("description");
+                            String pdfUrl = document.getString("pdfUrl");
+
+                            // Retrieve price as a string (ensure it's stored as string in Firestore)
                             String price = document.getString("price");
-                            String pdfUrl = document.getString("pdfUrl"); // Retrieve pdfUrl from Firestore
 
                             float rating = 0.0f; // Default value if not found or conversion fails
                             Object ratingObj = document.get("rating");
@@ -184,6 +189,7 @@ public class Technology extends AppCompatActivity implements TechnologyAdapter.O
                             } else if (ratingObj instanceof Float) {
                                 rating = (Float) ratingObj;
                             }
+
                             // Create a Book object and add it to the list
                             Book book = new Book(id, thumbnailUrl, title, author, description, price, rating, pdfUrl);
                             bookList.add(book);
