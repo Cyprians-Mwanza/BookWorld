@@ -114,7 +114,7 @@ public class Home extends AppCompatActivity implements BookAdapter.OnBookClickLi
     }
 
     private void retrieveTrendingBooks() {
-        db.collection("Business")
+        db.collection("Fiction")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override

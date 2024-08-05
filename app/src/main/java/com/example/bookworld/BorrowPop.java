@@ -1,0 +1,136 @@
+package com.example.bookworld;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class BorrowPop extends AppCompatActivity {
+
+    private static final String TAG = "BorrowPop"; // Tag for logging
+
+    private EditText nameEditText;
+    private EditText daysEditText;
+    private Button borrowButton;
+    private Button readButton;
+
+    private FirebaseFirestore db;
+    private String userId;
+    private String bookId;
+    private String bookTitle;
+    private String pdfUrl;
+    private String thumbnailUrl;
+    private String author;
+    private String description;
+    private String price;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_borrow_pop);
+
+        // Initialize Firebase components
+        db = FirebaseFirestore.getInstance();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        userId = currentUser.getUid();
+
+        // Initialize views
+        nameEditText = findViewById(R.id.nameEditText);
+        daysEditText = findViewById(R.id.daysEditText);
+        borrowButton = findViewById(R.id.borrowButton);
+        readButton = findViewById(R.id.readButton);
+
+        // Retrieve book details from intent extras
+        Intent intent = getIntent();
+        bookId = intent.getStringExtra("BOOK_ID");
+        bookTitle = intent.getStringExtra("BOOK_TITLE");
+        pdfUrl = intent.getStringExtra("PDF_URL");
+        thumbnailUrl = intent.getStringExtra("BOOK_THUMBNAIL_URL");  // Corrected key
+        author = intent.getStringExtra("BOOK_AUTHOR");  // Corrected key
+        description = intent.getStringExtra("BOOK_DESCRIPTION");  // Corrected key
+        price = intent.getStringExtra("BOOK_PRICE");  // Corrected key
+
+        Log.d(TAG, "Book ID: " + bookId);
+        Log.d(TAG, "Book Title: " + bookTitle);
+        Log.d(TAG, "PDF URL: " + pdfUrl);
+        Log.d(TAG, "Thumbnail URL: " + thumbnailUrl);
+        Log.d(TAG, "Author: " + author);
+        Log.d(TAG, "Description: " + description);
+        Log.d(TAG, "Price: " + price);
+
+        // Set borrow button click listener
+        borrowButton.setOnClickListener(v -> {
+            String name = nameEditText.getText().toString().trim();
+            String daysStr = daysEditText.getText().toString().trim();
+
+            if (TextUtils.isEmpty(name) || TextUtils.isEmpty(daysStr)) {
+                Toast.makeText(BorrowPop.this, "Please enter all details", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            int days = Integer.parseInt(daysStr);
+            if (days < 1 || days > 5) {
+                Toast.makeText(BorrowPop.this, "Maximum Number of Days Allowed is 5", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Store the borrowing details in Firestore
+            storeBorrowingDetails(name, days);
+        });
+
+        // Set read button click listener
+        readButton.setOnClickListener(v -> {
+            if (pdfUrl != null) {
+                Intent intent1 = new Intent(BorrowPop.this, ContentActivity.class);
+                intent1.putExtra("PDF_URL", pdfUrl); // Pass PDF URL to ContentActivity
+                startActivity(intent1);
+            } else {
+                Toast.makeText(BorrowPop.this, "PDF URL not available", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void storeBorrowingDetails(String name, int days) {
+        Map<String, String> borrowData = new HashMap<>();
+        borrowData.put("name", name);
+        borrowData.put("days", String.valueOf(days));  // Convert days to string
+        borrowData.put("bookId", bookId);
+        borrowData.put("bookTitle", bookTitle);
+        borrowData.put("pdfUrl", pdfUrl);
+        borrowData.put("thumbnailUrl", thumbnailUrl);
+        borrowData.put("author", author);
+        borrowData.put("description", description);
+        borrowData.put("price", price);
+
+        db.collection("users").document(userId).collection("borrowedBooks").add(borrowData)
+                .addOnSuccessListener(documentReference -> {
+                    Toast.makeText(BorrowPop.this, "Book borrowed successfully", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    if (e instanceof FirebaseFirestoreException) {
+                        FirebaseFirestoreException firestoreException = (FirebaseFirestoreException) e;
+                        if (firestoreException.getCode() == FirebaseFirestoreException.Code.PERMISSION_DENIED) {
+                            Toast.makeText(BorrowPop.this, "You do not have permission to perform this operation", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(BorrowPop.this, "Error borrowing book: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(BorrowPop.this, "Error borrowing book: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+}

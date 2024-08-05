@@ -2,7 +2,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="8dp">
+    android:padding="8dp"
+    android:gravity="center_vertical">
 
     <TextView
         android:id="@+id/friendName"
@@ -13,9 +14,18 @@
         android:textSize="16sp" />
 
     <ImageView
+        android:id="@+id/deleteIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/delete_account"
+        android:contentDescription="Delete friend"
+        android:padding="8dp" />
+
+    <ImageView
         android:id="@+id/messageIcon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_message"
-      />
+        android:contentDescription="Message friend"
+        android:padding="8dp" />
 </LinearLayout>

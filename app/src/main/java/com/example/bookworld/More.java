@@ -7,7 +7,6 @@ import android.view.View;
 import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
 
 public class More extends AppCompatActivity {
 
@@ -22,7 +21,7 @@ public class More extends AppCompatActivity {
         LinearLayout groupCard = findViewById(R.id.group);
         LinearLayout helpCard = findViewById(R.id.help);
         LinearLayout borrowCard = findViewById(R.id.borrow);
-       LinearLayout myProfileCard = findViewById(R.id.ic_MyProfile);
+        LinearLayout myProfileCard = findViewById(R.id.ic_MyProfile);
 
         // Set click listeners
         groupCard.setOnClickListener(new View.OnClickListener() {
@@ -47,7 +46,7 @@ public class More extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "Borrow card clicked");
-                Intent intent = new Intent(More.this, BorrowPage.class);
+                Intent intent = new Intent(More.this, BookPricing.class);
                 startActivity(intent);
             }
         });

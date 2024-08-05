@@ -16,6 +16,7 @@ firebaseDatabase = "21.0.0"
 firebaseStorage = "21.0.0"
 googleServices = "4.4.2"
 swiperefreshlayout = "1.1.0"
+tensorflowLiteMetadata = "0.1.0"
 
 [libraries]
 firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
@@ -35,6 +36,7 @@ firebase-database = { group = "com.google.firebase", name = "firebase-database",
 firebase-storage = { group = "com.google.firebase", name = "firebase-storage", version.ref = "firebaseStorage" }
 google-services = { group = "com.google.gms", name = "google-services", version.ref = "googleServices" }
 swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
+tensorflow-lite-metadata = { group = "org.tensorflow", name = "tensorflow-lite-metadata", version.ref = "tensorflowLiteMetadata" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

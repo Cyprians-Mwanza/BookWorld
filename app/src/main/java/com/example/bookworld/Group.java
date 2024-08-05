@@ -12,6 +12,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.telephony.SmsManager;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,17 +28,28 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.example.bookworld.bookdata.Book;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
+
+import javax.annotation.Nullable;
 
 public class Group extends AppCompatActivity {
 
@@ -53,7 +65,7 @@ public class Group extends AppCompatActivity {
     private PopupWindow popupWindow;
     private String pendingPhoneNumber;
     private String senderUsername;
-    private String senderId; // Add this field
+    private String senderId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,8 +90,17 @@ public class Group extends AppCompatActivity {
         friendsLayout = findViewById(R.id.friendsLayout);
 
         // Load sender's username and ID
-        senderUsername = sharedPreferences.getString("username", "Unknown");
-        senderId = sharedPreferences.getString("userId", "Unknown"); // Load sender's ID
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            senderId = currentUser.getUid();
+            senderUsername = currentUser.getDisplayName(); // or get the username from sharedPreferences if available
+        } else {
+            Toast.makeText(this, "User not logged in. Please log in again.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Debug log for senderUsername
+        Log.d("GroupActivity", "Sender Username: " + senderUsername);
 
         // Load saved friends list
         loadFriendsList();
@@ -126,7 +147,7 @@ public class Group extends AppCompatActivity {
             });
 
             popupView.findViewById(R.id.borrow).setOnClickListener(v -> {
-                Intent intent = new Intent(Group.this, BorrowPage.class);
+                Intent intent = new Intent(Group.this, BookPricing.class);
                 startActivity(intent);
                 popupWindow.dismiss();
             });
@@ -135,6 +156,9 @@ public class Group extends AppCompatActivity {
         findFriendsTextView.setOnClickListener(v -> fetchAndShowFriendsPopup(v));
 
         inviteTextView.setOnClickListener(v -> checkContactsPermission());
+
+        // Listen for accepted friend requests
+        listenForAcceptedFriendRequests();
     }
 
     private void checkContactsPermission() {
@@ -237,23 +261,92 @@ public class Group extends AppCompatActivity {
 
     private void addFriendToPopup(String friendUsername, LinearLayout friendsLayout) {
         View friendItemView = LayoutInflater.from(this).inflate(R.layout.item_friend_no_message, friendsLayout, false);
-        TextView friendUsernameTextView = friendItemView.findViewById(R.id.friendName);
-        friendUsernameTextView.setText(friendUsername);
+        TextView friendNameTextView = friendItemView.findViewById(R.id.friendName);
+        Button sendRequestButton = friendItemView.findViewById(R.id.addFriendButton);
 
-        Button addFriendButton = friendItemView.findViewById(R.id.addFriendButton);
-        addFriendButton.setOnClickListener(v -> addFriend(friendUsername));
+        friendNameTextView.setText(friendUsername);
+        sendRequestButton.setOnClickListener(v -> sendFriendRequest(friendUsername));
 
         friendsLayout.addView(friendItemView);
     }
 
-    private void addFriend(String friendUsername) {
-        if (!friendsList.contains(friendUsername)) {
-            friendsList.add(friendUsername);
-            saveFriendsList();
-            addFriendToLayout(friendUsername);
-            Toast.makeText(this, "Friend added", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "Friend already in list", Toast.LENGTH_SHORT).show();
+    private void sendFriendRequest(String recipientUsername) {
+        // Get recipient user ID
+        db.collection("users")
+                .whereEqualTo("username", recipientUsername)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                        DocumentSnapshot recipientDoc = task.getResult().getDocuments().get(0);
+                        String recipientId = recipientDoc.getId();
+
+                        // Create friend request map
+                        Map<String, Object> friendRequest = new HashMap<>();
+                        friendRequest.put("senderId", senderId);
+                        friendRequest.put("senderUsername", senderUsername);
+                        friendRequest.put("status", "pending");
+
+                        // Store friend request in the recipient's notifications/FriendRequests subcollection
+                        db.collection("users")
+                                .document(recipientId)
+                                .collection("notifications")
+                                .document("FriendRequests")
+                                .collection("requests")
+                                .add(friendRequest)
+                                .addOnSuccessListener(documentReference -> {
+                                    Toast.makeText(Group.this, "Friend request sent", Toast.LENGTH_SHORT).show();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Toast.makeText(Group.this, "Error sending friend request", Toast.LENGTH_SHORT).show();
+                                });
+                    } else {
+                        Toast.makeText(Group.this, "Recipient not found", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void listenForAcceptedFriendRequests() {
+        db.collection("users")
+                .document(senderId)
+                .collection("friends")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot snapshots, @Nullable FirebaseFirestoreException e) {
+                        if (e != null) {
+                            Log.w("GroupActivity", "listen:error", e);
+                            return;
+                        }
+
+                        if (snapshots != null && !snapshots.isEmpty()) {
+                            for (DocumentSnapshot doc : snapshots.getDocuments()) {
+                                String friendUsername = doc.getString("friendUsername");
+                                if (!friendsList.contains(friendUsername)) {
+                                    friendsList.add(friendUsername);
+                                    addFriendToLayout(friendUsername);
+                                }
+                            }
+
+                            // Save the updated friends list
+                            saveFriendsList();
+                        }
+                    }
+                });
+    }
+
+    private void addFriendToLayout(String friendUsername) {
+        View friendItemView = LayoutInflater.from(this).inflate(R.layout.item_friend_with_message, friendsLayout, false);
+        TextView friendNameTextView = friendItemView.findViewById(R.id.friendName);
+        friendNameTextView.setText(friendUsername);
+        friendsLayout.addView(friendItemView);
+    }
+
+    private void loadFriendsList() {
+        Set<String> friendsSet = sharedPreferences.getStringSet(KEY_FRIENDS_LIST, new HashSet<>());
+        friendsList.clear();
+        friendsList.addAll(friendsSet);
+
+        for (String friend : friendsList) {
+            addFriendToLayout(friend);
         }
     }
 
@@ -264,103 +357,23 @@ public class Group extends AppCompatActivity {
         editor.apply();
     }
 
-    private void loadFriendsList() {
-        Set<String> friendsSet = sharedPreferences.getStringSet(KEY_FRIENDS_LIST, new HashSet<>());
-        friendsList.clear();
-        friendsList.addAll(friendsSet);
-        displayFriends();
-    }
-
-    private void displayFriends() {
-        friendsLayout.removeAllViews();
-        for (String friend : friendsList) {
-            addFriendToLayout(friend);
-        }
-    }
-
-    private void addFriendToLayout(String friend) {
-        View friendItemView = LayoutInflater.from(this).inflate(R.layout.item_friend_with_message, friendsLayout, false);
-        TextView friendUsernameTextView = friendItemView.findViewById(R.id.friendName);
-        friendUsernameTextView.setText(friend);
-
-        ImageView messageButton = friendItemView.findViewById(R.id.messageIcon);
-        messageButton.setOnClickListener(v -> showMessageDialog(friend));
-
-        friendsLayout.addView(friendItemView);
-    }
-
-    private void showMessageDialog(String recipientUsername) {
-        View dialogView = getLayoutInflater().inflate(R.layout.popup_send_message, null);
-        android.app.AlertDialog.Builder dialogBuilder = new android.app.AlertDialog.Builder(this);
-        dialogBuilder.setView(dialogView);
-        android.app.AlertDialog messageDialog = dialogBuilder.create();
-        Button sendButton = dialogView.findViewById(R.id.sendButton);
-        TextView messageEditText = dialogView.findViewById(R.id.messageInput);
-
-        sendButton.setOnClickListener(v -> {
-            String message = messageEditText.getText().toString().trim();
-            if (!message.isEmpty()) {
-                fetchUserIdAndSendMessage(recipientUsername, message);
-                messageDialog.dismiss();
-            } else {
-                Toast.makeText(Group.this, "Message cannot be empty", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        messageDialog.show();
-    }
-
-    private void fetchUserIdAndSendMessage(String recipientUsername, String message) {
-        CollectionReference usersRef = db.collection("users");
-        usersRef.whereEqualTo("username", recipientUsername).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        String recipientId = document.getId(); // Assuming userId is the document ID
-                        sendMessage(recipientUsername, recipientId, message);
-                    }
-                } else {
-                    Toast.makeText(Group.this, "Error fetching user ID", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-    }
-
-    private void sendMessage(String recipientUsername, String recipientId, String message) {
-        Message messageObject = new Message(senderUsername, recipientUsername, message, senderId);
-
-        db.collection("users")
-                .document(recipientId) // Use recipient ID to address the recipient
-                .collection("notifications")
-                .add(messageObject)
-                .addOnSuccessListener(documentReference -> Toast.makeText(Group.this, "Message sent", Toast.LENGTH_SHORT).show())
-                .addOnFailureListener(e -> Toast.makeText(Group.this, "Error sending message", Toast.LENGTH_SHORT).show());
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        loadFriendsList();
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
         if (requestCode == REQUEST_CONTACTS_PERMISSION) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 showContactsPopup();
             } else {
-                Toast.makeText(this, "Contacts permission denied", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Permission denied to read contacts", Toast.LENGTH_SHORT).show();
             }
         } else if (requestCode == REQUEST_SEND_SMS_PERMISSION) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 if (pendingPhoneNumber != null) {
                     sendSmsInvitation(pendingPhoneNumber);
-                    pendingPhoneNumber = null;
                 }
             } else {
-                Toast.makeText(this, "SMS permission denied", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Permission denied to send SMS", Toast.LENGTH_SHORT).show();
             }
         }
     }

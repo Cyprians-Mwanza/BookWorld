@@ -126,7 +126,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:padding="19dp"
-                    android:text="Borrow\nLend"
+                    android:text="Price \a book"
                     android:textColor="@color/material_500"
                     android:textSize="14sp"
                     android:maxLines="2" />

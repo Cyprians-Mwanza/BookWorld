@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="messagesTab" type="id" />
+    <item name="requestsTab" type="id" />
+    <item name="tabContainer" type="id" />
+    <item name="messagesIndicator" type="id" />
+    <item name="swipe_refresh_Layout" type="id" />
+    <item name="notificationsLayout" type="id" />
+    <item name="requestsIndicator" type="id" />
+</resources>

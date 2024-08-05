@@ -12,18 +12,15 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -34,7 +31,6 @@ public class login extends AppCompatActivity {
     private TextView signUpTextView, forgotPasswordTextView, adminLoginTextView;
     private CheckBox showPasswordCheckBox;
     private FirebaseAuth mAuth;
-    private DatabaseReference dbRef;
     private FirebaseFirestore firestore;
 
     @Override
@@ -43,7 +39,6 @@ public class login extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         mAuth = FirebaseAuth.getInstance();
-        dbRef = FirebaseDatabase.getInstance().getReference("users");
         firestore = FirebaseFirestore.getInstance();
 
         emailEditText = findViewById(R.id.TextEmail);
@@ -134,7 +129,7 @@ public class login extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             Toast.makeText(login.this, "Login successful.", Toast.LENGTH_SHORT).show();
-                            // Proceed to fetch user data from Firebase Realtime Database or Firestore
+                            // Proceed to fetch user data from Firestore
                             fetchUserData();
                         } else {
                             if (task.getException() != null && task.getException() instanceof FirebaseAuthException) {
@@ -166,39 +161,27 @@ public class login extends AppCompatActivity {
 
     private void fetchUserData() {
         final String userId = mAuth.getCurrentUser().getUid();
-        dbRef.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    // User data retrieved successfully from Realtime Database
-                    navigateToHome();
-                } else {
-                    // If not found in Realtime Database, check Firestore
-                    firestore.collection("users").document(userId).get()
-                            .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    if (task.isSuccessful() && task.getResult() != null && task.getResult().exists()) {
-                                        // User data retrieved successfully from Firestore
-                                        navigateToHome();
-                                    } else {
-                                        Toast.makeText(login.this, "User data not found.", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            });
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(login.this, "Failed to fetch user data.", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void navigateToHome() {
-        Intent intent = new Intent(login.this, Home.class);
-        startActivity(intent);
-        finish();
+        firestore.collection("users").document(userId).get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful() && task.getResult() != null && task.getResult().exists()) {
+                            DocumentSnapshot document = task.getResult();
+                            String username = document.getString("username");
+                            if (username != null) {
+                                // Pass user data to Group activity
+                                Intent intent = new Intent(login.this, Group.class);
+                                intent.putExtra("USERNAME", username);
+                                intent.putExtra("USER_ID", userId);
+                                startActivity(intent);
+                                finish();
+                            } else {
+                                Toast.makeText(login.this, "Username not found.", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(login.this, "User data not found.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 }

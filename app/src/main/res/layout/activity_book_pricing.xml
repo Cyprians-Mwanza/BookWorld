@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/editPublishingYear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Publishing Year"
+        android:inputType="numberDecimal" />
+
+    <EditText
+        android:id="@+id/editBookAverageRating"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Book Average Rating"
+        android:layout_below="@id/editPublishingYear"
+        android:inputType="numberDecimal" />
+
+    <EditText
+        android:id="@+id/editAuthor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Author"
+        android:layout_below="@id/editBookAverageRating" />
+
+    <EditText
+        android:id="@+id/editGenre"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Genre"
+        android:layout_below="@id/editAuthor" />
+
+    <Button
+        android:id="@+id/btnPredict"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Predict"
+        android:layout_below="@id/editGenre"
+        android:layout_marginTop="16dp"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:id="@+id/textResult"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Predicted Sale Price will appear here"
+        android:layout_below="@id/btnPredict"
+        android:layout_marginTop="16dp"
+        android:layout_alignParentStart="true" />
+
+</RelativeLayout>
