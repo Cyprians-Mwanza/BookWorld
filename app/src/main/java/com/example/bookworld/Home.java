@@ -204,7 +204,7 @@ public class Home extends AppCompatActivity implements BookAdapter.OnBookClickLi
                 });
     }
     private void searchBooks(String query) {
-        List<String> collections = List.of("Fiction", "Technology", "Fantasy", "Comics", "Fantasy", "Health Sciences"); // Add all your collection names here
+        List<String> collections = List.of("Fiction", "Technology", "Fantasy"); // Add all your collection names here
         List<Task<QuerySnapshot>> tasks = new ArrayList<>();
 
         // Query each collection

@@ -4,16 +4,20 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,7 +50,7 @@ public class BorrowPop extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        userId = currentUser.getUid();
+        userId = currentUser != null ? currentUser.getUid() : null;
 
         // Initialize views
         nameEditText = findViewById(R.id.nameEditText);
@@ -88,8 +92,8 @@ public class BorrowPop extends AppCompatActivity {
                 return;
             }
 
-            // Store the borrowing details in Firestore
-            storeBorrowingDetails(name, days);
+            // Check if the book is already borrowed or the user has borrowed more than 5 books
+            checkBorrowConditions(name, days);
         });
 
         // Set read button click listener
@@ -102,6 +106,35 @@ public class BorrowPop extends AppCompatActivity {
                 Toast.makeText(BorrowPop.this, "PDF URL not available", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void checkBorrowConditions(String name, int days) {
+        db.collection("users").document(userId).collection("borrowedBooks")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        int borrowedBookCount = 0;
+                        boolean isAlreadyBorrowed = false;
+
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            if (document.getString("bookId").equals(bookId)) {
+                                isAlreadyBorrowed = true;
+                                break;
+                            }
+                            borrowedBookCount++;
+                        }
+
+                        if (isAlreadyBorrowed) {
+                            Toast.makeText(BorrowPop.this, "You have already borrowed this book", Toast.LENGTH_SHORT).show();
+                        } else if (borrowedBookCount >= 5) {
+                            Toast.makeText(BorrowPop.this, "You cannot borrow more than 5 books", Toast.LENGTH_SHORT).show();
+                        } else {
+                            storeBorrowingDetails(name, days);
+                        }
+                    } else {
+                        Log.e(TAG, "Error getting borrowed books: ", task.getException());
+                    }
+                });
     }
 
     private void storeBorrowingDetails(String name, int days) {
@@ -119,6 +152,7 @@ public class BorrowPop extends AppCompatActivity {
         db.collection("users").document(userId).collection("borrowedBooks").add(borrowData)
                 .addOnSuccessListener(documentReference -> {
                     Toast.makeText(BorrowPop.this, "Book borrowed successfully", Toast.LENGTH_SHORT).show();
+                    readButton.setVisibility(View.VISIBLE);  // Show read button
                 })
                 .addOnFailureListener(e -> {
                     if (e instanceof FirebaseFirestoreException) {

@@ -170,7 +170,7 @@ public class login extends AppCompatActivity {
                             String username = document.getString("username");
                             if (username != null) {
                                 // Pass user data to Group activity
-                                Intent intent = new Intent(login.this, Group.class);
+                                Intent intent = new Intent(login.this, Home.class);
                                 intent.putExtra("USERNAME", username);
                                 intent.putExtra("USER_ID", userId);
                                 startActivity(intent);

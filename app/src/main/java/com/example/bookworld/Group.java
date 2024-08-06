@@ -290,10 +290,9 @@ public class Group extends AppCompatActivity {
                         db.collection("users")
                                 .document(recipientId)
                                 .collection("notifications")
-                                .document("FriendRequests")
-                                .collection("requests")
-                                .add(friendRequest)
-                                .addOnSuccessListener(documentReference -> {
+                                .document("FriendRequests") // Unique document ID
+                                .set(friendRequest) // Use set to create/update the document
+                                .addOnSuccessListener(aVoid -> {
                                     Toast.makeText(Group.this, "Friend request sent", Toast.LENGTH_SHORT).show();
                                 })
                                 .addOnFailureListener(e -> {

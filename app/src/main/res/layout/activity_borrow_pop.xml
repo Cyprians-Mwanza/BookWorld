@@ -14,7 +14,7 @@
         android:id="@+id/daysEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter number of days (1-5)" />
+        android:hint="Days to Borrow (1-5)" />
 
     <Button
         android:id="@+id/borrowButton"
@@ -26,5 +26,6 @@
         android:id="@+id/readButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Read" />
+        android:text="Read"
+        android:visibility="gone"/>
 </LinearLayout>
