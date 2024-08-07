@@ -2,8 +2,10 @@ package com.example.bookworld;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -34,6 +36,8 @@ public class Home extends AppCompatActivity implements BookAdapter.OnBookClickLi
     private BookAdapter newReleasesAdapter;
     private List<Book> trendingBooksList;
     private List<Book> newReleasesList;
+    private TextView searchButton;
+    private EditText searchEditText;
     private TextView messageTextView;
 
     @Override
@@ -42,10 +46,12 @@ public class Home extends AppCompatActivity implements BookAdapter.OnBookClickLi
         setContentView(R.layout.activity_home);
 
         // Initialize layouts and button
+        messageTextView = findViewById(R.id.messageTextView);
+        searchEditText = findViewById(R.id.searchEditText);
         LinearLayout myBooksLayout = findViewById(R.id.mybookslayout);
-        messageTextView = findViewById(R.id.messageText);
         LinearLayout searchLayout = findViewById(R.id.searchbutton);
         LinearLayout moreLayout = findViewById(R.id.morelayout);
+        searchButton = findViewById(R.id.searchButton);
         ImageView threeDotButton = findViewById(R.id.three_dotButton); // Ensure this ID matches your XML
         RecyclerView recyclerTrendingBooks = findViewById(R.id.recyclerTrendingBooks);
         RecyclerView recyclerNewReleases = findViewById(R.id.recyclerNewReleases);
@@ -63,7 +69,19 @@ public class Home extends AppCompatActivity implements BookAdapter.OnBookClickLi
         recyclerTrendingBooks.setAdapter(trendingAdapter);
         recyclerNewReleases.setAdapter(newReleasesAdapter);
 
+
         // Set onClick listeners
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String query = searchEditText.getText().toString().trim();
+                if (!TextUtils.isEmpty(query)) {
+                    searchBooks(query);
+                } else {
+                    Toast.makeText(Home.this, "Please enter a search query", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
         myBooksLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -163,7 +181,7 @@ public class Home extends AppCompatActivity implements BookAdapter.OnBookClickLi
     }
 
     private void retrieveNewReleases() {
-        db.collection("new_releases_books")
+        db.collection("New Releases Books")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -204,7 +222,7 @@ public class Home extends AppCompatActivity implements BookAdapter.OnBookClickLi
                 });
     }
     private void searchBooks(String query) {
-        List<String> collections = List.of("Fiction", "Technology", "Fantasy"); // Add all your collection names here
+        List<String> collections = List.of("Fiction", "Technology", "Fantasy", "Animation", "Comics", "Art", "Non-fiction", "Business"); // Add all your collection names here
         List<Task<QuerySnapshot>> tasks = new ArrayList<>();
 
         // Query each collection
@@ -258,6 +276,7 @@ public class Home extends AppCompatActivity implements BookAdapter.OnBookClickLi
                 } else {
                     messageTextView.setText("Book not available");
                     messageTextView.setVisibility(View.VISIBLE);
+                    messageTextView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_empty_book, 0, 0, 0);
                 }
             } else {
                 Log.e("FirestoreError", "Error getting documents: ", task.getException());

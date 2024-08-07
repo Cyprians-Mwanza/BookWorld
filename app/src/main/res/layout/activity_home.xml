@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
@@ -9,77 +10,110 @@
         android:layout_height="70dp"
         android:background="@drawable/cardview_background">
 
-        <EditText
-            android:id="@+id/searchEditText"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:id="@+id/searchContainer"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:hint="@string/search1"
-            android:inputType="text"
-            android:padding="12dp"
-            android:background="@drawable/square2"
-            android:drawableStart="@drawable/ic_search"
-            android:drawablePadding="11dp"
-            android:layout_marginStart="33dp"
-            android:layout_toStartOf="@id/three_dotButton"
             android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"/>
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_toStartOf="@id/three_dotButton"
+            android:background="@drawable/square2"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/searchEditText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:drawablePadding="10dp"
+                android:hint="Search book"
+                android:inputType="text"
+                android:padding="12dp"
+                android:paddingStart="8dp" />
+
+            <TextView
+                android:id="@+id/searchButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:clickable="true"
+                android:drawableStart="@drawable/ic_search"
+                android:focusable="true"
+                android:gravity="center"
+                android:paddingStart="1dp"
+                android:paddingEnd="16dp" />
+        </LinearLayout>
 
         <ImageView
             android:id="@+id/three_dotButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginTop="14dp"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
-            android:background="@drawable/ic_dot"/>
+            android:layout_marginTop="14dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/ic_dot" />
     </RelativeLayout>
 
-    <TextView
-        android:id="@+id/messageText"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/warm_orange"
-        android:layout_marginStart="15dp"
-        android:text=""
-        android:visibility="gone"
-        android:layout_marginTop="75dp"
-        android:textStyle="bold" />
+        android:layout_marginTop="70dp"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/messageIcon"
+            android:layout_width="89dp"
+            android:layout_height="60dp"
+            android:layout_marginEnd="8dp"
+            android:visibility="gone"
+            android:src="@drawable/ic_empty_book" />
+
+
+        <TextView
+            android:visibility="gone"
+            android:id="@+id/messageTextView"
+            style="@style/BookNotAvailableStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Book not available" />
+    </LinearLayout>
 
     <!-- Currently Reading Section -->
     <TextView
         android:id="@+id/trendingBooksTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="85dp"
         android:text="@string/trending_book"
         android:textColor="@color/warm_orange"
-        android:layout_marginStart="15dp"
         android:textSize="18sp"
-        android:layout_marginTop="85dp"
         android:textStyle="bold" />
 
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="90dp">
+        android:layout_marginTop="105dp">
 
-            <!-- Book 1 -->
-            <LinearLayout
-                android:layout_width="390dp"
+        <!-- Book 1 -->
+        <LinearLayout
+            android:layout_width="390dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <!-- Book Image (with Placeholder) -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerTrendingBooks"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal" >
-
-                <!-- Book Image (with Placeholder) -->
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recyclerTrendingBooks"
-                    android:layout_marginRight="2dp"
-                    android:layout_marginStart="2dp"
-                    android:padding="5dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"/>
-            </LinearLayout>
+                android:layout_marginStart="2dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="2dp"
+                android:padding="5dp" />
+        </LinearLayout>
     </HorizontalScrollView>
 
     <!-- Currently Reading Section -->
@@ -87,137 +121,113 @@
         android:id="@+id/newreleasesTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="415dp"
         android:text="@string/new_release"
         android:textColor="@color/warm_orange"
-        android:layout_marginStart="15dp"
         android:textSize="18sp"
-        android:layout_marginTop="380dp"
         android:textStyle="bold" />
 
     <HorizontalScrollView
         android:id="@+id/newrelease"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="395dp">
+        android:layout_marginTop="427dp">
 
         <!-- Book 1 -->
         <LinearLayout
             android:layout_width="390dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal" >
+            android:orientation="horizontal">
 
             <!-- Book Image (with Placeholder) -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerNewReleases"
-                android:layout_marginRight="2dp"
-                android:layout_marginStart="2dp"
-                android:padding="5dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"/>
-        </LinearLayout>
-    </HorizontalScrollView>
-
-    <TextView
-        android:layout_below="@+id/newrelease"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Previously Read"
-        android:textColor="@color/warm_orange"
-        android:textSize="18sp"
-        android:layout_marginStart="15dp"
-        android:layout_marginTop="15dp"
-        android:textStyle="bold" />
-
-    <HorizontalScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="650dp">
-
-        <!-- Book 1 -->
-        <LinearLayout
-            android:layout_width="400dp"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-
-            <!-- Book Image (with Placeholder) -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerPrevious"
                 android:layout_marginStart="2dp"
+                android:layout_marginTop="2dp"
                 android:layout_marginRight="2dp"
-                android:padding="5dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"/>
+                android:padding="5dp" />
         </LinearLayout>
     </HorizontalScrollView>
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:layout_alignParentBottom="true"
         android:background="@drawable/rectangle_top"
-        android:padding="4dp">
+        android:padding="10dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:padding="4dp"
+        tools:ignore="MissingConstraints">
 
         <LinearLayout
+            android:id="@+id/homelayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:id="@+id/homelayout"
-            android:orientation="vertical"
-            android:gravity="center">
+            android:gravity="center"
+            android:orientation="vertical">
 
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/ic_home" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:gravity="center"
                 android:text="Home"
-                android:textSize="12sp"
-                android:gravity="center" />
+                android:textSize="12sp" />
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/mybookslayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:id="@+id/mybookslayout"
-            android:orientation="vertical"
-            android:gravity="center">
+            android:gravity="center"
+            android:orientation="vertical">
 
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/ic_books" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:gravity="center"
                 android:text="My Books"
-                android:textSize="12sp"
-                android:gravity="center" />
+                android:textSize="12sp" />
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/searchbutton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:id="@+id/searchbutton"
-            android:orientation="vertical"
-            android:gravity="center">
+            android:gravity="center"
+            android:orientation="vertical">
 
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/ic_search" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:gravity="center"
                 android:text="Search"
-                android:textSize="12sp"
-                android:gravity="center" />
+                android:textSize="12sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -225,19 +235,21 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center">
+            android:gravity="center"
+            android:orientation="vertical">
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="24dp"
                 android:src="@drawable/ic_more" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:gravity="center"
                 android:text="More"
-                android:textSize="12sp"
-                android:gravity="center" />
+                android:textSize="12sp" />
         </LinearLayout>
     </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </RelativeLayout>

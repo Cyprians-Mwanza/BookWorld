@@ -61,16 +61,11 @@ public class MyBooks extends AppCompatActivity implements BookAdapter.OnBookClic
 
         // Set onClick listeners for bottom navigation
         LinearLayout homeLayout = findViewById(R.id.homelayout);
-        LinearLayout myBooksLayout = findViewById(R.id.myBooksLayout);
         LinearLayout searchLayout = findViewById(R.id.searchLayout);
         LinearLayout moreLayout = findViewById(R.id.moreLayout);
         ImageView threeDotButton = findViewById(R.id.threeDotButton);
         ImageView backButton = findViewById(R.id.backButton);
         viewCartButton = findViewById(R.id.view_button); // Correct initialization
-
-        myBooksLayout.setOnClickListener(view -> {
-            // Already in MyBooks activity, no action needed
-        });
 
         viewCartButton.setOnClickListener(v -> {
             // Navigate to CartActivity

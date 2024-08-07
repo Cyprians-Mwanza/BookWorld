@@ -1,9 +1,12 @@
 package com.example.bookworld;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -14,6 +17,7 @@ public class ContentActivity extends AppCompatActivity {
 
     private WebView webView;
     private String pdfUrl;
+    private ImageView backButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,7 +25,16 @@ public class ContentActivity extends AppCompatActivity {
         setContentView(R.layout.activity_content);
 
         webView = findViewById(R.id.webView);
+        backButton = findViewById(R.id.backButton);
 
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Navigate to the "three dots" activity
+                Intent intent = new Intent(ContentActivity.this, Home.class);
+                startActivity(intent);
+            }
+        });
         // Retrieve PDF URL from the intent
         pdfUrl = getIntent().getStringExtra("PDF_URL");
 

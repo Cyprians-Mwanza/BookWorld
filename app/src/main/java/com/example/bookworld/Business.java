@@ -8,11 +8,13 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -54,9 +56,14 @@ public class Business extends AppCompatActivity implements BusinessAdapter.OnBoo
         messageTextView = findViewById(R.id.messageTextView);
         backButton = findViewById(R.id.backButton);
         threeDotsButton = findViewById(R.id.logoutButton);
+        LinearLayout homeLayout = findViewById(R.id.hometech);
+        LinearLayout searchLayout = findViewById(R.id.searchtech);
+        LinearLayout moreLayout = findViewById(R.id.moretech);
+        LinearLayout myBooksLayout = findViewById(R.id.mybookstech);
 
         // Setup RecyclerView
-        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)); // Set horizontal layout
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2); // 2 columns
+        recyclerView.setLayoutManager(gridLayoutManager); // Set horizontal layout
         bookList = new ArrayList<>();
         trendingAdapter = new BusinessAdapter(bookList, this);
         recyclerView.setAdapter(trendingAdapter);
@@ -75,6 +82,33 @@ public class Business extends AppCompatActivity implements BusinessAdapter.OnBoo
                     Toast.makeText(Business.this, "Please enter a search query", Toast.LENGTH_SHORT).show();
                 }
             }
+        });
+        myBooksLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Business.this, MyBooks.class);
+                startActivity(intent);
+            }
+        });
+
+        searchLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Business.this, search_discovery.class);
+                startActivity(intent);
+            }
+        });
+
+        moreLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Business.this, More.class);
+                startActivity(intent);
+            }
+        });
+        homeLayout.setOnClickListener(view -> {
+            Intent intent = new Intent(Business.this, Home.class);
+            startActivity(intent);
         });
 
         backButton.setOnClickListener(new View.OnClickListener() {

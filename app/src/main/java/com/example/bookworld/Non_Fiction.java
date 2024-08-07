@@ -8,11 +8,13 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -57,9 +59,14 @@ public class Non_Fiction extends AppCompatActivity implements NonFictionAdapter.
         messageTextView = findViewById(R.id.messageTextView);
         backButton = findViewById(R.id.backButton);
         threeDotsButton = findViewById(R.id.logoutButton);
+        LinearLayout homeLayout = findViewById(R.id.hometech);
+        LinearLayout searchLayout = findViewById(R.id.searchtech);
+        LinearLayout moreLayout = findViewById(R.id.moretech);
+        LinearLayout myBooksLayout = findViewById(R.id.mybookstech);
 
         // Setup RecyclerView
-        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)); // Set horizontal layout
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2); // 2 columns
+        recyclerView.setLayoutManager(gridLayoutManager);
         bookList = new ArrayList<>();
         trendingAdapter = new NonFictionAdapter(bookList, this);
         recyclerView.setAdapter(trendingAdapter);
@@ -79,6 +86,34 @@ public class Non_Fiction extends AppCompatActivity implements NonFictionAdapter.
                 }
             }
         });
+        myBooksLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Non_Fiction.this, MyBooks.class);
+                startActivity(intent);
+            }
+        });
+
+        searchLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Non_Fiction.this, search_discovery.class);
+                startActivity(intent);
+            }
+        });
+
+        moreLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Non_Fiction.this, More.class);
+                startActivity(intent);
+            }
+        });
+        homeLayout.setOnClickListener(view -> {
+            Intent intent = new Intent(Non_Fiction.this, Home.class);
+            startActivity(intent);
+        });
+
 
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -91,13 +91,28 @@
                     android:clickable="true"
                     android:focusable="true"/>
             </LinearLayout>
-            <TextView
-                android:id="@+id/messageTextView"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text=""
-                android:visibility="gone"/>
+                android:layout_marginTop="40dp"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/messageIcon"
+                    android:layout_width="89dp"
+                    android:layout_height="60dp"
+                    android:layout_marginEnd="8dp"
+                    android:src="@drawable/ic_empty_book" />
+
+
+                <TextView
+                    android:id="@+id/messageTextView"
+                    style="@style/BookNotAvailableStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Book not available" />
+            </LinearLayout>
 
             <Button
                 android:layout_width="wrap_content"
@@ -190,50 +205,6 @@
                                 android:padding="5dp" />
                         </LinearLayout>
                     </HorizontalScrollView>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginTop="10dp">
-
-                    <LinearLayout
-                        android:id="@+id/row_3"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <Button
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginEnd="5dp"
-                            android:background="@color/dark_green"
-                            android:text="Borrow Book"
-                            android:textAllCaps="false"
-                            android:textColor="@color/white" />
-
-                        <Button
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginEnd="5dp"
-                            android:background="@color/dark_green"
-                            android:text="Borrow Book"
-                            android:textAllCaps="false"
-                            android:textColor="@color/white" />
-
-                        <Button
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginEnd="5dp"
-                            android:background="@color/dark_green"
-                            android:textAllCaps="false"
-                            android:textColor="@color/white"
-                            android:text="Borrow Book" />
-                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
