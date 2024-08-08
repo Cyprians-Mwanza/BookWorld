@@ -146,11 +146,11 @@ public class Group extends AppCompatActivity {
                 popupWindow.dismiss();
             });
 
-            popupView.findViewById(R.id.borrow).setOnClickListener(v -> {
-                Intent intent = new Intent(Group.this, BookPricing.class);
-                startActivity(intent);
-                popupWindow.dismiss();
-            });
+         popupView.findViewById(R.id.borrow).setOnClickListener(view1 -> {
+             Intent intent = new Intent(Group.this, BookPrice.class);
+             startActivity(intent);
+             popupWindow.dismiss();
+         });
         });
 
         findFriendsTextView.setOnClickListener(v -> fetchAndShowFriendsPopup(v));

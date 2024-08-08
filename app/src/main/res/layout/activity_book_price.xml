@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <!-- Publishing Year Input -->
+    <EditText
+        android:id="@+id/editTextPublishingYear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Publishing Year"
+        android:inputType="number" />
+
+    <!-- Book Average Rating Input -->
+    <EditText
+        android:id="@+id/editTextBookAverageRating"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Book Average Rating (eg:1.05, 4.67...)"
+        android:inputType="numberDecimal"
+        android:layout_below="@id/editTextPublishingYear"
+        android:layout_marginTop="8dp" />
+
+    <!-- Author Input -->
+    <EditText
+        android:id="@+id/editTextAuthor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Author"
+        android:layout_below="@id/editTextBookAverageRating"
+        android:layout_marginTop="8dp" />
+
+    <!-- Genre Input -->
+    <EditText
+        android:id="@+id/editTextGenre"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Genre"
+        android:layout_below="@id/editTextAuthor"
+        android:layout_marginTop="8dp" />
+
+    <!-- Predict Button -->
+    <Button
+        android:id="@+id/buttonPredict"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Predict Sale Price"
+        android:layout_below="@id/editTextGenre"
+        android:layout_marginTop="16dp" />
+
+    <!-- Result TextView -->
+    <TextView
+        android:id="@+id/textViewResult"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sale Price: "
+        android:layout_below="@id/buttonPredict"
+        android:layout_marginTop="16dp"
+        android:textSize="18sp" />
+
+</RelativeLayout>
+
+
+

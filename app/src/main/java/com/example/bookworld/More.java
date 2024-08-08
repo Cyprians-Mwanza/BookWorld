@@ -46,7 +46,7 @@ public class More extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "Borrow card clicked");
-                Intent intent = new Intent(More.this, BookPricing.class);
+                Intent intent = new Intent(More.this, BookPrice.class);
                 startActivity(intent);
             }
         });
