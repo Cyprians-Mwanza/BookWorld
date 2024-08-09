@@ -1,6 +1,8 @@
 package com.example.bookworld;
 
 import com.example.bookworld.ml.Pricing3;
+
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -22,6 +24,7 @@ public class BookPrice extends AppCompatActivity {
     private EditText editTextAuthor;
     private EditText editTextGenre;
     private Button buttonPredict;
+
     private TextView textViewResult;
 
     // Example mappings; adjust these based on your dataset
@@ -216,6 +219,9 @@ public class BookPrice extends AppCompatActivity {
         editTextGenre = findViewById(R.id.editTextGenre);
         textViewResult = findViewById(R.id.textViewResult);
         Button buttonPredict = findViewById(R.id.buttonPredict);
+
+
+
 
         buttonPredict.setOnClickListener(v -> {
             try {
