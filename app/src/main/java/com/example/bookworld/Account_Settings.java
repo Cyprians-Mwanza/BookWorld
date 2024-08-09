@@ -1,9 +1,11 @@
 package com.example.bookworld;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -27,6 +29,7 @@ public class Account_Settings extends AppCompatActivity {
     private EditText etCurrentEmail, etCurrentPassword, etUsername, etNewPhone, etNewEmail, etNewPassword, etConfirmPassword;
     private Button btnSaveChanges;
     private FirebaseAuth mAuth;
+    private ImageView backButton;
     private DatabaseReference mDatabase;
     private SwipeRefreshLayout swipeRefreshLayout;
 
@@ -49,6 +52,16 @@ public class Account_Settings extends AppCompatActivity {
         etConfirmPassword = findViewById(R.id.confirm_password);
         btnSaveChanges = findViewById(R.id.btn_save_changes);
         swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
+        backButton = findViewById(R.id.backButton);
+
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Navigate to the "three dots" activity
+                Intent intent = new Intent(Account_Settings.this, three_dots.class);
+                startActivity(intent);
+            }
+        });
 
         // Fetch current user information and populate the fields
         fetchUserData();
@@ -70,6 +83,7 @@ public class Account_Settings extends AppCompatActivity {
             }
         });
     }
+
 
     private void fetchUserData() {
         FirebaseUser user = mAuth.getCurrentUser();

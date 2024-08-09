@@ -9,30 +9,39 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.bookworld.bookdata.Book;
-import com.example.bookworld.bookdata.BookAdapter;
+import com.example.bookworld.bookdata.ReturnBooksAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MyBooks extends AppCompatActivity implements BookAdapter.OnBookClickListener {
+public class MyBooks extends AppCompatActivity implements ReturnBooksAdapter.OnBookClickListener {
 
     private RecyclerView recyclerView;
-    private BookAdapter adapter;
+    private ReturnBooksAdapter adapter;
     private List<Book> bookList;
-    private FirebaseFirestore db;
-    private FirebaseAuth mAuth;
     private TextView welcomeTextView;
     private Button viewCartButton;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private String userId;
+    private CollectionReference borrowedBooksRef;
+
+    private FirebaseFirestore db;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,20 +53,33 @@ public class MyBooks extends AppCompatActivity implements BookAdapter.OnBookClic
         mAuth = FirebaseAuth.getInstance();
 
         // Initialize RecyclerView and adapter
+        swipeRefreshLayout = findViewById(R.id.swipe_refresh_Layout);
         recyclerView = findViewById(R.id.recyclerViewBooks);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         bookList = new ArrayList<>();
-        adapter = new BookAdapter(bookList, this); // Pass this activity as the OnBookClickListener
-        recyclerView.setAdapter(adapter);
 
-        // Retrieve books from Firestore
-        fetchBooksFromFirestore();
-
-        // Initialize welcomeTextView
+        // Initialize other UI components
         welcomeTextView = findViewById(R.id.welcomeTextView);
+        viewCartButton = findViewById(R.id.view_button);
 
-        // Fetch and display username
-        fetchUsernameAndDisplay();
+        // Fetch the current user and initialize userId
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            userId = currentUser.getUid();
+            adapter = new ReturnBooksAdapter(this, bookList, userId);
+            recyclerView.setAdapter(adapter);
+
+            // Initialize borrowedBooksRef
+            borrowedBooksRef = db.collection("users").document(userId).collection("borrowedBooks");
+
+            // Retrieve books from Firestore
+            fetchBooksFromFirestore();
+
+            // Fetch and display username
+            fetchUsernameAndDisplay();
+        } else {
+            Toast.makeText(this, "User not authenticated.", Toast.LENGTH_SHORT).show();
+        }
 
         // Set onClick listeners for bottom navigation
         LinearLayout homeLayout = findViewById(R.id.homelayout);
@@ -65,10 +87,8 @@ public class MyBooks extends AppCompatActivity implements BookAdapter.OnBookClic
         LinearLayout moreLayout = findViewById(R.id.moreLayout);
         ImageView threeDotButton = findViewById(R.id.threeDotButton);
         ImageView backButton = findViewById(R.id.backButton);
-        viewCartButton = findViewById(R.id.view_button); // Correct initialization
 
         viewCartButton.setOnClickListener(v -> {
-            // Navigate to CartActivity
             Intent intent = new Intent(MyBooks.this, CartActivity.class);
             startActivity(intent);
         });
@@ -97,22 +117,21 @@ public class MyBooks extends AppCompatActivity implements BookAdapter.OnBookClic
             Intent intent = new Intent(MyBooks.this, Home.class);
             startActivity(intent);
         });
+
+        // Set up SwipeRefreshLayout
+        swipeRefreshLayout.setOnRefreshListener(this::refreshCart);
     }
 
     private void fetchBooksFromFirestore() {
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser == null) {
-            Toast.makeText(MyBooks.this, "User not authenticated", Toast.LENGTH_SHORT).show();
+        if (userId == null) {
+            Toast.makeText(MyBooks.this, "User ID is null", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        String userId = currentUser.getUid();
-        db.collection("users").document(userId).collection("borrowedBooks")
-                .get()
+        borrowedBooksRef.get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        bookList.clear(); // Clear the list before adding new items
-
+                        bookList.clear();
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             String bookId = document.getString("bookId");
                             String bookTitle = document.getString("bookTitle");
@@ -122,65 +141,77 @@ public class MyBooks extends AppCompatActivity implements BookAdapter.OnBookClic
                             String price = document.getString("price");
                             String pdfUrl = document.getString("pdfUrl");
 
-                            // Retrieve "days" as a String and convert to Integer
-                            String daysStr = document.getString("days");
-
                             if (bookId != null && bookTitle != null && price != null) {
-                                // Create a Book object and add it to the list
                                 Book book = new Book(bookId, thumbnailUrl, bookTitle, author, description, price, 0, pdfUrl);
                                 bookList.add(book);
                             }
                         }
-
-                        // Notify the adapter that the data set has changed
                         adapter.notifyDataSetChanged();
                     } else {
-                        // Handle errors
                         Toast.makeText(MyBooks.this, "Failed to fetch borrowed books: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
+
+        // Listen for changes in the borrowedBooks collection
+        borrowedBooksRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    Toast.makeText(MyBooks.this, "Error fetching books: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (value != null) {
+                    bookList.clear();
+                    for (QueryDocumentSnapshot doc : value) {
+                        Book book = doc.toObject(Book.class);
+                        book.setId(doc.getId());  // Set the document ID to the book
+                        bookList.add(book);
+                    }
+                    adapter.notifyDataSetChanged(); // Notify the adapter of data changes
+                }
+            }
+        });
+    }
+
+    private void refreshCart() {
+        fetchBooksFromFirestore(); // Re-fetch books data
+        swipeRefreshLayout.setRefreshing(false); // Stop the refresh animation
     }
 
     private void fetchUsernameAndDisplay() {
         if (mAuth.getCurrentUser() != null) {
             String userId = mAuth.getCurrentUser().getUid();
-            fetchUsernameFromFirestore(userId);
+            db.collection("users").document(userId)
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            String username = documentSnapshot.getString("username");
+                            if (username != null) {
+                                welcomeTextView.setText(Html.fromHtml("Hi, <b> <font color='#FF6F00'>" + username + "</font> </b> welcome back to your reading, check your cart to see the books that you wish to read."));
+                            }
+                        } else {
+                            Toast.makeText(MyBooks.this, "User document does not exist.", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(MyBooks.this, "Error fetching username: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
         } else {
-            Toast.makeText(this, "User not authenticated.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MyBooks.this, "User not logged in.", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void fetchUsernameFromFirestore(String userId) {
-        db.collection("users").document(userId).get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                DocumentSnapshot document = task.getResult();
-                if (document != null && document.exists()) {
-                    String username = document.getString("username");
-                    if (username != null) {
-                        updateWelcomeMessage(username);
-                    } else {
-                        Toast.makeText(MyBooks.this, "User data not found.", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Toast.makeText(MyBooks.this, "User document not found.", Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                Toast.makeText(MyBooks.this, "Failed to fetch username from Firestore.", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void updateWelcomeMessage(String username) {
-        String welcomeMessage = "Hi <font color='#FF6F00'>" + username + "</font>, Welcome back to your reading, check your cart to see the books that you wish to read.";
-        welcomeTextView.setText(Html.fromHtml(welcomeMessage));
-    }
-
-
     @Override
     public void onBookClick(Book book) {
-        // Handle click events on books here
-        Intent intent = new Intent(MyBooks.this, ContentActivity.class);
-        intent.putExtra("PDF_URL", book.getPdfUrl()); // Pass the PDF URL to ContentActivity
+        Intent intent = new Intent(MyBooks.this, ReturnBook.class);
+        intent.putExtra("BOOK_ID", book.getId());
+        intent.putExtra("BOOK_TITLE", book.getTitle());
+        intent.putExtra("BOOK_AUTHOR", book.getAuthor());
+        intent.putExtra("BOOK_DESCRIPTION", book.getDescription());
+        intent.putExtra("BOOK_PRICE", book.getPrice());
+        intent.putExtra("BOOK_THUMBNAIL", book.getThumbnailUrl());
+        intent.putExtra("BOOK_RATING", book.getRating());
+        intent.putExtra("PDF_URL", book.getPdfUrl());
         startActivity(intent);
     }
 

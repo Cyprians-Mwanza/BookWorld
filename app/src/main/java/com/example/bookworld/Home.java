@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -13,15 +14,13 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.bookworld.bookdata.Book;
-import com.example.bookworld.bookdata.BookAdapter;
+import com.example.bookworld.bookdata.FictionAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -29,46 +28,44 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Home extends AppCompatActivity implements BookAdapter.OnBookClickListener {
+public class Home extends AppCompatActivity implements FictionAdapter.OnBookClickListener {
 
     private FirebaseFirestore db;
-    private BookAdapter trendingAdapter;
-    private BookAdapter newReleasesAdapter;
-    private List<Book> trendingBooksList;
-    private List<Book> newReleasesList;
-    private TextView searchButton;
+    private FictionAdapter trendingAdapter;
+    private List<Book> bookList;
     private EditText searchEditText;
+    private TextView searchButton;
     private TextView messageTextView;
+    private ImageView threeDotsButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        // Initialize layouts and button
-        messageTextView = findViewById(R.id.messageTextView);
-        searchEditText = findViewById(R.id.searchEditText);
-        LinearLayout myBooksLayout = findViewById(R.id.mybookslayout);
-        LinearLayout searchLayout = findViewById(R.id.searchbutton);
-        LinearLayout moreLayout = findViewById(R.id.morelayout);
-        searchButton = findViewById(R.id.searchButton);
-        ImageView threeDotButton = findViewById(R.id.three_dotButton); // Ensure this ID matches your XML
-        RecyclerView recyclerTrendingBooks = findViewById(R.id.recyclerTrendingBooks);
-        RecyclerView recyclerNewReleases = findViewById(R.id.recyclerNewReleases);
+        // Initialize Firestore instance
         db = FirebaseFirestore.getInstance();
 
-        recyclerTrendingBooks.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        recyclerNewReleases.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        // Initialize views
+        RecyclerView recyclerView = findViewById(R.id.recyclerTrendingBooks);
+        searchEditText = findViewById(R.id.searchEditText);
+        searchButton = findViewById(R.id.searchButton);
+        messageTextView = findViewById(R.id.messageTextView);
+        threeDotsButton = findViewById(R.id.three_dotButton);
+        LinearLayout searchLayout = findViewById(R.id.searchbutton);
+        LinearLayout moreLayout = findViewById(R.id.morelayout);
+        LinearLayout myBooksLayout = findViewById(R.id.mybookslayout);
 
-        trendingBooksList = new ArrayList<>();
-        newReleasesList = new ArrayList<>();
+        // Setup RecyclerView
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2); // 2 columns
+        recyclerView.setLayoutManager(gridLayoutManager);
+        // Set horizontal layout
+        bookList = new ArrayList<>();
+        trendingAdapter = new FictionAdapter(bookList, this);
+        recyclerView.setAdapter(trendingAdapter);
 
-        trendingAdapter = new BookAdapter(trendingBooksList, this);
-        newReleasesAdapter = new BookAdapter(newReleasesList, this);
-
-        recyclerTrendingBooks.setAdapter(trendingAdapter);
-        recyclerNewReleases.setAdapter(newReleasesAdapter);
-
+        // Retrieve book details from Firestore
+        retrieveBooks();
 
         // Set onClick listeners
         searchButton.setOnClickListener(new View.OnClickListener() {
@@ -106,23 +103,26 @@ public class Home extends AppCompatActivity implements BookAdapter.OnBookClickLi
             }
         });
 
-        threeDotButton.setOnClickListener(new View.OnClickListener() {
+        threeDotsButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(View v) {
+                // Navigate to the "three dots" activity
                 Intent intent = new Intent(Home.this, three_dots.class);
                 startActivity(intent);
             }
         });
 
-        // Set click listener for BookAdapters
-        trendingAdapter.setOnBookClickListener(this);
-        newReleasesAdapter.setOnBookClickListener(this);
-
-        // Retrieve trending books from Firestore
-        retrieveTrendingBooks();
-
-        // Retrieve new releases from Firestore
-        retrieveNewReleases();
+        // Set the editor action listener for the search EditText
+        searchEditText.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == KeyEvent.KEYCODE_ENTER || actionId == KeyEvent.ACTION_DOWN || actionId == KeyEvent.KEYCODE_SEARCH) {
+                String query = searchEditText.getText().toString().trim();
+                if (!TextUtils.isEmpty(query)) {
+                    searchBooks(query);
+                }
+                return true;
+            }
+            return false;
+        });
     }
 
     @Override
@@ -135,17 +135,18 @@ public class Home extends AppCompatActivity implements BookAdapter.OnBookClickLi
         intent.putExtra("BOOK_PRICE", book.getPrice());
         intent.putExtra("BOOK_THUMBNAIL", book.getThumbnailUrl());
         intent.putExtra("BOOK_RATING", book.getRating());
-        intent.putExtra("PDF_URL", book.getPdfUrl()); // Pass the PDF URL
+        intent.putExtra("PDF_URL", book.getPdfUrl());
         startActivity(intent);
     }
 
-    private void retrieveTrendingBooks() {
+    private void retrieveBooks() {
         db.collection("Fiction")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
+                            bookList.clear();
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 String id = document.getId();
                                 String thumbnailUrl = document.getString("thumbnailUrl");
@@ -165,123 +166,65 @@ public class Home extends AppCompatActivity implements BookAdapter.OnBookClickLi
                                     rating = (Float) ratingObj;
                                 }
 
-                                // Create a Book object and add it to the trending books list
+                                // Create a Book object and add it to the list
                                 Book book = new Book(id, thumbnailUrl, title, author, description, price, rating, pdfUrl);
-                                trendingBooksList.add(book);
+                                bookList.add(book);
                             }
                             // Notify the adapter that the data set has changed
                             trendingAdapter.notifyDataSetChanged();
                         } else {
                             // Handle errors
-                            // Log the error message
-                            Log.e("FirestoreError", "Error getting trending books: ", task.getException());
+                            Log.e("FirestoreError", "Error getting books: ", task.getException());
+                            Toast.makeText(Home.this, "Error fetching books", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
     }
 
-    private void retrieveNewReleases() {
-        db.collection("New Releases Books")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            newReleasesList.clear(); // Clear the list before adding new data
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                String id = document.getId();
-                                String thumbnailUrl = document.getString("thumbnailUrl");
-                                String title = document.getString("title");
-                                String author = document.getString("author");
-                                String description = document.getString("description");
-                                String pdfUrl = document.getString("pdfUrl");
-
-                                // Retrieve price as a string (ensure it's stored as string in Firestore)
-                                String price = document.getString("price");
-
-                                float rating = 0.0f; // Default value if not found or conversion fails
-                                Object ratingObj = document.get("rating");
-                                if (ratingObj instanceof Double) {
-                                    rating = ((Double) ratingObj).floatValue();
-                                } else if (ratingObj instanceof Float) {
-                                    rating = (Float) ratingObj;
-                                }
-
-                                // Create a Book object and add it to the new releases list
-                                Book book = new Book(id, thumbnailUrl, title, author, description, price, rating, pdfUrl);
-                                newReleasesList.add(book);
-                            }
-                            // Notify the adapter that the data set has changed
-                            newReleasesAdapter.notifyDataSetChanged();
-                        } else {
-                            // Handle errors
-                            // Log the error message
-                            Log.e("FirestoreError", "Error getting new releases: ", task.getException());
-                        }
-                    }
-                });
-    }
     private void searchBooks(String query) {
-        List<String> collections = List.of("Fiction", "Technology", "Fantasy", "Animation", "Comics", "Art", "Non-fiction", "Business"); // Add all your collection names here
-        List<Task<QuerySnapshot>> tasks = new ArrayList<>();
+        db.collection("Fiction")
+                .whereEqualTo("title", query)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        bookList.clear();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            String id = document.getId();
+                            String thumbnailUrl = document.getString("thumbnailUrl");
+                            String title = document.getString("title");
+                            String author = document.getString("author");
+                            String description = document.getString("description");
+                            String pdfUrl = document.getString("pdfUrl");
 
-        // Query each collection
-        for (String collection : collections) {
-            tasks.add(db.collection(collection)
-                    .whereGreaterThanOrEqualTo("title", query)
-                    .whereLessThanOrEqualTo("title", query + "\uf8ff")
-                    .get());
-        }
+                            // Retrieve price as a string (ensure it's stored as string in Firestore)
+                            String price = document.getString("price");
 
-        // Wait for all tasks to complete
-        Tasks.whenAllSuccess(tasks).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                trendingBooksList.clear();
-                boolean hasResults = false;
+                            float rating = 0.0f; // Default value if not found or conversion fails
+                            Object ratingObj = document.get("rating");
+                            if (ratingObj instanceof Double) {
+                                rating = ((Double) ratingObj).floatValue();
+                            } else if (ratingObj instanceof Float) {
+                                rating = (Float) ratingObj;
+                            }
 
-                for (Object result : task.getResult()) {
-                    QuerySnapshot querySnapshot = (QuerySnapshot) result;
-                    for (DocumentSnapshot document : querySnapshot.getDocuments()) {
-                        String id = document.getId();
-                        String thumbnailUrl = document.getString("thumbnailUrl");
-                        String title = document.getString("title");
-                        String author = document.getString("author");
-                        String description = document.getString("description");
-                        String pdfUrl = document.getString("pdfUrl");
-
-                        // Retrieve price as a string (ensure it's stored as string in Firestore)
-                        String price = document.getString("price");
-
-                        float rating = 0.0f; // Default value if not found or conversion fails
-                        Object ratingObj = document.get("rating");
-                        if (ratingObj instanceof Double) {
-                            rating = ((Double) ratingObj).floatValue();
-                        } else if (ratingObj instanceof Float) {
-                            rating = (Float) ratingObj;
+                            // Create a Book object and add it to the list
+                            Book book = new Book(id, thumbnailUrl, title, author, description, price, rating, pdfUrl);
+                            bookList.add(book);
                         }
+                        // Notify adapter of data change
+                        trendingAdapter.notifyDataSetChanged();
 
-                        // Create a Book object and add it to the list
-                        Book book = new Book(id, thumbnailUrl, title, author, description, price, rating, pdfUrl);
-                        trendingBooksList.add(book);
-                        hasResults = true;
+                        // Show/hide messageTextView based on search result
+                        if (bookList.isEmpty()) {
+                            messageTextView.setText("Book not available");
+                            messageTextView.setVisibility(View.VISIBLE);
+                        } else {
+                            messageTextView.setVisibility(View.GONE);
+                        }
+                    } else {
+                        Log.e("FirestoreError", "Error getting documents: ", task.getException());
+                        Toast.makeText(getApplicationContext(), "Error fetching data", Toast.LENGTH_SHORT).show();
                     }
-                }
-
-                // Notify adapter of data change
-                trendingAdapter.notifyDataSetChanged();
-
-                // Show/hide messageTextView based on search result
-                if (hasResults) {
-                    messageTextView.setVisibility(View.GONE);
-                } else {
-                    messageTextView.setText("Book not available");
-                    messageTextView.setVisibility(View.VISIBLE);
-                    messageTextView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_empty_book, 0, 0, 0);
-                }
-            } else {
-                Log.e("FirestoreError", "Error getting documents: ", task.getException());
-                Toast.makeText(getApplicationContext(), "Error fetching data", Toast.LENGTH_SHORT).show();
-            }
-        });
+                });
     }
 }

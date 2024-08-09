@@ -332,7 +332,7 @@ public class BookPrice extends AppCompatActivity {
 
 
 
-        // Helper method to clear input fields
+    // Helper method to clear input fields
     private void clearInputs() {
         editTextPublishingYear.setText("");
         editTextBookAverageRating.setText("");

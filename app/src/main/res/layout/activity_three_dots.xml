@@ -16,39 +16,19 @@
             android:layout_marginTop="18dp"
             android:layout_alignParentTop="true"
             android:background="@drawable/baseline_arrow_back_24"/>
-
-        <EditText
-            android:id="@+id/searchEditText"
-            android:layout_width="0dp"
+        <TextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:hint="Search"
-            android:inputType="text"
-            android:padding="12dp"
-            android:background="@drawable/square2"
-            android:drawableStart="@drawable/ic_search"
-            android:drawablePadding="11dp"
-            android:layout_marginStart="33dp"
-            android:layout_toStartOf="@id/logoutButton"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"/>
-
-        <ImageView
-            android:id="@+id/logoutButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginTop="14dp"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:background="@drawable/ic_dot"/>
-
+            android:layout_marginStart="39dp"
+            android:layout_marginTop="18dp"
+            android:text="Settings"
+            android:textSize="23sp" />
 </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="61dp">
+        android:layout_marginTop="66dp">
 
         <LinearLayout
             android:id="@+id/accountLayout"
@@ -144,7 +124,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="180dp">
+        android:layout_marginTop="170dp">
 
         <LinearLayout
             android:id="@+id/LogoutLayout"
@@ -178,7 +158,9 @@
                 android:src="@drawable/ic_rightarrow"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="8dp"/>
+
         </LinearLayout>
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
@@ -192,7 +174,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="229dp">
+        android:layout_marginTop="223dp">
 
         <LinearLayout
             android:id="@+id/DeleteLayout"

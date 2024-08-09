@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/main"
+    android:layout_marginBottom="23dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -40,6 +41,7 @@
         android:layout_margin="16dp"
         android:background="@drawable/rectangle_shape"
         android:hint="Book Title"
+        android:maxLines="2"
         android:padding="10dp"
         android:inputType="textShortMessage"
         android:layout_centerHorizontal="true" />
@@ -53,6 +55,7 @@
         android:layout_margin="14dp"
         android:background="@drawable/rectangle_shape"
         android:hint="Book Author"
+        android:maxLines="4"
         android:padding="10dp"
         android:inputType="textShortMessage"
         android:layout_centerHorizontal="true" />

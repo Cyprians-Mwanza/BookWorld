@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -31,6 +32,7 @@ public class Notifications extends AppCompatActivity {
 
     private LinearLayout notificationsLayout;
     private FirebaseFirestore db;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private List<Message> messagesList = new ArrayList<>();
     private Map<String, String> senderUsernames = new HashMap<>();
     private int pendingUsernamesCount;
@@ -48,9 +50,13 @@ public class Notifications extends AppCompatActivity {
         // Initialize views
         notificationsLayout = findViewById(R.id.notificationsLayout);
         messagesIndicator = findViewById(R.id.messagesIndicator);
+        swipeRefreshLayout = findViewById(R.id.swipe_refresh_Layout);
 
         // Set up the back button
         findViewById(R.id.backButton).setOnClickListener(v -> onBackPressed());
+
+        // Set up SwipeRefreshLayout
+        swipeRefreshLayout.setOnRefreshListener(this::refreshCart);
 
         // Set up the "MESSAGES" tab click listener
         findViewById(R.id.messagesTab).setOnClickListener(v -> {
@@ -65,6 +71,11 @@ public class Notifications extends AppCompatActivity {
 
     private void showMessagesTab() {
         messagesIndicator.setVisibility(View.VISIBLE);
+    }
+
+    private void refreshCart() {
+        fetchMessages(); // Re-fetch books data
+        swipeRefreshLayout.setRefreshing(false); // Stop the refresh animation
     }
 
     private void fetchMessages() {

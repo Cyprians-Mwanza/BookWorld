@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,6 +47,10 @@ public class BookDetails extends AppCompatActivity {
         Button borrowButton = findViewById(R.id.borrowButton);
         ImageView backButton = findViewById(R.id.backButton);
         ImageView threeDotsButton = findViewById(R.id.three_dotButton);
+        LinearLayout homeLayout = findViewById(R.id.homelayout);
+        LinearLayout myBooksLayout = findViewById(R.id.mybookslayout);
+        LinearLayout searchLayout = findViewById(R.id.searchbutton);
+        LinearLayout moreLayout = findViewById(R.id.morelayout);
 
         // Set back button click listener
         backButton.setOnClickListener(v -> finish());
@@ -54,6 +59,33 @@ public class BookDetails extends AppCompatActivity {
         threeDotsButton.setOnClickListener(v -> {
             // Navigate to the "three dots" activity
             Intent intent = new Intent(BookDetails.this, three_dots.class);
+            startActivity(intent);
+        });
+        myBooksLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(BookDetails.this, MyBooks.class);
+                startActivity(intent);
+            }
+        });
+
+        searchLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(BookDetails.this, search_discovery.class);
+                startActivity(intent);
+            }
+        });
+
+        moreLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(BookDetails.this, More.class);
+                startActivity(intent);
+            }
+        });
+        homeLayout.setOnClickListener(view -> {
+            Intent intent = new Intent(BookDetails.this, Home.class);
             startActivity(intent);
         });
 
@@ -95,6 +127,7 @@ public class BookDetails extends AppCompatActivity {
                 bookData.put("description", book.getDescription());
                 bookData.put("price", book.getPrice());
                 bookData.put("rating", book.getRating());
+                bookData.put("PDF_URL", book.getPdfUrl());
 
                 // Check if the book is already in the cart
                 cartRef.whereEqualTo("id", book.getId()).get()

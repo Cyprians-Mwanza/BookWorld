@@ -60,26 +60,33 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="70dp"
-        android:orientation="horizontal">
+        android:layout_marginTop="130dp"
+        android:orientation="horizontal"
+        android:layout_gravity="center_horizontal">
 
         <ImageView
+            android:layout_marginStart="55dp"
+            android:layout_marginTop="20dp"
             android:id="@+id/messageIcon"
             android:layout_width="89dp"
-            android:layout_height="60dp"
-            android:layout_marginEnd="8dp"
+            android:alpha="0.7"
             android:visibility="gone"
+            android:layout_height="90dp"
+            android:layout_marginEnd="1dp"
             android:src="@drawable/ic_empty_book" />
-
 
         <TextView
             android:visibility="gone"
+            android:alpha="0.7"
             android:id="@+id/messageTextView"
-            style="@style/BookNotAvailableStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Book not available" />
+            android:gravity="center"
+            android:textSize="35sp"
+            android:text="Book not available"
+            style="@style/BookNotAvailableStyle" />
     </LinearLayout>
+
 
     <!-- Currently Reading Section -->
     <TextView
@@ -118,6 +125,7 @@
 
     <!-- Currently Reading Section -->
     <TextView
+        android:visibility="gone"
         android:id="@+id/newreleasesTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -129,6 +137,7 @@
         android:textStyle="bold" />
 
     <HorizontalScrollView
+        android:visibility="gone"
         android:id="@+id/newrelease"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

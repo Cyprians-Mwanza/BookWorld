@@ -1,24 +1,13 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="180dp"
-    android:layout_height="295dp"
+    android:layout_height="290dp"
     android:layout_margin="6dp"
     android:background="@drawable/cardview_book"
     android:orientation="vertical"
     android:padding="5dp">
 
     <!-- Normal Checkbox for Selection -->
-        <ImageButton
-            android:layout_marginStart="70dp"
-            android:id="@+id/delete_button"
-            android:layout_gravity="center"
-            android:layout_width="32dp"
-            android:layout_height="30dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="delete"
-            android:src="@drawable/delete_icon"
-            app:tint="@android:color/holo_red_dark" />
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -65,5 +54,16 @@
             android:text="Book Price"
             android:textColor="@color/warm_orange"
             android:textSize="17sp" />
+
+        <ImageButton
+            android:id="@+id/delete_button"
+            android:layout_width="35dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:layout_marginStart="70dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="delete"
+            android:src="@drawable/return_icon"
+            app:tint="@android:color/holo_red_dark" />
     </LinearLayout>
 </LinearLayout>

@@ -24,9 +24,9 @@
     </style>
 
     <style name="BookNotAvailableStyle">
-        <item name="android:textColor">#FF0000</item> <!-- Red color for visibility -->
+        <item name="android:textColor">@color/black</item> <!-- Red color for visibility -->
         <item name="android:textSize">18sp</item> <!-- Increase text size -->
-        <item name="android:padding">16dp</item> <!-- Add padding for better spacing -->
+        <item name="android:padding">15dp</item> <!-- Add padding for better spacing -->
         <item name="android:textAlignment">center</item> <!-- Center text alignment -->
     </style>
 

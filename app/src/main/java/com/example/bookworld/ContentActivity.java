@@ -10,6 +10,9 @@ import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 public class ContentActivity extends AppCompatActivity {
 
     private WebView webView;
@@ -24,24 +27,41 @@ public class ContentActivity extends AppCompatActivity {
         webView = findViewById(R.id.webView);
         backButton = findViewById(R.id.backButton);
 
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Navigate to the "three dots" activity
-                Intent intent = new Intent(ContentActivity.this, Home.class);
-                startActivity(intent);
-            }
+        backButton.setOnClickListener(v -> {
+            // Navigate to the Home activity
+            Intent intent = new Intent(ContentActivity.this, Home.class);
+            startActivity(intent);
         });
-        // Retrieve PDF URL from the intent
-        pdfUrl = getIntent().getStringExtra("PDF_URL");
 
-        if (pdfUrl != null) {
+        // Retrieve PDF URL from the intent
+        Intent intent = getIntent();
+        pdfUrl = intent.getStringExtra("PDF_URL");
+
+        if (pdfUrl == null) {
+            // Check if the URL was passed from the ReturnBook activity
+            pdfUrl = intent.getStringExtra("RETURNBOOK_PDF_URL");
+        }
+
+        if (pdfUrl == null) {
+            // Check if the URL was passed from the BorrowPop activity
+            pdfUrl = intent.getStringExtra("BORROWPOP_PDF_URL");
+        }
+
+        if (pdfUrl != null && !pdfUrl.isEmpty()) {
             setupWebView();
-            // Use Google Docs Viewer to load the PDF
-            webView.loadUrl("https://docs.google.com/gview?embedded=true&url=" + pdfUrl);
+            try {
+                // URL encode the PDF URL to handle special characters
+                String encodedPdfUrl = URLEncoder.encode(pdfUrl, "UTF-8");
+                // Use Google Docs Viewer to load the PDF
+                webView.loadUrl("https://docs.google.com/gview?embedded=true&url=" + encodedPdfUrl);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+                // Handle the encoding error
+                webView.loadData("Error: Failed to encode PDF URL", "text/html", "UTF-8");
+            }
         } else {
-            // Handle the error if PDF URL is not provided
-            webView.loadData("Error: No PDF URL provided", "text/html", "UTF-8");
+            // Handle the error if PDF URL is not provided or is empty
+            webView.loadData("Error: No PDF URL provided or the URL is empty", "text/html", "UTF-8");
         }
     }
 
@@ -61,6 +81,13 @@ public class ContentActivity extends AppCompatActivity {
             @Override
             public void onPageFinished(WebView view, String url) {
                 // Optional: Handle actions after the page is fully loaded
+                // e.g., hide a loading spinner
+            }
+
+            @Override
+            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                // Handle errors (e.g., show a user-friendly message)
+                view.loadData("Error: Failed to load PDF. Please try again later.", "text/html", "UTF-8");
             }
         });
     }
