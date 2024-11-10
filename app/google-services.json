@@ -1,13 +1,14 @@
 {
   "project_info": {
-    "project_number": "600497378292",
-    "project_id": "bookworld-1e244",
-    "storage_bucket": "bookworld-1e244.appspot.com"
+    "project_number": "319815296020",
+    "firebase_url": "https://linkedin-ui-811d5-default-rtdb.firebaseio.com",
+    "project_id": "linkedin-ui-811d5",
+    "storage_bucket": "linkedin-ui-811d5.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:600497378292:android:a26500b16b13e46f47dfa1",
+        "mobilesdk_app_id": "1:319815296020:android:5162f95cf97715e83e3301",
         "android_client_info": {
           "package_name": "com.example.bookworld"
         }
@@ -15,7 +16,26 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyB_PUwe-x0mJN3PI19pxZP_ZnVIJA6Gcy0"
+          "current_key": "AIzaSyDnaR5_oh3OcKeQ7Y6dpGhxeOhcq7ZaCqA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:319815296020:android:fe08899fb846c52d3e3301",
+        "android_client_info": {
+          "package_name": "com.example.linkedinui"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDnaR5_oh3OcKeQ7Y6dpGhxeOhcq7ZaCqA"
         }
       ],
       "services": {

@@ -135,14 +135,24 @@
 
             <Button
                 android:layout_below="@+id/bookPrice"
-                android:gravity="center_vertical"
-                android:layout_marginStart="150dp"
-                android:id="@+id/borrowButton"
+                android:layout_marginStart="250dp"
+                android:id="@+id/add_to_cart_button"
                 android:layout_width="wrap_content"
-                android:textSize="18dp"
+                android:textSize="15dp"
                 android:textColor="@color/amber"
                 android:layout_height="wrap_content"
-                android:text="Read"/>
+                android:text="Add to Cart"/>
+
+
+            <Button
+                android:layout_below="@+id/bookPrice"
+                android:layout_marginStart="50dp"
+                android:id="@+id/buyButton"
+                android:layout_width="wrap_content"
+                android:textSize="19dp"
+                android:textColor="@color/amber"
+                android:layout_height="wrap_content"
+                android:text="Buy"/>
 
         </RelativeLayout>
     </ScrollView>

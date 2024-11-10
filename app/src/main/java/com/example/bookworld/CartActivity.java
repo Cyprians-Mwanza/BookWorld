@@ -60,7 +60,7 @@ public class CartActivity extends AppCompatActivity {
         cartRef = db.collection("users").document(userId).collection("cartItems");
 
         // Initialize and set up CartAdapter
-        cartAdapter = new CartAdapter(CartActivity.this, cartItemList, userId);
+        cartAdapter = new CartAdapter(CartActivity.this, cartItemList, this::onBookClick, userId);
         cartRecyclerView.setAdapter(cartAdapter);
 
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -96,6 +96,35 @@ public class CartActivity extends AppCompatActivity {
 
         // Initial data load
         refreshCart();
+    }
+
+    // Method to handle book click functionality
+      public void onBookClick(Book book) {
+        if ("Not for Sale".equalsIgnoreCase(book.getPrice())) {
+            // Navigate to BookDetails activity if the book is not for sale
+            Intent intent = new Intent(CartActivity.this, BorrowPop.class);
+            intent.putExtra("BOOK_ID", book.getId());
+            intent.putExtra("BOOK_TITLE", book.getTitle());
+            intent.putExtra("BOOK_AUTHOR", book.getAuthor());
+            intent.putExtra("BOOK_DESCRIPTION", book.getDescription());
+            intent.putExtra("BOOK_PRICE", book.getPrice());
+            intent.putExtra("BOOK_THUMBNAIL", book.getThumbnailUrl());
+            intent.putExtra("BOOK_RATING", book.getRating());
+            intent.putExtra("PDF_URL", book.getPdfUrl());
+            startActivity(intent);
+        } else {
+            // Navigate to BuyBook activity if the book has a price
+            Intent intent = new Intent(CartActivity.this, BuyDetails.class);
+            intent.putExtra("BOOK_ID", book.getId());
+            intent.putExtra("BOOK_TITLE", book.getTitle());
+            intent.putExtra("BOOK_AUTHOR", book.getAuthor());
+            intent.putExtra("BOOK_DESCRIPTION", book.getDescription());
+            intent.putExtra("BOOK_PRICE", book.getPrice());
+            intent.putExtra("BOOK_THUMBNAIL", book.getThumbnailUrl());
+            intent.putExtra("BOOK_RATING", book.getRating());
+            intent.putExtra("PDF_URL", book.getPdfUrl());
+            startActivity(intent);
+        }
     }
 
     // Refresh the cart data

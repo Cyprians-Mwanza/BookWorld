@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- Top Bar Layout -->
     <RelativeLayout
         android:id="@+id/top"
         android:layout_width="match_parent"
@@ -20,7 +21,6 @@
             android:layout_alignParentTop="true"
             android:background="@drawable/baseline_arrow_back_24"/>
 
-
         <ImageView
             android:id="@+id/three_dotButton"
             android:layout_width="wrap_content"
@@ -33,9 +33,10 @@
     </RelativeLayout>
 
     <!-- Book Title EditText -->
+
     <EditText
-        android:layout_below="@+id/top"
         android:id="@+id/book_title"
+        android:layout_below="@+id/top"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
@@ -48,8 +49,8 @@
 
     <!-- Book Author EditText -->
     <EditText
-        android:layout_below="@+id/book_title"
         android:id="@+id/book_author"
+        android:layout_below="@+id/book_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="14dp"
@@ -63,9 +64,9 @@
     <!-- Book Description EditText -->
     <EditText
         android:id="@+id/book_desc"
+        android:layout_below="@id/book_author"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/book_author"
         android:layout_margin="14dp"
         android:maxLines="14"
         android:background="@drawable/rectangle_shape"
@@ -73,20 +74,30 @@
         android:padding="10dp"
         android:inputType="textMultiLine|textLongMessage" />
 
+    <!-- Toggle Switch for Sale Option -->
+    <Switch
+        android:id="@+id/sale_switch"
+        android:layout_below="@+id/book_desc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="Is this book for sale?"
+        android:checked="false" />
+
+    <!-- Book Price EditText, initially hidden -->
     <EditText
         android:id="@+id/book_price"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/book_desc"
+        android:layout_below="@id/sale_switch"
         android:layout_margin="14dp"
-        android:maxLines="14"
         android:background="@drawable/rectangle_shape"
         android:hint="Book Price"
-
         android:padding="10dp"
-        android:inputType="textMultiLine|textLongMessage" />
+        android:inputType="numberDecimal"
+        android:visibility="gone" />
 
-
+    <!-- Genre Layout with Dropdown EditText -->
     <RelativeLayout
         android:id="@+id/genreLayout"
         android:layout_width="match_parent"
@@ -95,26 +106,24 @@
         android:padding="5dp"
         android:layout_margin="8dp">
 
-
-            <!-- EditText with dropdown icon -->
-            <EditText
-                android:id="@+id/genreEditText"
-                android:layout_width="170dp"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:paddingStart="8dp"
-                android:paddingEnd="20dp"
-                android:padding="5dp"
-                android:hint="Select Genre"
-                android:background="@drawable/rectangle_shape"
-                android:focusable="false"
-                android:clickable="true"
-                android:drawableEnd="@drawable/ic_dropdown"
-                android:inputType="none" />
-
-
+        <!-- Genre EditText with Dropdown Icon -->
+        <EditText
+            android:id="@+id/genreEditText"
+            android:layout_width="170dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="20dp"
+            android:padding="5dp"
+            android:hint="Select Genre"
+            android:background="@drawable/rectangle_shape"
+            android:focusable="false"
+            android:clickable="true"
+            android:drawableEnd="@drawable/ic_dropdown"
+            android:inputType="none" />
     </RelativeLayout>
 
+    <!-- Thumbnail Image -->
     <ImageView
         android:id="@+id/thumbnail_image"
         android:layout_width="150dp"
@@ -155,6 +164,7 @@
         android:layout_marginTop="16dp"
         android:text="Submit" />
 
+    <!-- Progress Bar -->
     <ProgressBar
         android:id="@+id/progress_bar"
         android:layout_width="wrap_content"

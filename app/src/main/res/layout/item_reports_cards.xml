@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="200dp"
-    android:layout_height="110dp"
+    android:layout_height="120dp"
     android:orientation="horizontal"
     android:layout_marginBottom="3dp"
-    android:background="@drawable/cardview_book"
+    android:background="@drawable/cardview_background"
+    android:layout_marginStart="6dp"
     android:padding="8dp">
 
     <ImageView
@@ -17,7 +18,7 @@
 
     <LinearLayout
         android:layout_width="20dp"
-        android:layout_height="90dp"
+        android:layout_height="95dp"
         android:layout_weight="1"
         android:orientation="vertical">
 
@@ -35,6 +36,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Borrower Name" />
+
+        <TextView
+            android:id="@+id/dateTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Date Borrowed" />
 
         <TextView
             android:id="@+id/daysTextView"

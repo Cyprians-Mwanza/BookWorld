@@ -7,7 +7,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,7 +30,7 @@ public class BorrowPop extends AppCompatActivity {
 
     private static final String TAG = "BorrowPop"; // Tag for logging
 
-    private EditText nameEditText;
+    private TextView nameEditText;
     private EditText daysEditText;
     private Button borrowButton;
     private Button readButton;
@@ -57,6 +61,8 @@ public class BorrowPop extends AppCompatActivity {
         daysEditText = findViewById(R.id.daysEditText);
         borrowButton = findViewById(R.id.borrowButton);
         readButton = findViewById(R.id.readButton);
+        ImageView backButton = findViewById(R.id.backButton);
+        ImageView threeDotsButton = findViewById(R.id.three_dotButton);
 
         // Retrieve book details from intent extras
         Intent intent = getIntent();
@@ -96,6 +102,24 @@ public class BorrowPop extends AppCompatActivity {
             checkBorrowConditions(name, days);
         });
 
+        // Fetch the current user's username and set it in the nameEditText
+        if (userId != null) {
+            db.collection("users").document(userId)
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            String username = documentSnapshot.getString("username"); // Assume "username" field holds the user's name
+                            if (username != null) {
+                                nameEditText.setText(username); // Set the username in nameEditText
+                            }
+                        } else {
+                            Log.d(TAG, "User document does not exist.");
+                        }
+                    })
+                    .addOnFailureListener(e -> Log.e(TAG, "Error fetching username: ", e));
+        }
+
+
         // Set read button click listener
         readButton.setOnClickListener(v -> {
             if (pdfUrl != null) {
@@ -106,6 +130,7 @@ public class BorrowPop extends AppCompatActivity {
                 Toast.makeText(BorrowPop.this, "PDF URL not available", Toast.LENGTH_SHORT).show();
             }
         });
+
     }
 
     private void checkBorrowConditions(String name, int days) {
@@ -137,10 +162,16 @@ public class BorrowPop extends AppCompatActivity {
                 });
     }
 
+    // Your existing storeBorrowingDetails method with the date added
     private void storeBorrowingDetails(String name, int days) {
-        Map<String, String> borrowData = new HashMap<>();
+        // Create a date formatter to get the current date in "dd-MM-yy" format
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MM-yy");
+        String currentDate = dateFormatter.format(new Date()); // Get the current date as a string
+
+        // Create a map to store borrowing details
+        Map<String, Object> borrowData = new HashMap<>();
         borrowData.put("name", name);
-        borrowData.put("days", String.valueOf(days));  // Convert days to string
+        borrowData.put("days", days);  // Store as integer directly
         borrowData.put("bookId", bookId);
         borrowData.put("bookTitle", bookTitle);
         borrowData.put("pdfUrl", pdfUrl);
@@ -148,7 +179,9 @@ public class BorrowPop extends AppCompatActivity {
         borrowData.put("author", author);
         borrowData.put("description", description);
         borrowData.put("price", price);
+        borrowData.put("dateBorrowed", currentDate); // Add the formatted current date
 
+        // Add the borrowData to Firestore
         db.collection("users").document(userId).collection("borrowedBooks").add(borrowData)
                 .addOnSuccessListener(documentReference -> {
                     Toast.makeText(BorrowPop.this, "Book borrowed successfully", Toast.LENGTH_SHORT).show();
@@ -167,4 +200,5 @@ public class BorrowPop extends AppCompatActivity {
                     }
                 });
     }
+
 }

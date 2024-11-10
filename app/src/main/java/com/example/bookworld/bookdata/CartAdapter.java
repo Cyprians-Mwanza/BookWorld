@@ -23,11 +23,19 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     private List<Book> mCartItems;
     private FirebaseFirestore mFirestore;
     private String userId;
+    private OnBookClickListener bookClickListener; // Add a new listener parameter
 
-    public CartAdapter(Context context, List<Book> cartItems, String userId) {
+    // Define an interface for the book click listener
+    public interface OnBookClickListener {
+        void onBookClick(Book book);
+    }
+
+    // Modified constructor to accept a click listener
+    public CartAdapter(Context context, List<Book> cartItems, OnBookClickListener bookClickListener, String userId) {
         mContext = context;
         mCartItems = cartItems;
         mFirestore = FirebaseFirestore.getInstance();
+        this.bookClickListener = bookClickListener;
         this.userId = userId;
     }
 
@@ -74,8 +82,13 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                     authorTextView.setText("by " + book.getAuthor());
                     priceTextView.setText("Ksh " + book.getPrice());
 
-                    deleteButton.setOnClickListener(v -> {
-                        removeItem(position, book);
+                    deleteButton.setOnClickListener(v -> removeItem(position, book));
+
+                    // Trigger the click listener when the item view is clicked
+                    itemView.setOnClickListener(v -> {
+                        if (bookClickListener != null) {
+                            bookClickListener.onBookClick(book);
+                        }
                     });
                 }
             }
@@ -86,7 +99,6 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         mCartItems.remove(position);
         notifyItemRemoved(position);
 
-        // Remove the book from Firestore using the book's ID
         mFirestore.collection("users")
                 .document(userId)
                 .collection("cartItems")

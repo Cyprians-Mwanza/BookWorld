@@ -127,17 +127,33 @@ public class Home extends AppCompatActivity implements FictionAdapter.OnBookClic
 
     @Override
     public void onBookClick(Book book) {
-        Intent intent = new Intent(Home.this, BookDetails.class);
-        intent.putExtra("BOOK_ID", book.getId());
-        intent.putExtra("BOOK_TITLE", book.getTitle());
-        intent.putExtra("BOOK_AUTHOR", book.getAuthor());
-        intent.putExtra("BOOK_DESCRIPTION", book.getDescription());
-        intent.putExtra("BOOK_PRICE", book.getPrice());
-        intent.putExtra("BOOK_THUMBNAIL", book.getThumbnailUrl());
-        intent.putExtra("BOOK_RATING", book.getRating());
-        intent.putExtra("PDF_URL", book.getPdfUrl());
-        startActivity(intent);
+        if ("Not for Sale".equalsIgnoreCase(book.getPrice())) {
+            // Navigate to BookDetails activity if the book is not for sale
+            Intent intent = new Intent(Home.this, BookDetails.class);
+            intent.putExtra("BOOK_ID", book.getId());
+            intent.putExtra("BOOK_TITLE", book.getTitle());
+            intent.putExtra("BOOK_AUTHOR", book.getAuthor());
+            intent.putExtra("BOOK_DESCRIPTION", book.getDescription());
+            intent.putExtra("BOOK_PRICE", book.getPrice());
+            intent.putExtra("BOOK_THUMBNAIL", book.getThumbnailUrl());
+            intent.putExtra("BOOK_RATING", book.getRating());
+            intent.putExtra("PDF_URL", book.getPdfUrl());
+            startActivity(intent);
+        } else {
+            // Navigate to BuyBook activity if the book has a price
+            Intent intent = new Intent(Home.this, BuyDetails.class);
+            intent.putExtra("BOOK_ID", book.getId());
+            intent.putExtra("BOOK_TITLE", book.getTitle());
+            intent.putExtra("BOOK_AUTHOR", book.getAuthor());
+            intent.putExtra("BOOK_DESCRIPTION", book.getDescription());
+            intent.putExtra("BOOK_PRICE", book.getPrice());
+            intent.putExtra("BOOK_THUMBNAIL", book.getThumbnailUrl());
+            intent.putExtra("BOOK_RATING", book.getRating());
+            intent.putExtra("PDF_URL", book.getPdfUrl());
+            startActivity(intent);
+        }
     }
+
 
     private void retrieveBooks() {
         db.collection("Fiction")
@@ -155,6 +171,10 @@ public class Home extends AppCompatActivity implements FictionAdapter.OnBookClic
                                 String description = document.getString("description");
                                 String pdfUrl = document.getString("pdfUrl");
 
+                                // Fetch the daysToBorrow value and ensure it's not null
+                                Long daysToBorrowLong = document.getLong("daysToBorrow");
+                                int daysToBorrow = (daysToBorrowLong != null) ? daysToBorrowLong.intValue() : 0;  // Default to 0 if null
+
                                 // Retrieve price as a string (ensure it's stored as string in Firestore)
                                 String price = document.getString("price");
 
@@ -167,7 +187,7 @@ public class Home extends AppCompatActivity implements FictionAdapter.OnBookClic
                                 }
 
                                 // Create a Book object and add it to the list
-                                Book book = new Book(id, thumbnailUrl, title, author, description, price, rating, pdfUrl);
+                                Book book = new Book(id, thumbnailUrl, title, author, description, price, rating, pdfUrl, daysToBorrow);
                                 bookList.add(book);
                             }
                             // Notify the adapter that the data set has changed
@@ -182,7 +202,7 @@ public class Home extends AppCompatActivity implements FictionAdapter.OnBookClic
     }
 
     private void searchBooks(String query) {
-        db.collection("Fiction")
+        db.collection("Comics")
                 .whereEqualTo("title", query)
                 .get()
                 .addOnCompleteListener(task -> {
@@ -195,6 +215,8 @@ public class Home extends AppCompatActivity implements FictionAdapter.OnBookClic
                             String author = document.getString("author");
                             String description = document.getString("description");
                             String pdfUrl = document.getString("pdfUrl");
+                            int daysToBorrow = document.getLong("daysToBorrow").intValue();  // Use intValue() to convert Long to int
+
 
                             // Retrieve price as a string (ensure it's stored as string in Firestore)
                             String price = document.getString("price");
@@ -208,7 +230,7 @@ public class Home extends AppCompatActivity implements FictionAdapter.OnBookClic
                             }
 
                             // Create a Book object and add it to the list
-                            Book book = new Book(id, thumbnailUrl, title, author, description, price, rating, pdfUrl);
+                            Book book = new Book(id, thumbnailUrl, title, author, description, price, rating, pdfUrl, daysToBorrow);
                             bookList.add(book);
                         }
                         // Notify adapter of data change

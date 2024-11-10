@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -15,20 +16,23 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.bookworld.bookdata.Book;
 import com.example.bookworld.bookdata.ComicsAdapter;
-import com.example.bookworld.bookdata.FictionAdapter;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class comics extends AppCompatActivity implements ComicsAdapter.OnBookClickListener {
 
@@ -40,6 +44,8 @@ public class comics extends AppCompatActivity implements ComicsAdapter.OnBookCli
     private TextView messageTextView;
     private ImageView backButton;
     private ImageView threeDotsButton;
+    private FirebaseAuth auth;
+    private Button favouriteButton; // New button for adding to favourite genre
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +66,8 @@ public class comics extends AppCompatActivity implements ComicsAdapter.OnBookCli
         LinearLayout searchLayout = findViewById(R.id.searchtech);
         LinearLayout moreLayout = findViewById(R.id.moretech);
         LinearLayout myBooksLayout = findViewById(R.id.mybookstech);
+        auth = FirebaseAuth.getInstance();
+        favouriteButton = findViewById(R.id.favourite); // Initialize the button
 
         // Setup RecyclerView
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2); // 2 columns
@@ -70,6 +78,58 @@ public class comics extends AppCompatActivity implements ComicsAdapter.OnBookCli
 
         // Retrieve book details from Firestore
         retrieveBooks();
+
+// Set onClick listener for the "Add to Favourite Genre" button
+        favouriteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String genreName = "Comics"; // Replace with the actual genre if it's dynamic
+                String userId = auth.getCurrentUser().getUid();
+
+                if (!TextUtils.isEmpty(genreName)) {
+                    // Reference to the Favourite genre collection
+                    db.collection("users").document(userId).collection("Favourite genre")
+                            .whereEqualTo("genreName", genreName)
+                            .get()
+                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        if (!task.getResult().isEmpty()) {
+                                            // Genre already exists
+                                            Toast.makeText(comics.this, "Genre already added to favourite", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            // Create a map to store the genre data with the date added
+                                            Map<String, Object> genreData = new HashMap<>();
+                                            genreData.put("genreName", genreName);
+                                            genreData.put("dateAdded", LocalDate.now().toString()); // Add current date as a string
+
+                                            // Add the genre to the "Favourite genre" collection for the current user
+                                            db.collection("users").document(userId).collection("Favourite genre")
+                                                    .add(genreData)
+                                                    .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<DocumentReference> task) {
+                                                            if (task.isSuccessful()) {
+                                                                Toast.makeText(comics.this, "Genre added successfully", Toast.LENGTH_SHORT).show();
+                                                            } else {
+                                                                Toast.makeText(comics.this, "Failed to add genre", Toast.LENGTH_SHORT).show();
+                                                            }
+                                                        }
+                                                    });
+                                        }
+                                    } else {
+                                        // Handle the error
+                                        Toast.makeText(comics.this, "Error checking for existing genre", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+                } else {
+                    Toast.makeText(comics.this, "Genre name cannot be empty", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
 
         // Set onClick listeners
         searchButton.setOnClickListener(new View.OnClickListener() {
@@ -145,16 +205,31 @@ public class comics extends AppCompatActivity implements ComicsAdapter.OnBookCli
 
     @Override
     public void onBookClick(Book book) {
-        Intent intent = new Intent(comics.this, BookDetails.class);
-        intent.putExtra("BOOK_ID", book.getId());
-        intent.putExtra("BOOK_TITLE", book.getTitle());
-        intent.putExtra("BOOK_AUTHOR", book.getAuthor());
-        intent.putExtra("BOOK_DESCRIPTION", book.getDescription());
-        intent.putExtra("BOOK_PRICE", book.getPrice());
-        intent.putExtra("BOOK_THUMBNAIL", book.getThumbnailUrl());
-        intent.putExtra("BOOK_RATING", book.getRating());
-        intent.putExtra("PDF_URL", book.getPdfUrl());
-        startActivity(intent);
+        if ("Not for Sale".equalsIgnoreCase(book.getPrice())) {
+            // Navigate to BookDetails activity if the book is not for sale
+            Intent intent = new Intent(comics.this, BookDetails.class);
+            intent.putExtra("BOOK_ID", book.getId());
+            intent.putExtra("BOOK_TITLE", book.getTitle());
+            intent.putExtra("BOOK_AUTHOR", book.getAuthor());
+            intent.putExtra("BOOK_DESCRIPTION", book.getDescription());
+            intent.putExtra("BOOK_PRICE", book.getPrice());
+            intent.putExtra("BOOK_THUMBNAIL", book.getThumbnailUrl());
+            intent.putExtra("BOOK_RATING", book.getRating());
+            intent.putExtra("PDF_URL", book.getPdfUrl());
+            startActivity(intent);
+        } else {
+            // Navigate to BuyBook activity if the book has a price
+            Intent intent = new Intent(comics.this, BuyDetails.class);
+            intent.putExtra("BOOK_ID", book.getId());
+            intent.putExtra("BOOK_TITLE", book.getTitle());
+            intent.putExtra("BOOK_AUTHOR", book.getAuthor());
+            intent.putExtra("BOOK_DESCRIPTION", book.getDescription());
+            intent.putExtra("BOOK_PRICE", book.getPrice());
+            intent.putExtra("BOOK_THUMBNAIL", book.getThumbnailUrl());
+            intent.putExtra("BOOK_RATING", book.getRating());
+            intent.putExtra("PDF_URL", book.getPdfUrl());
+            startActivity(intent);
+        }
     }
 
     private void retrieveBooks() {
@@ -173,6 +248,11 @@ public class comics extends AppCompatActivity implements ComicsAdapter.OnBookCli
                                 String description = document.getString("description");
                                 String pdfUrl = document.getString("pdfUrl");
 
+                                // Fetch the daysToBorrow value and ensure it's not null
+                                Long daysToBorrowLong = document.getLong("daysToBorrow");
+                                int daysToBorrow = (daysToBorrowLong != null) ? daysToBorrowLong.intValue() : 0;  // Default to 0 if null
+
+
                                 // Retrieve price as a string (ensure it's stored as string in Firestore)
                                 String price = document.getString("price");
 
@@ -185,7 +265,7 @@ public class comics extends AppCompatActivity implements ComicsAdapter.OnBookCli
                                 }
 
                                 // Create a Book object and add it to the list
-                                Book book = new Book(id, thumbnailUrl, title, author, description, price, rating, pdfUrl);
+                                Book book = new Book(id, thumbnailUrl, title, author, description, price, rating, pdfUrl, daysToBorrow);
                                 bookList.add(book);
                             }
                             // Notify the adapter that the data set has changed
@@ -214,6 +294,11 @@ public class comics extends AppCompatActivity implements ComicsAdapter.OnBookCli
                             String description = document.getString("description");
                             String pdfUrl = document.getString("pdfUrl");
 
+                            // Fetch the daysToBorrow value and ensure it's not null
+                            Long daysToBorrowLong = document.getLong("daysToBorrow");
+                            int daysToBorrow = (daysToBorrowLong != null) ? daysToBorrowLong.intValue() : 0;  // Default to 0 if null
+
+
                             // Retrieve price as a string (ensure it's stored as string in Firestore)
                             String price = document.getString("price");
 
@@ -226,7 +311,7 @@ public class comics extends AppCompatActivity implements ComicsAdapter.OnBookCli
                             }
 
                             // Create a Book object and add it to the list
-                            Book book = new Book(id, thumbnailUrl, title, author, description, price, rating, pdfUrl);
+                            Book book = new Book(id, thumbnailUrl, title, author, description, price, rating, pdfUrl, daysToBorrow);
                             bookList.add(book);
                         }
                         // Notify adapter of data change

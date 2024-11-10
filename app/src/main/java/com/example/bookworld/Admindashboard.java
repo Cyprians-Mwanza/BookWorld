@@ -7,6 +7,7 @@ import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,7 +16,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.series.BarGraphSeries;
 import com.jjoe64.graphview.series.LineGraphSeries;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.LegendRenderer;
@@ -37,11 +37,11 @@ public class Admindashboard extends AppCompatActivity {
     private static final String TAG = "Admindashboard";
 
     private FirebaseFirestore db;
+    private ImageView threeDotsButton;
     private BorrowedBooksAdapter adapter;
     private List<BorrowedBooks> borrowedBooksList;
     private Map<String, Integer> borrowerCounts = new HashMap<>();
     private GraphView lineChart;
-    private GraphView barChart;
     private SwipeRefreshLayout swipeRefreshLayout;
     private Handler handler = new Handler(Looper.getMainLooper());
     private Runnable updateCountdownRunnable = new Runnable() {
@@ -66,11 +66,11 @@ public class Admindashboard extends AppCompatActivity {
 
         borrowedBooksList = new ArrayList<>();
         adapter = new BorrowedBooksAdapter(borrowedBooksList);
+        threeDotsButton = findViewById(R.id.threeDotButton);
         recyclerBorrowedBooks.setAdapter(adapter);
 
         // Initialize GraphView
         lineChart = findViewById(R.id.lineChart);
-        barChart = findViewById(R.id.pieChart);
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
 
         // Add Book button
@@ -83,6 +83,19 @@ public class Admindashboard extends AppCompatActivity {
 
         // Set up swipe-to-refresh
         swipeRefreshLayout.setOnRefreshListener(() -> fetchBorrowedBooks());
+
+        threeDotsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Navigate to the "three dots" activity
+                Intent intent = new Intent(Admindashboard.this, three_dots.class);
+                startActivity(intent);
+            }
+        });
+
+
+        // Fetch borrowed books immediately after login
+        fetchBorrowedBooks();
 
         // Start the countdown update loop
         handler.post(updateCountdownRunnable);
@@ -105,6 +118,13 @@ public class Admindashboard extends AppCompatActivity {
                                     for (DocumentSnapshot borrowedBookSnapshot : borrowedBooksSnapshot.getDocuments()) {
                                         BorrowedBooks borrowedBook = borrowedBookSnapshot.toObject(BorrowedBooks.class);
                                         if (borrowedBook != null) {
+                                            // Ensure days is retrieved as an int
+                                            Long daysLong = borrowedBookSnapshot.getLong("days");
+                                            if (daysLong != null) {
+                                                borrowedBook.setDays(daysLong.intValue());
+                                            } else {
+                                                borrowedBook.setDays(0); // Default value if not present
+                                            }
                                             borrowedBooksList.add(borrowedBook);
 
                                             // Update borrower counts
@@ -134,11 +154,12 @@ public class Admindashboard extends AppCompatActivity {
         });
     }
 
+
     private void updateCountdowns() {
         long currentTimeMillis = System.currentTimeMillis();
         for (BorrowedBooks borrowedBook : borrowedBooksList) {
             try {
-                int days = Integer.parseInt(borrowedBook.getDays()); // Convert string to int
+                int days = borrowedBook.getDays(); // Directly get the int value
                 long borrowEndTimeMillis = borrowedBook.getBorrowStartTime() + TimeUnit.DAYS.toMillis(days);
                 long remainingMillis = borrowEndTimeMillis - currentTimeMillis;
 
@@ -186,32 +207,6 @@ public class Admindashboard extends AppCompatActivity {
         lineChart.setTitle("Top Borrowed Books");
         lineChart.getLegendRenderer().setVisible(true);
         lineChart.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
-
-        // Prepare data for the bar chart
-        updateBarChart();
-    }
-
-    private void updateBarChart() {
-        // Clear existing series from the bar chart
-        barChart.removeAllSeries();
-
-        // Create BarGraphSeries
-        BarGraphSeries<DataPoint> barSeries = new BarGraphSeries<>();
-        int index = 0;
-
-        // Populate BarGraphSeries with borrower counts
-        for (Map.Entry<String, Integer> entry : borrowerCounts.entrySet()) {
-            String borrower = entry.getKey();
-            int count = entry.getValue();
-            barSeries.appendData(new DataPoint(index++, count), true, borrowerCounts.size());
-        }
-
-        barSeries.setSpacing(50); // Set spacing between bars
-        barChart.addSeries(barSeries);
-
-        barChart.setTitle("Top Borrowers");
-        barChart.getLegendRenderer().setVisible(true);
-        barChart.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
     }
 
     private List<BorrowedBooks> getTopBorrowedBooks(List<BorrowedBooks> borrowedBooksList) {

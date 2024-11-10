@@ -37,8 +37,9 @@ public class sign_in extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase = FirebaseDatabase.getInstance().getReference(); // Initialize Realtime Database reference
 
+        // UI elements
         emailEditText = findViewById(R.id.Email);
         usernameEditText = findViewById(R.id.Username);
         passwordEditText = findViewById(R.id.Password);
@@ -47,15 +48,17 @@ public class sign_in extends AppCompatActivity {
         signUpButton = findViewById(R.id.buttonLogin);
         loginTextView = findViewById(R.id.CreateAccount);
 
+        // Sign-up button click listener
         signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (validateFields()) {
-                    signUp();
+                    signUp(); // Call the sign-up method
                 }
             }
         });
 
+        // Redirect to login page
         loginTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -66,6 +69,7 @@ public class sign_in extends AppCompatActivity {
         });
     }
 
+    // Validate all input fields
     private boolean validateFields() {
         boolean isValid = true;
         String email = emailEditText.getText().toString().trim();
@@ -96,10 +100,6 @@ public class sign_in extends AppCompatActivity {
         } else if (password.length() < 6) {
             passwordEditText.setError("Password must be at least 6 characters long");
             isValid = false;
-        } else if (!isValidPassword(password)) {
-            passwordEditText.setError("Password should be a combination of numbers and letters");
-            isValid = false;
-            Toast.makeText(sign_in.this, "Password should be a combination of numbers and letters", Toast.LENGTH_SHORT).show();
         }
 
         if (TextUtils.isEmpty(confirmPassword)) {
@@ -121,37 +121,20 @@ public class sign_in extends AppCompatActivity {
         return isValid;
     }
 
-    private boolean isValidPassword(String password) {
-        boolean hasLetter = false;
-        boolean hasDigit = false;
-
-        for (int i = 0; i < password.length(); i++) {
-            char c = password.charAt(i);
-            if (Character.isLetter(c)) {
-                hasLetter = true;
-            } else if (Character.isDigit(c)) {
-                hasDigit = true;
-            }
-            if (hasLetter && hasDigit) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
+    // Sign-up method
     private void signUp() {
         final String email = emailEditText.getText().toString().trim();
         final String username = usernameEditText.getText().toString().trim();
         final String password = passwordEditText.getText().toString().trim();
         final String phone = phoneEditText.getText().toString().trim();
 
+        // Create a user with Firebase Authentication
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            saveUserDetails(email, username, phone);
+                            saveUserDetails(email, username, phone); // Call to save user details
                         } else {
                             Toast.makeText(sign_in.this, "Sign Up Failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                         }
@@ -159,28 +142,29 @@ public class sign_in extends AppCompatActivity {
                 });
     }
 
+    // Save user details in Firestore and Realtime Database
     private void saveUserDetails(final String email, final String username, final String phone) {
-        final String userId = mAuth.getCurrentUser().getUid();
+        final String userId = mAuth.getCurrentUser().getUid(); // Get the current user's unique ID
         final Map<String, Object> user = new HashMap<>();
         user.put("email", email);
         user.put("username", username);
         user.put("phone", phone);
 
-        // Save to Firestore
+        // Save user details to Firestore
         db.collection("users").document(userId)
                 .set(user)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-                            // Save to Realtime Database
+                            // Save user details to Firebase Realtime Database
                             mDatabase.child("users").child(userId).setValue(user)
                                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()) {
                                                 Toast.makeText(sign_in.this, "Sign Up Successful.", Toast.LENGTH_SHORT).show();
-                                                navigateToLogin();
+                                                navigateToLogin(); // Navigate to login on success
                                             } else {
                                                 Toast.makeText(sign_in.this, "Failed to save user details: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                             }
@@ -193,6 +177,7 @@ public class sign_in extends AppCompatActivity {
                 });
     }
 
+    // Navigate to the login activity
     private void navigateToLogin() {
         Intent intent = new Intent(sign_in.this, login.class);
         startActivity(intent);

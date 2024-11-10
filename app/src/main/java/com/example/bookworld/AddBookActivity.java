@@ -1,4 +1,4 @@
-        package com.example.bookworld;
+package com.example.bookworld;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -9,6 +9,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -31,6 +32,7 @@ public class AddBookActivity extends AppCompatActivity {
     private EditText genreEditText;
     private EditText priceEditText;
     private ProgressBar progressBar;
+    private Switch saleSwitch; // Declare the Switch
 
     private FirebaseFirestore db;
     private StorageReference storageRef;
@@ -56,6 +58,18 @@ public class AddBookActivity extends AppCompatActivity {
         genreEditText = findViewById(R.id.genreEditText);
         priceEditText = findViewById(R.id.book_price);
         progressBar = findViewById(R.id.progress_bar);
+        saleSwitch = findViewById(R.id.sale_switch); // Initialize the Switch
+
+        // Set up the Switch to control visibility of the price EditText
+        saleSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                priceEditText.setVisibility(View.VISIBLE); // Show price EditText
+            } else {
+                priceEditText.setVisibility(View.GONE); // Hide price EditText
+                priceEditText.setText(""); // Clear the price field if hidden
+            }
+        });
+
         setupGenreEditText();
 
         Button selectPdfButton = findViewById(R.id.book_file_button);
@@ -96,8 +110,15 @@ public class AddBookActivity extends AppCompatActivity {
         String genre = genreEditText.getText().toString().trim();
         String priceString = priceEditText.getText().toString().trim();
 
-        if (title.isEmpty() || description.isEmpty() || author.isEmpty() || thumbnailUri == null || pdfUri == null || priceString.isEmpty()) {
+        // Check if required fields are filled
+        if (title.isEmpty() || description.isEmpty() || author.isEmpty() || thumbnailUri == null || pdfUri == null) {
             Toast.makeText(this, "Please fill in all fields and select both thumbnail image and PDF file", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // If the book is for sale, ensure the price is provided
+        if (saleSwitch.isChecked() && priceString.isEmpty()) {
+            Toast.makeText(this, "Please enter a price for the book", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -165,7 +186,7 @@ public class AddBookActivity extends AppCompatActivity {
         book.put("description", description);
         book.put("thumbnailUrl", thumbnailUrl);
         book.put("pdfUrl", pdfUrl);
-        book.put("price", price); // Save price as a String
+        book.put("price", saleSwitch.isChecked() ? price : "Not for sale"); // Save price only if book is for sale
 
         db.collection(genre)  // Store book details in a genre-specific collection
                 .add(book)
@@ -208,17 +229,10 @@ public class AddBookActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK && data != null) {
             if (requestCode == PICK_IMAGE_REQUEST) {
                 thumbnailUri = data.getData();
-                displayThumbnailImage(thumbnailUri.toString());
+                Glide.with(this).load(thumbnailUri).into(thumbnailImageView);
             } else if (requestCode == PICK_PDF_REQUEST) {
                 pdfUri = data.getData();
             }
         }
-    }
-
-    private void displayThumbnailImage(String thumbnailUrl) {
-        Glide.with(this)
-                .load(thumbnailUrl)
-                .into(thumbnailImageView);
-        thumbnailImageView.setVisibility(View.VISIBLE);
     }
 }

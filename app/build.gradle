@@ -35,8 +35,11 @@ android {
 }
 
 dependencies {
+    implementation 'com.google.android.material:material:1.8.0'  // Replace with latest version
     implementation 'com.jjoe64:graphview:4.2.2'
-    implementation platform('com.google.firebase:firebase-bom:33.1.2')
+    implementation(platform("com.google.firebase:firebase-bom:33.2.0"))
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-auth:21.0.6'  // Example for Firebase Auth
     implementation 'com.google.firebase:firebase-firestore:24.0.3'

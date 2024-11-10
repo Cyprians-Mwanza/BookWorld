@@ -114,6 +114,8 @@ public class search_discovery extends AppCompatActivity {
                         String description = document.getString("description");
                         String pdfUrl = document.getString("pdfUrl");
                         String price = document.getString("price");
+                        int daysToBorrow = document.getLong("daysToBorrow").intValue();  // Use intValue() to convert Long to int
+
 
                         float rating = 0.0f;
                         Object ratingObj = document.get("rating");
@@ -124,7 +126,7 @@ public class search_discovery extends AppCompatActivity {
                         }
 
                         // Create a Book object and add it to the layout
-                        Book book = new Book(id, thumbnailUrl, title, author, description, price, rating, pdfUrl);
+                        Book book = new Book(id, thumbnailUrl, title, author, description, price, rating, pdfUrl, daysToBorrow);
                         // Assuming you have a method to create a view for the book and add it to the layout
                         View bookView = createBookView(book);
                         bookGenresLayout.addView(bookView);

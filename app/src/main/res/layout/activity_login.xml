@@ -52,8 +52,7 @@
                     android:elevation="14dp"
                     android:alpha="0.6"
                     android:drawableStart="@drawable/email"
-                    android:inputType="textEmailAddress"
-                    android:hint="@string/input_email"/>
+                    android:hint="Input Email"/>
 
             </LinearLayout>
             <LinearLayout

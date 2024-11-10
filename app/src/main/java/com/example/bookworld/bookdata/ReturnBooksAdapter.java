@@ -1,5 +1,6 @@
 package com.example.bookworld.bookdata;
 
+import android.os.CountDownTimer;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -8,29 +9,28 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.bookworld.ContentActivity;
 import com.example.bookworld.R;
 import com.example.bookworld.ReturnBook;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class ReturnBooksAdapter extends RecyclerView.Adapter<ReturnBooksAdapter.CartViewHolder> {
 
-    private Context mContext;
-    private List<Book> mCartItems;
-    private FirebaseFirestore mFirestore;
-    private String userId;
+    private final Context mContext;
+    private final List<Book> mCartItems;
+    private final FirebaseFirestore mFirestore;
+    private final String userId;
 
     public ReturnBooksAdapter(Context context, List<Book> cartItems, String userId) {
-        mContext = context;
-        mCartItems = cartItems;
-        mFirestore = FirebaseFirestore.getInstance();
+        this.mContext = context;
+        this.mCartItems = cartItems;
+        this.mFirestore = FirebaseFirestore.getInstance();
         this.userId = userId;
     }
 
@@ -52,16 +52,17 @@ public class ReturnBooksAdapter extends RecyclerView.Adapter<ReturnBooksAdapter.
     }
 
     public interface OnBookClickListener {
-        void onBookClick(Book book);
     }
 
     public class CartViewHolder extends RecyclerView.ViewHolder {
 
-        private ImageView thumbnailImageView;
-        private TextView titleTextView;
-        private TextView authorTextView;
-        private TextView priceTextView;
-        private ImageButton deleteButton;
+        private final ImageView thumbnailImageView;
+        private final TextView titleTextView;
+        private final TextView authorTextView;
+        private final TextView priceTextView;
+        private final TextView daysCountTextView;
+        private final ImageButton deleteButton;
+        private CountDownTimer countDownTimer;
 
         public CartViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -69,6 +70,7 @@ public class ReturnBooksAdapter extends RecyclerView.Adapter<ReturnBooksAdapter.
             titleTextView = itemView.findViewById(R.id.bookTitle);
             authorTextView = itemView.findViewById(R.id.bookAuthor);
             priceTextView = itemView.findViewById(R.id.bookPrice);
+            daysCountTextView = itemView.findViewById(R.id.daysCountTextView);
             deleteButton = itemView.findViewById(R.id.delete_button);
         }
 
@@ -85,7 +87,10 @@ public class ReturnBooksAdapter extends RecyclerView.Adapter<ReturnBooksAdapter.
                         removeItem(position, book);
                     });
 
-                    // Adding click listener to the whole item view to navigate to ReturnBooks activity
+                    // Initialize countdown timer using daysToBorrow as an int
+                    startCountdownTimer(book.getDaysToBorrow());
+
+                    // Adding click listener to navigate to ReturnBook activity
                     itemView.setOnClickListener(v -> {
                         Intent intent = new Intent(mContext, ReturnBook.class);
                         intent.putExtra("BOOK_ID", book.getId());
@@ -99,6 +104,38 @@ public class ReturnBooksAdapter extends RecyclerView.Adapter<ReturnBooksAdapter.
                         mContext.startActivity(intent);
                     });
                 }
+            }
+        }
+
+        // Updated method to accept an int
+        private void startCountdownTimer(int daysToBorrow) {
+            if (countDownTimer != null) {
+                countDownTimer.cancel(); // Cancel any existing timer to prevent multiple timers on the same view
+            }
+
+            // Ensure daysToBorrow is positive, else no countdown
+            if (daysToBorrow > 0) {
+                long countdownMillis = daysToBorrow * 24L * 60 * 60 * 1000; // Convert days to milliseconds
+
+                countDownTimer = new CountDownTimer(countdownMillis, 1000) {
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                        long days = TimeUnit.MILLISECONDS.toDays(millisUntilFinished);
+                        long hours = TimeUnit.MILLISECONDS.toHours(millisUntilFinished) % 24;
+                        long minutes = TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished) % 60;
+                        long seconds = TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) % 60;
+
+                        // Display the countdown as days, hours, minutes, and seconds left
+                        daysCountTextView.setText(days + " days, " + hours + " hrs, " + minutes + " mins, " + seconds + " secs left");
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        daysCountTextView.setText("Expired");
+                    }
+                }.start();
+            } else {
+                daysCountTextView.setText("Expired"); // If daysToBorrow is 0 or negative, display expired immediately
             }
         }
     }

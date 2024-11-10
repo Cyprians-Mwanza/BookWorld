@@ -141,8 +141,13 @@ public class MyBooks extends AppCompatActivity implements ReturnBooksAdapter.OnB
                             String price = document.getString("price");
                             String pdfUrl = document.getString("pdfUrl");
 
+                            // Fetch the daysToBorrow value and ensure it's not null
+                            Long daysToBorrowLong = document.getLong("daysToBorrow");
+                            int daysToBorrow = (daysToBorrowLong != null) ? daysToBorrowLong.intValue() : 0;  // Default to 0 if null
+
+
                             if (bookId != null && bookTitle != null && price != null) {
-                                Book book = new Book(bookId, thumbnailUrl, bookTitle, author, description, price, 0, pdfUrl);
+                                Book book = new Book(bookId, thumbnailUrl, bookTitle, author, description, price, 0, pdfUrl, daysToBorrow);
                                 bookList.add(book);
                             }
                         }
@@ -201,7 +206,7 @@ public class MyBooks extends AppCompatActivity implements ReturnBooksAdapter.OnB
         }
     }
 
-    @Override
+
     public void onBookClick(Book book) {
         Intent intent = new Intent(MyBooks.this, ReturnBook.class);
         intent.putExtra("BOOK_ID", book.getId());

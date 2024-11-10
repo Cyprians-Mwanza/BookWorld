@@ -21,14 +21,14 @@ import com.squareup.picasso.Picasso;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BookDetails extends AppCompatActivity {
+public class BuyDetails extends AppCompatActivity {
 
     private CollectionReference cartRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_book_details);
+        setContentView(R.layout.activity_buy_details);
 
         // Initialize Firebase components
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -44,7 +44,7 @@ public class BookDetails extends AppCompatActivity {
         TextView priceTextView = findViewById(R.id.bookPrice);
         ImageView thumbnailImageView = findViewById(R.id.bookThumbnail);
         Button addcartButton = findViewById(R.id.add_to_cart_button);
-        Button borrowButton = findViewById(R.id.borrowButton);
+        Button buyButton = findViewById(R.id.buyButton);
         ImageView backButton = findViewById(R.id.backButton);
         ImageView threeDotsButton = findViewById(R.id.three_dotButton);
         LinearLayout homeLayout = findViewById(R.id.homelayout);
@@ -58,13 +58,13 @@ public class BookDetails extends AppCompatActivity {
         // Set three dots button click listener
         threeDotsButton.setOnClickListener(v -> {
             // Navigate to the "three dots" activity
-            Intent intent = new Intent(BookDetails.this, three_dots.class);
+            Intent intent = new Intent(BuyDetails.this, three_dots.class);
             startActivity(intent);
         });
         myBooksLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(BookDetails.this, MyBooks.class);
+                Intent intent = new Intent(BuyDetails.this, MyBooks.class);
                 startActivity(intent);
             }
         });
@@ -72,7 +72,7 @@ public class BookDetails extends AppCompatActivity {
         searchLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(BookDetails.this, search_discovery.class);
+                Intent intent = new Intent(BuyDetails.this, search_discovery.class);
                 startActivity(intent);
             }
         });
@@ -80,12 +80,12 @@ public class BookDetails extends AppCompatActivity {
         moreLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(BookDetails.this, More.class);
+                Intent intent = new Intent(BuyDetails.this, More.class);
                 startActivity(intent);
             }
         });
         homeLayout.setOnClickListener(view -> {
-            Intent intent = new Intent(BookDetails.this, Home.class);
+            Intent intent = new Intent(BuyDetails.this, Home.class);
             startActivity(intent);
         });
 
@@ -137,26 +137,26 @@ public class BookDetails extends AppCompatActivity {
                         .addOnCompleteListener(task -> {
                             if (task.isSuccessful() && !task.getResult().isEmpty()) {
                                 // Book is already in the cart
-                                Toast.makeText(BookDetails.this, "Book already in cart", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(BuyDetails.this, "Book already in cart", Toast.LENGTH_SHORT).show();
                             } else {
                                 // Book is not in the cart, add it
                                 cartRef.add(bookData).addOnSuccessListener(documentReference -> {
-                                    Toast.makeText(BookDetails.this, "Book added to cart", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(BuyDetails.this, "Book added to cart", Toast.LENGTH_SHORT).show();
                                 }).addOnFailureListener(e -> {
-                                    Toast.makeText(BookDetails.this, "Error adding to cart", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(BuyDetails.this, "Error adding to cart", Toast.LENGTH_SHORT).show();
                                 });
                             }
                         });
 
                 // Pass book details to CartActivity
-                Intent intent = new Intent(BookDetails.this, CartActivity.class);
+                Intent intent = new Intent(BuyDetails.this, CartActivity.class);
                 intent.putExtra("BOOK", book);  // Pass the Book object directly
                 startActivity(intent);
             });
 
-            // Set borrow button click listener
-            borrowButton.setOnClickListener(v -> {
-                Intent intent = new Intent(BookDetails.this, BorrowPop.class);
+            // Set buy button click listener
+            buyButton.setOnClickListener(v -> {
+                Intent intent = new Intent(BuyDetails.this, BorrowPop.class);
                 intent.putExtra("BOOK_ID", id);
                 intent.putExtra("BOOK_AUTHOR", author);
                 intent.putExtra("BOOK_TITLE", title);

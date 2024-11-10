@@ -7,7 +7,7 @@ public class BorrowedBooks implements Parcelable {
     private String bookTitle;
     private String name; // Borrower's name
     private long borrowStartTime; // Timestamp for when the book was borrowed
-    private String days; // Number of days the book is borrowed for (stored as String)
+    private int days; // Number of days the book is borrowed for (stored as int)
     private String thumbnailUrl;
     private int borrowCount; // Count of times borrowed
     private String countdown; // Countdown string
@@ -17,7 +17,7 @@ public class BorrowedBooks implements Parcelable {
     }
 
     // Constructor with parameters
-    public BorrowedBooks(String bookTitle, String name, long borrowStartTime, String days, String thumbnailUrl, int borrowCount) {
+    public BorrowedBooks(String bookTitle, String name, long borrowStartTime, int days, String thumbnailUrl, int borrowCount) {
         this.bookTitle = bookTitle;
         this.name = name;
         this.borrowStartTime = borrowStartTime;
@@ -30,7 +30,7 @@ public class BorrowedBooks implements Parcelable {
         bookTitle = in.readString();
         name = in.readString();
         borrowStartTime = in.readLong();
-        days = in.readString(); // Read as String
+        days = in.readInt(); // Read as int
         thumbnailUrl = in.readString();
         borrowCount = in.readInt();
     }
@@ -60,17 +60,8 @@ public class BorrowedBooks implements Parcelable {
         return borrowStartTime;
     }
 
-    public String getDays() {
+    public int getDays() {
         return days;
-    }
-
-    public int getDaysAsInt() {
-        try {
-            return Integer.parseInt(days);
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-            return 0; // Or handle error as needed
-        }
     }
 
     public String getThumbnailUrl() {
@@ -89,16 +80,16 @@ public class BorrowedBooks implements Parcelable {
         this.countdown = countdown;
     }
 
-    // Get remaining days
+    // Get remaining days as a long
     public long getRemainingDays() {
         long currentTime = System.currentTimeMillis();
-        long endTime = borrowStartTime + (getDaysAsInt() * 24 * 60 * 60 * 1000L); // Convert days to milliseconds
+        long endTime = borrowStartTime + (days * 24 * 60 * 60 * 1000L); // Convert days to milliseconds
         long remainingTime = endTime - currentTime;
 
         if (remainingTime > 0) {
             return remainingTime / (24 * 60 * 60 * 1000L); // Convert milliseconds to days
         } else {
-            return 0; // Or handle as expired
+            return 0; // Handle as expired or return appropriate value
         }
     }
 
@@ -115,7 +106,7 @@ public class BorrowedBooks implements Parcelable {
         this.borrowStartTime = borrowStartTime;
     }
 
-    public void setDays(String days) {
+    public void setDays(int days) {
         this.days = days;
     }
 
@@ -137,7 +128,7 @@ public class BorrowedBooks implements Parcelable {
         dest.writeString(bookTitle);
         dest.writeString(name);
         dest.writeLong(borrowStartTime);
-        dest.writeString(days); // Write as String
+        dest.writeInt(days); // Write as int
         dest.writeString(thumbnailUrl);
         dest.writeInt(borrowCount);
     }

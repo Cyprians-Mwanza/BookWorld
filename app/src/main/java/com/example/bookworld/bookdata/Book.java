@@ -11,6 +11,7 @@ public class Book implements Parcelable {
     private String description;
     private String price;
     private float rating;
+    private int daysToBorrow;
     private String pdfUrl; // Ensure pdfUrl is included
 
     // No-argument constructor required for Firestore
@@ -18,7 +19,7 @@ public class Book implements Parcelable {
     }
 
     // Constructor with arguments
-    public Book(String id, String thumbnailUrl, String title, String author, String description, String price, float rating, String pdfUrl) {
+    public Book(String id, String thumbnailUrl, String title, String author, String description, String price, float rating, String pdfUrl, int daysToBorrow) {
         this.id = id;
         this.thumbnailUrl = thumbnailUrl;
         this.title = title;
@@ -27,6 +28,7 @@ public class Book implements Parcelable {
         this.price = price;
         this.rating = rating;
         this.pdfUrl = pdfUrl;
+        this.daysToBorrow = daysToBorrow;
     }
 
     // Parcelable implementation
@@ -134,4 +136,13 @@ public class Book implements Parcelable {
     public void setPdfUrl(String pdfUrl) {
         this.pdfUrl = pdfUrl;
     }
+
+    public int getDaysToBorrow() {
+        return daysToBorrow;
+    }
+
+    public void setDaysToBorrow(int daysToBorrow) {
+        this.daysToBorrow = daysToBorrow;
+    }
+
 }

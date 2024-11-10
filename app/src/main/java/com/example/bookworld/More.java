@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class More extends AppCompatActivity {
 
-    private static final String TAG = "More";
+    static final String TAG = "More";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,7 +21,7 @@ public class More extends AppCompatActivity {
         LinearLayout groupCard = findViewById(R.id.group);
         LinearLayout helpCard = findViewById(R.id.help);
         LinearLayout borrowCard = findViewById(R.id.borrow);
-        LinearLayout myProfileCard = findViewById(R.id.ic_MyProfile);
+        LinearLayout myProfileCard = findViewById(R.id.reports);
 
         // Set click listeners
         groupCard.setOnClickListener(new View.OnClickListener() {
@@ -55,7 +55,7 @@ public class More extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "My Profile card clicked");
-                Intent intent = new Intent(More.this, Account_Settings.class);
+                Intent intent = new Intent(More.this, Reports.class);
                 startActivity(intent);
             }
         });
