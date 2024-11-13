@@ -50,15 +50,7 @@ public class BorrowedBooksAdapter extends RecyclerView.Adapter<BorrowedBooksAdap
         holder.daysTextView.setText(String.valueOf(borrowedBook.getDays()));
         Picasso.get().load(borrowedBook.getThumbnailUrl()).into(holder.bookThumbnailImageView);
 
-        // Calculate countdown
-        long remainingDays = borrowedBook.getRemainingDays();
-        if (remainingDays > 0) {
-            holder.countdownTextView.setText(String.format("%d days remaining", remainingDays));
-        } else {
-            holder.countdownTextView.setText("Expired");
-            // Optionally remove the book from the user's collection
-            removeBookFromUser(borrowedBook);
-        }
+
     }
 
     @Override

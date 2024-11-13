@@ -156,7 +156,7 @@ public class BuyDetails extends AppCompatActivity {
 
             // Set buy button click listener
             buyButton.setOnClickListener(v -> {
-                Intent intent = new Intent(BuyDetails.this, BorrowPop.class);
+                Intent intent = new Intent(BuyDetails.this, BuyActivity.class);
                 intent.putExtra("BOOK_ID", id);
                 intent.putExtra("BOOK_AUTHOR", author);
                 intent.putExtra("BOOK_TITLE", title);

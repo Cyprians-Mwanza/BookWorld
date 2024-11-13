@@ -26,11 +26,12 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 public class Admindashboard extends AppCompatActivity {
 
@@ -84,15 +85,11 @@ public class Admindashboard extends AppCompatActivity {
         // Set up swipe-to-refresh
         swipeRefreshLayout.setOnRefreshListener(() -> fetchBorrowedBooks());
 
-        threeDotsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Navigate to the "three dots" activity
-                Intent intent = new Intent(Admindashboard.this, three_dots.class);
-                startActivity(intent);
-            }
+        threeDotsButton.setOnClickListener(v -> {
+            // Navigate to the "three dots" activity
+            Intent intent = new Intent(Admindashboard.this, three_dots.class);
+            startActivity(intent);
         });
-
 
         // Fetch borrowed books immediately after login
         fetchBorrowedBooks();
@@ -154,26 +151,33 @@ public class Admindashboard extends AppCompatActivity {
         });
     }
 
-
     private void updateCountdowns() {
-        long currentTimeMillis = System.currentTimeMillis();
+        LocalDate currentDate = LocalDate.now();
+
         for (BorrowedBooks borrowedBook : borrowedBooksList) {
             try {
-                int days = borrowedBook.getDays(); // Directly get the int value
-                long borrowEndTimeMillis = borrowedBook.getBorrowStartTime() + TimeUnit.DAYS.toMillis(days);
-                long remainingMillis = borrowEndTimeMillis - currentTimeMillis;
+                // Get the borrow start date from the timestamp (borrowStartDateMillis stored as long)
+                long borrowStartMillis = borrowedBook.getBorrowStartDateMillis();
+                if (borrowStartMillis != 0) {
+                    // Convert borrowStartMillis to LocalDate
+                    LocalDate borrowStartDate = LocalDate.ofEpochDay(borrowStartMillis / (24 * 60 * 60 * 1000)); // Convert millis to days
+                    long daysPassed = ChronoUnit.DAYS.between(borrowStartDate, currentDate);
+                    int totalDays = borrowedBook.getDays(); // Number of days allowed for borrowing
+                    long daysLeft = totalDays - daysPassed;
 
-                if (remainingMillis > 0) {
-                    long daysLeft = TimeUnit.MILLISECONDS.toDays(remainingMillis);
-                    long hoursLeft = TimeUnit.MILLISECONDS.toHours(remainingMillis) % 24;
-                    long minutesLeft = TimeUnit.MILLISECONDS.toMinutes(remainingMillis) % 60;
-                    long secondsLeft = TimeUnit.MILLISECONDS.toSeconds(remainingMillis) % 60;
-
-                    borrowedBook.setCountdown(String.format("%02d:%02d:%02d", hoursLeft, minutesLeft, secondsLeft));
+                    if (daysLeft > 0) {
+                        // Display the remaining days if positive
+                        borrowedBook.setCountdown(String.format("%d day%s remaining", daysLeft, daysLeft > 1 ? "s" : ""));
+                    } else {
+                        // Set countdown to "Expired" if the time has passed
+                        borrowedBook.setCountdown("Expired");
+                    }
+                } else {
+                    borrowedBook.setCountdown("Unknown Start Date");
                 }
-            } catch (NumberFormatException e) {
-                borrowedBook.setCountdown("Invalid Days");
-                Log.e(TAG, "Error parsing days: " + borrowedBook.getDays(), e);
+            } catch (Exception e) {
+                borrowedBook.setCountdown("Error in Date Calculation");
+                Log.e(TAG, "Error calculating days remaining for: " + borrowedBook.getName(), e);
             }
         }
         adapter.notifyDataSetChanged();

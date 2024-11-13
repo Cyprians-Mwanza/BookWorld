@@ -162,16 +162,14 @@ public class BorrowPop extends AppCompatActivity {
                 });
     }
 
-    // Your existing storeBorrowingDetails method with the date added
     private void storeBorrowingDetails(String name, int days) {
-        // Create a date formatter to get the current date in "dd-MM-yy" format
-        SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MM-yy");
-        String currentDate = dateFormatter.format(new Date()); // Get the current date as a string
+        // Get the current time in milliseconds (timestamp)
+        long currentDateMillis = System.currentTimeMillis(); // Get the current date as a long (timestamp)
 
         // Create a map to store borrowing details
         Map<String, Object> borrowData = new HashMap<>();
         borrowData.put("name", name);
-        borrowData.put("days", days);  // Store as integer directly
+        borrowData.put("days", days);  // Store the number of days directly as an integer
         borrowData.put("bookId", bookId);
         borrowData.put("bookTitle", bookTitle);
         borrowData.put("pdfUrl", pdfUrl);
@@ -179,13 +177,13 @@ public class BorrowPop extends AppCompatActivity {
         borrowData.put("author", author);
         borrowData.put("description", description);
         borrowData.put("price", price);
-        borrowData.put("dateBorrowed", currentDate); // Add the formatted current date
+        borrowData.put("dateBorrowed", currentDateMillis); // Store the current time as a timestamp (long)
 
         // Add the borrowData to Firestore
         db.collection("users").document(userId).collection("borrowedBooks").add(borrowData)
                 .addOnSuccessListener(documentReference -> {
                     Toast.makeText(BorrowPop.this, "Book borrowed successfully", Toast.LENGTH_SHORT).show();
-                    readButton.setVisibility(View.VISIBLE);  // Show read button
+                    readButton.setVisibility(View.VISIBLE);  // Show the read button
                 })
                 .addOnFailureListener(e -> {
                     if (e instanceof FirebaseFirestoreException) {
@@ -200,5 +198,6 @@ public class BorrowPop extends AppCompatActivity {
                     }
                 });
     }
+
 
 }

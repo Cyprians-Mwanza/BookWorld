@@ -2,11 +2,16 @@ package com.example.bookworld.bookdata;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 
 public class BorrowedBooks implements Parcelable {
     private String bookTitle;
+    private String userId;  // Assuming you have a userId field
     private String name; // Borrower's name
-    private long borrowStartTime; // Timestamp for when the book was borrowed
+    private long borrowStartDate; // Timestamp for when the book was borrowed in milliseconds
     private int days; // Number of days the book is borrowed for (stored as int)
     private String thumbnailUrl;
     private int borrowCount; // Count of times borrowed
@@ -17,10 +22,10 @@ public class BorrowedBooks implements Parcelable {
     }
 
     // Constructor with parameters
-    public BorrowedBooks(String bookTitle, String name, long borrowStartTime, int days, String thumbnailUrl, int borrowCount) {
+    public BorrowedBooks(String bookTitle, String name, long borrowStartDate, int days, String thumbnailUrl, int borrowCount) {
         this.bookTitle = bookTitle;
         this.name = name;
-        this.borrowStartTime = borrowStartTime;
+        this.borrowStartDate = borrowStartDate;
         this.days = days;
         this.thumbnailUrl = thumbnailUrl;
         this.borrowCount = borrowCount;
@@ -29,25 +34,34 @@ public class BorrowedBooks implements Parcelable {
     protected BorrowedBooks(Parcel in) {
         bookTitle = in.readString();
         name = in.readString();
-        borrowStartTime = in.readLong();
+        borrowStartDate = in.readLong();
         days = in.readInt(); // Read as int
         thumbnailUrl = in.readString();
         borrowCount = in.readInt();
     }
 
-    public static final Creator<BorrowedBooks> CREATOR = new Creator<BorrowedBooks>() {
-        @Override
-        public BorrowedBooks createFromParcel(Parcel in) {
-            return new BorrowedBooks(in);
-        }
+    // Method to return borrow start date as LocalDate
+    public LocalDate getBorrowStartDate() {
+        return Instant.ofEpochMilli(borrowStartDate)
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+    }
 
-        @Override
-        public BorrowedBooks[] newArray(int size) {
-            return new BorrowedBooks[size];
-        }
-    };
+    // Calculate the remaining days based on the borrow start date and total allowed days
+    public String calculateRemainingDays() {
+        LocalDate currentDate = LocalDate.now();
+        LocalDate borrowStartDateLocal = getBorrowStartDate();
+        long daysPassed = ChronoUnit.DAYS.between(borrowStartDateLocal, currentDate);
+        long daysLeft = days - daysPassed;
 
-    // Getters
+        if (daysLeft > 0) {
+            return String.format("%d day%s remaining", daysLeft, daysLeft > 1 ? "s" : "");
+        } else {
+            return "Expired";
+        }
+    }
+
+    // Getter methods
     public String getBookTitle() {
         return bookTitle;
     }
@@ -56,12 +70,20 @@ public class BorrowedBooks implements Parcelable {
         return name;
     }
 
-    public long getBorrowStartTime() {
-        return borrowStartTime;
+    public long getBorrowStartDateMillis() {
+        return borrowStartDate;
     }
 
     public int getDays() {
         return days;
+    }
+    // Getters and Setters for all fields, including userId
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public String getThumbnailUrl() {
@@ -76,24 +98,7 @@ public class BorrowedBooks implements Parcelable {
         return countdown;
     }
 
-    public void setCountdown(String countdown) {
-        this.countdown = countdown;
-    }
-
-    // Get remaining days as a long
-    public long getRemainingDays() {
-        long currentTime = System.currentTimeMillis();
-        long endTime = borrowStartTime + (days * 24 * 60 * 60 * 1000L); // Convert days to milliseconds
-        long remainingTime = endTime - currentTime;
-
-        if (remainingTime > 0) {
-            return remainingTime / (24 * 60 * 60 * 1000L); // Convert milliseconds to days
-        } else {
-            return 0; // Handle as expired or return appropriate value
-        }
-    }
-
-    // Setters
+    // Setter methods
     public void setBookTitle(String bookTitle) {
         this.bookTitle = bookTitle;
     }
@@ -102,8 +107,8 @@ public class BorrowedBooks implements Parcelable {
         this.name = name;
     }
 
-    public void setBorrowStartTime(long borrowStartTime) {
-        this.borrowStartTime = borrowStartTime;
+    public void setBorrowStartDate(long borrowStartDate) {
+        this.borrowStartDate = borrowStartDate;
     }
 
     public void setDays(int days) {
@@ -118,6 +123,11 @@ public class BorrowedBooks implements Parcelable {
         this.borrowCount = borrowCount;
     }
 
+    public void setCountdown(String countdown) {
+        this.countdown = countdown;
+    }
+
+    // Parcelable methods
     @Override
     public int describeContents() {
         return 0;
@@ -127,9 +137,21 @@ public class BorrowedBooks implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(bookTitle);
         dest.writeString(name);
-        dest.writeLong(borrowStartTime);
+        dest.writeLong(borrowStartDate);
         dest.writeInt(days); // Write as int
         dest.writeString(thumbnailUrl);
         dest.writeInt(borrowCount);
     }
+
+    public static final Creator<BorrowedBooks> CREATOR = new Creator<BorrowedBooks>() {
+        @Override
+        public BorrowedBooks createFromParcel(Parcel in) {
+            return new BorrowedBooks(in);
+        }
+
+        @Override
+        public BorrowedBooks[] newArray(int size) {
+            return new BorrowedBooks[size];
+        }
+    };
 }

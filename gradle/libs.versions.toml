@@ -1,5 +1,6 @@
 [versions]
 agp = "8.4.1"
+cardview = "1.0.0"
 junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
@@ -15,10 +16,12 @@ navigationUi = "2.6.0"
 firebaseDatabase = "21.0.0"
 firebaseStorage = "21.0.0"
 googleServices = "4.4.2"
+picassoVersion = "2.71828"
 swiperefreshlayout = "1.1.0"
 tensorflowLiteMetadata = "0.1.0"
 
 [libraries]
+cardview = { module = "androidx.cardview:cardview", version.ref = "cardview" }
 firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
 google-firebase-auth = { module = "com.google.firebase:firebase-auth" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -34,6 +37,7 @@ navigation-ui = { group = "androidx.navigation", name = "navigation-ui", version
 firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
 firebase-storage = { group = "com.google.firebase", name = "firebase-storage", version.ref = "firebaseStorage" }
 google-services = { group = "com.google.gms", name = "google-services", version.ref = "googleServices" }
+squareup-picasso = { module = "com.squareup.picasso:picasso", version.ref = "picassoVersion" }
 swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
 tensorflow-lite-metadata = { group = "org.tensorflow", name = "tensorflow-lite-metadata", version.ref = "tensorflowLiteMetadata" }
 
