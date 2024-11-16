@@ -2,34 +2,47 @@ package com.example.bookworld.bookdata;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
+import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 public class ReportClass implements Parcelable {
     private String bookTitle;
-    private String name; // Borrower's name
-    private int days; // Number of days the book is borrowed for (stored as int)
-    private String thumbnailUrl;
-    private String dateBorrowed; // Date when the book was borrowed
+    private int days;
+    private Object dateBorrowed;
+    private String genre;
+    private String cart;
 
     // Default constructor
     public ReportClass() {
+        this.bookTitle = "";
+        this.days = 0;
+        this.dateBorrowed = "Unknown Date";
     }
 
     // Constructor with parameters
-    public ReportClass(String bookTitle, String name, String dateBorrowed, int days, String thumbnailUrl) {
-        this.bookTitle = bookTitle;
-        this.name = name;
-        this.dateBorrowed = dateBorrowed;
+    public ReportClass(String bookTitle, Object dateBorrowed, int days) {
+        this.bookTitle = (bookTitle != null) ? bookTitle : "Unknown Title";
+        this.dateBorrowed = (dateBorrowed != null) ? dateBorrowed : "Unknown Date";
         this.days = days;
-        this.thumbnailUrl = thumbnailUrl;
     }
 
     // Parcelable constructor
     protected ReportClass(Parcel in) {
         bookTitle = in.readString();
-        name = in.readString();
-        dateBorrowed = in.readString(); // Read date as String
-        days = in.readInt(); // Read as int
-        thumbnailUrl = in.readString();
+        dateBorrowed = in.readSerializable();
+        days = in.readInt();
     }
 
     public static final Creator<ReportClass> CREATOR = new Creator<ReportClass>() {
@@ -44,46 +57,117 @@ public class ReportClass implements Parcelable {
         }
     };
 
-    // Getters
+    // Firebase methods for data fetching
+
+    public static void fetchFavouriteGenre(FirebaseFirestore db, FirebaseUser currentUser, final OnDataFetchedListener listener) {
+        if (currentUser == null) {
+            Log.e("ReportClass", "User is not logged in.");
+            return;
+        }
+
+        String userId = currentUser.getUid();
+        db.collection("users")
+                .document(userId)
+                .collection("Favourite genre")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        List<String> favouriteGenres = new ArrayList<>();
+                        QuerySnapshot querySnapshot = task.getResult();
+                        for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+                            String genre = document.getString("genreName");
+                            if (genre != null) {
+                                favouriteGenres.add(genre);
+                            }
+                        }
+                        listener.onDataFetched(favouriteGenres);
+                    } else {
+                        Log.e("ReportClass", "Error fetching favourite genres", task.getException());
+                    }
+                });
+    }
+
+    public static void getCartItems(FirebaseFirestore db, FirebaseUser currentUser, final OnDataFetchedListener listener) {
+        if (currentUser == null) {
+            Log.e("ReportClass", "User is not logged in.");
+            return;
+        }
+
+        String userId = currentUser.getUid();
+        db.collection("users")
+                .document(userId)
+                .collection("cartItems")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        List<String> cartItems = new ArrayList<>();
+                        QuerySnapshot querySnapshot = task.getResult();
+                        for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+                            String itemName = document.getString("itemName");
+                            if (itemName != null) {
+                                cartItems.add(itemName);
+                            }
+                        }
+                        listener.onDataFetched(cartItems);
+                    } else {
+                        Log.e("ReportClass", "Error fetching cart items", task.getException());
+                    }
+                });
+    }
+
+    // Interface for the data fetch callback
+    public interface OnDataFetchedListener {
+        void onDataFetched(List<String> data);
+    }
+
+    // Other getters and setters...
+
     public String getBookTitle() {
-        return bookTitle;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getDateBorrowed() {
-        return dateBorrowed; // Return date as String
+        return (bookTitle != null && !bookTitle.isEmpty()) ? bookTitle : "Unknown Title";
     }
 
     public int getDays() {
         return days;
     }
 
-    public String getThumbnailUrl() {
-        return thumbnailUrl;
+    // Getter for the genre
+    public String getGenre() {
+        return genre != null ? genre : "Unknown Genre";
     }
-
-    // Setters
     public void setBookTitle(String bookTitle) {
-        this.bookTitle = bookTitle;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setDateBorrowed(String dateBorrowed) {
-        this.dateBorrowed = dateBorrowed; // Set the date
+        this.bookTitle = (bookTitle != null) ? bookTitle : "Unknown Title";
     }
 
     public void setDays(int days) {
         this.days = days;
     }
 
-    public void setThumbnailUrl(String thumbnailUrl) {
-        this.thumbnailUrl = thumbnailUrl;
+
+
+    // Setter for the genre
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
+    // Getter for the cart
+    public String getCart() {
+        return cart != null ? cart : "No Cart Info";
+    }
+
+    // Setter for the cart
+    public void setCart(String cart) {
+        this.cart = cart;
+    }
+    public String getDateBorrowed() {
+        if (dateBorrowed instanceof Long) {
+            Long timestamp = (Long) dateBorrowed;
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            Date date = new Date(timestamp);
+            return sdf.format(date);
+        } else if (dateBorrowed instanceof String) {
+            return (String) dateBorrowed;
+        }
+        return "Unknown Date";
     }
 
     @Override
@@ -94,9 +178,16 @@ public class ReportClass implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(bookTitle);
-        dest.writeString(name);
-        dest.writeString(dateBorrowed); // Write dateBorrowed as String
-        dest.writeInt(days); // Write as int
-        dest.writeString(thumbnailUrl);
+        dest.writeSerializable((Serializable) dateBorrowed);
+        dest.writeInt(days);
+    }
+
+    @Override
+    public String toString() {
+        return "ReportClass{" +
+                "bookTitle='" + bookTitle + '\'' +
+                ", days=" + days +
+                ", dateBorrowed=" + dateBorrowed +
+                '}';
     }
 }

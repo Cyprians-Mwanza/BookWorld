@@ -82,5 +82,6 @@
     <string name="book_description" />
     <string name="book_price" />
     <string name="borrowed_books">Borrowed Books</string>
+    <string name="price">Price: %1$s</string>
 
 </resources>

@@ -24,6 +24,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class BorrowPop extends AppCompatActivity {
@@ -163,13 +164,14 @@ public class BorrowPop extends AppCompatActivity {
     }
 
     private void storeBorrowingDetails(String name, int days) {
-        // Get the current time in milliseconds (timestamp)
-        long currentDateMillis = System.currentTimeMillis(); // Get the current date as a long (timestamp)
+        // Get the current date and format it as "dd-MM-yyyy"
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+        String formattedDate = dateFormat.format(new Date()); // Format the current date
 
         // Create a map to store borrowing details
         Map<String, Object> borrowData = new HashMap<>();
         borrowData.put("name", name);
-        borrowData.put("days", days);  // Store the number of days directly as an integer
+        borrowData.put("days", days); // Store the number of days directly as an integer
         borrowData.put("bookId", bookId);
         borrowData.put("bookTitle", bookTitle);
         borrowData.put("pdfUrl", pdfUrl);
@@ -177,13 +179,13 @@ public class BorrowPop extends AppCompatActivity {
         borrowData.put("author", author);
         borrowData.put("description", description);
         borrowData.put("price", price);
-        borrowData.put("dateBorrowed", currentDateMillis); // Store the current time as a timestamp (long)
+        borrowData.put("dateBorrowed", formattedDate); // Store the formatted date as a string
 
         // Add the borrowData to Firestore
         db.collection("users").document(userId).collection("borrowedBooks").add(borrowData)
                 .addOnSuccessListener(documentReference -> {
                     Toast.makeText(BorrowPop.this, "Book borrowed successfully", Toast.LENGTH_SHORT).show();
-                    readButton.setVisibility(View.VISIBLE);  // Show the read button
+                    readButton.setVisibility(View.VISIBLE); // Show the read button
                 })
                 .addOnFailureListener(e -> {
                     if (e instanceof FirebaseFirestoreException) {
@@ -198,6 +200,7 @@ public class BorrowPop extends AppCompatActivity {
                     }
                 });
     }
+
 
 
 }

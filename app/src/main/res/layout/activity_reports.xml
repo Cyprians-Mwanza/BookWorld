@@ -10,7 +10,7 @@
     <RelativeLayout
         android:id="@+id/topNavigation"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="65dp"
         android:background="@drawable/cardview_background">
 
         <ImageView
@@ -41,9 +41,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="1dp"
-                android:text="Reports"
+                android:text="REPORTS"
                 android:layout_gravity="center"
-                android:textSize="25sp"
+                android:textSize="20sp"
                 android:textStyle="bold" />
 
             <RelativeLayout
@@ -163,7 +163,7 @@
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
-            <androidx.recyclerview.widget.RecyclerView
+            <ListView
                 android:id="@+id/recyclerBooks"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -174,7 +174,7 @@
                 android:divider="?attr/colorControlNormal"
                 android:dividerHeight="1dp"
                 android:paddingTop="5dp" />
-                    </LinearLayout>
+        </LinearLayout>
     </ScrollView>
 
 </RelativeLayout>

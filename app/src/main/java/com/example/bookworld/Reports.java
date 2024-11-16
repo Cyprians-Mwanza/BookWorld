@@ -1,25 +1,27 @@
 package com.example.bookworld;
 
-import static com.example.bookworld.More.TAG;
+import static android.content.ContentValues.TAG;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.bookworld.bookdata.ReportAdapter;
+import com.bumptech.glide.Glide;
+import com.example.bookworld.bookdata.CartItem;
 import com.example.bookworld.bookdata.ReportClass;
+import com.example.bookworld.bookdata.ReportAdapter;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -29,11 +31,16 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 public class Reports extends AppCompatActivity {
 
@@ -42,12 +49,13 @@ public class Reports extends AppCompatActivity {
     private FirebaseFirestore db;
     private RelativeLayout bookLayout;
     private ImageView back;
-    private TextView dateText, favourite, cartItems;
+    private TextView dateText, favourite, books_in_cart_text, cartItems;
     private ImageButton previousDay, currentDay;
     private String date;
     private ReportAdapter adapter;
     private Dialog dialog;
     private List<ReportClass> reportList;
+    private ArrayList<String> orderList;
     private Map<String, Integer> borrowerCounts = new HashMap<>();
     private Handler handler = new Handler(Looper.getMainLooper());
     private FirebaseUser currentUser;
@@ -58,6 +66,7 @@ public class Reports extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reports);
+
 
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
@@ -77,18 +86,13 @@ public class Reports extends AppCompatActivity {
         bookLayout = findViewById(R.id.book_layout);
         favourite = findViewById(R.id.favourite_genres_text);
         cartItems = findViewById(R.id.books_in_cart_text);
-        RecyclerView recyclerBorrowedBooks = findViewById(R.id.recyclerBooks);
+        ListView listView = findViewById(R.id.recyclerBooks); // Use ListView
         back = findViewById(R.id.backButton);
 
-        if (recyclerBorrowedBooks != null) {
-            recyclerBorrowedBooks.setLayoutManager(new GridLayoutManager(this, 2));
-        }
-
+        // Initialize report list and adapter
         reportList = new ArrayList<>();
-        adapter = new ReportAdapter(reportList);
-        if (recyclerBorrowedBooks != null) {
-            recyclerBorrowedBooks.setAdapter(adapter);
-        }
+        adapter = new ReportAdapter(Reports.this, reportList);
+        listView.setAdapter(adapter); // Set adapter for ListView
 
         // Dialog setup
         dialog = new MaterialAlertDialogBuilder(this)
@@ -99,6 +103,11 @@ public class Reports extends AppCompatActivity {
         dialog.show();
 
         back.setOnClickListener(v -> finish());
+
+        bookLayout.setOnClickListener(v -> {
+            //navigate to low stock activity
+            startActivity(new Intent(Reports.this, search_discovery.class));
+        });
 
         // Get current date
         LocalDate currentDate = LocalDate.now();
@@ -114,32 +123,35 @@ public class Reports extends AppCompatActivity {
         fetchFavouriteGenre();
         getCartItems();
         getData();
-        fetchBorrowedBooks();
+        fetchBorrowedBooks(currentDate); // Pass the current date initially
 
-        // Set onclick listeners for navigating days
+        // Set onclick listeners
         previousDay.setOnClickListener(v -> {
             count++;
             if (count < 6) {
-                LocalDate currentDate1 = LocalDate.now();
-                dateText.setText("");
-                for (int i = 1; i <= count; i++) {
-                    LocalDate previousDate = currentDate1.minusDays(i);
-                    String month = previousDate.getMonth().toString();
-                    month = month.substring(0, 1).toUpperCase() + month.substring(1).toLowerCase();
-                    int previousDay = previousDate.getDayOfMonth();
+                // Get the current date
+                LocalDate currentDate1 = LocalDate.parse(date);
+                LocalDate previousDate = currentDate1.minusDays(count);  // Calculate previous date based on count
 
-                    date = previousDate.toString();
+                // Update the date text to show previous date
+                String month = previousDate.getMonth().toString();
+                month = month.substring(0, 1).toUpperCase() + month.substring(1).toLowerCase();
+                int previousDay = previousDate.getDayOfMonth();
+                date = previousDate.toString();
 
-                    if (i == 1) {
-                        dateText.setText(MessageFormat.format("Yesterday: {0} {1}", previousDay, month));
-                    } else {
-                        dateText.setText(MessageFormat.format("{0} {1}", previousDay, month));
-                    }
+                if (count == 1) {
+                    dateText.setText(MessageFormat.format("Yesterday: {0} {1}", previousDay, month));
+                } else {
+                    dateText.setText(MessageFormat.format("{0} {1}", previousDay, month));
                 }
 
-                // Reset and fetch new data for the selected date
-                resetViews();
-                getData(); // Fetch data for the new selected date
+                // Clear previous report data
+                reportList.clear();
+                adapter.clear();
+                adapter.notifyDataSetChanged();
+
+                // Fetch data for the selected previous date
+                fetchBorrowedBooks(previousDate);  // Pass the previous date as LocalDate
             } else {
                 count = 6;
             }
@@ -148,35 +160,44 @@ public class Reports extends AppCompatActivity {
         currentDay.setOnClickListener(v -> {
             count--;
             if (count >= 0) {
+                // Get the current date
                 LocalDate currentDate1 = LocalDate.now();
-                dateText.setText("");
-                for (int i = 0; i <= count; i++) {
-                    LocalDate previousDate = currentDate1.minusDays(i);
-                    String month = previousDate.getMonth().toString();
-                    month = month.substring(0, 1).toUpperCase() + month.substring(1).toLowerCase();
-                    int previousDay = previousDate.getDayOfMonth();
+                LocalDate nextDate = currentDate1.minusDays(count);  // Calculate next date based on count
 
-                    date = previousDate.toString();
+                // Update the date text to show next date
+                String month = nextDate.getMonth().toString();
+                month = month.substring(0, 1).toUpperCase() + month.substring(1).toLowerCase();
+                int nextDay = nextDate.getDayOfMonth();
+                date = nextDate.toString();
 
-                    if (i == 0) {
-                        dateText.setText(MessageFormat.format("Today: {0} {1}", previousDay, month));
-                    } else if (i == 1) {
-                        dateText.setText(MessageFormat.format("Yesterday: {0} {1}", previousDay, month));
-                    } else {
-                        dateText.setText(MessageFormat.format("{0} {1}", previousDay, month));
-                    }
+                if (count == 0) {
+                    dateText.setText(MessageFormat.format("Today: {0} {1}", nextDay, month));
+                } else if (count == 1) {
+                    dateText.setText(MessageFormat.format("Yesterday: {0} {1}", nextDay, month));
+                } else {
+                    dateText.setText(MessageFormat.format("{0} {1}", nextDay, month));
                 }
 
-                // Reset and fetch new data for the selected date
-                resetViews();
-                getData(); // Fetch data for the new selected date
+                // Clear previous report data
+                reportList.clear();
+                adapter.clear();
+                adapter.notifyDataSetChanged();
+
+                // Fetch data for the selected next date
+                fetchBorrowedBooks(nextDate);  // Pass the next date as LocalDate
             } else {
                 count = 0;
             }
         });
+
+
+
     }
 
     private void fetchFavouriteGenre() {
+        // Get the current date or any specific date for the query
+        String today = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
+
         db.collection("users")
                 .document(userId)
                 .collection("Favourite genre")
@@ -187,7 +208,7 @@ public class Reports extends AppCompatActivity {
                     }
 
                     if (value == null || value.isEmpty()) {
-                        Toast.makeText(Reports.this, "No favourite genre available", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Reports.this, "No favourite genres available", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
@@ -201,10 +222,17 @@ public class Reports extends AppCompatActivity {
 
                     Log.d(TAG, "Favourite genres: " + favouriteGenres);
                     if (!favouriteGenres.isEmpty()) {
-                        favourite.setText(MessageFormat.format("Favourite Genres: {0}", favouriteGenres));
+                        // Create a string with numbered genres
+                        StringBuilder genresList = new StringBuilder("Favourite Genres:\n");
+                        for (int i = 0; i < favouriteGenres.size(); i++) {
+                            genresList.append(i + 1).append(". ").append(favouriteGenres.get(i)).append("\n");
+                        }
+
+                        favourite.setText(genresList.toString());
                     }
                 });
     }
+
 
     private void getCartItems() {
         db.collection("users")
@@ -230,33 +258,97 @@ public class Reports extends AppCompatActivity {
                     }
 
                     Log.d(TAG, "Cart items: " + cartItemList);
-                    cartItems.setText(MessageFormat.format("Cart Items: {0}", cartItemList.size()));
-                });
-    }
 
-    private void getData() {
-        db.collection("users")
-                .document(userId)
-                .collection("borrowedBooks" + "cartItems" + "Favourite genre")
-                .document(date)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document != null && document.exists()) {
-                            Log.d(TAG, "Data for date " + date + ": " + document.getData());
-                            Toast.makeText(Reports.this, "Data for " + date + " retrieved successfully", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Log.d(TAG, "No data found for " + date);
-                            Toast.makeText(Reports.this, "No data available for " + date, Toast.LENGTH_SHORT).show();
+                    if (!cartItemList.isEmpty()) {
+                        // Create a string with numbered cart items
+                        StringBuilder itemsList = new StringBuilder("Cart Items:\n");
+                        for (int i = 0; i < cartItemList.size(); i++) {
+                            itemsList.append(i + 1).append(". ").append(cartItemList.get(i)).append("\n");
                         }
+
+                        cartItems.setText(itemsList.toString()); // Update the TextView with the formatted list
                     } else {
-                        Log.e(TAG, "Error fetching data for " + date, task.getException());
+                        cartItems.setText("No items in the cart.");
                     }
                 });
     }
 
-    private void fetchBorrowedBooks() {
+
+    private void getData() {
+        fetchBorrowedBooks(LocalDate.parse(date)); // Pass the selected or current date
+        // Clear the list before adding new items
+        reportList.clear();
+
+        db.collection(userId)
+                .document("users")
+                .collection("borrowedBooks")
+                .document(date)
+                .collection("borrowedBooks")
+                .addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        if (dialog.isShowing()) {
+                            dialog.dismiss();
+                        }
+                        // Handle the error
+                        Log.e(TAG, "Error getting data: ", error);
+                        return;
+                    }
+
+                    assert value != null;
+                    if (value.isEmpty()) {
+                        if (dialog.isShowing()) {
+                            dialog.dismiss();
+                        }
+                        // Display a message if no sales data is available
+                        Toast.makeText(Reports.this, "No data available for the selected date", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Clear the lists before fetching data
+                    reportList.clear();
+
+                    // Add retrieved items to the list
+                    for (DocumentSnapshot doc : value.getDocuments()) {
+                        ReportClass reportClass = doc.toObject(ReportClass.class);
+                        if (reportClass != null) {
+                            reportList.add(reportClass);
+                            // Add the item to the listview
+                            orderList.add(Objects.requireNonNull(reportClass).getGenre() + " \n" +
+                                    "Count: " + reportClass.getCart());
+                            adapter.notifyDataSetChanged();
+                        }
+                    }
+
+                    // Variables to track genre and cart items count
+                    int favouriteGenreCount = 0;
+                    int cartItems = 0;
+
+                    // Loop through reportList to calculate totals and count items for favourite genre and cart
+                    for (ReportClass reportClass : reportList) {
+                        favouriteGenreCount++;  // Increment the count of favourite genres
+                        cartItems += Integer.parseInt(reportClass.getCart());  // Accumulate cart items count
+                    }
+
+                    // Update the TextViews with the accumulated totals
+                    favourite.setText(MessageFormat.format("{0} Favourite Genres", favouriteGenreCount));
+                    books_in_cart_text.setText(MessageFormat.format("{0} Items in Cart", cartItems));
+
+                    // Now, fetch the favourite genres and cart items again and display them
+                    fetchFavouriteGenre();  // Refresh the favourite genres list
+                    getCartItems();  // Refresh the cart items list
+
+                    if (dialog.isShowing()) {
+                        dialog.dismiss();
+                    }
+                });
+    }
+
+
+
+    private void fetchBorrowedBooks(LocalDate selectedDate) {
+        // Convert the selected date to the "dd-MM-yyyy" format
+        String formattedDate = selectedDate.format(DateTimeFormatter.ofPattern("dd-MM-yyyy", Locale.getDefault()));
+
         db.collection("users").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 QuerySnapshot querySnapshot = task.getResult();
@@ -272,36 +364,28 @@ public class Reports extends AppCompatActivity {
                                     QuerySnapshot borrowedBooksSnapshot = borrowedBooksTask.getResult();
                                     if (borrowedBooksSnapshot != null) {
                                         for (DocumentSnapshot borrowedBookSnapshot : borrowedBooksSnapshot.getDocuments()) {
-                                            ReportClass report = borrowedBookSnapshot.toObject(ReportClass.class);  // Using ReportClass
-                                            if (report != null) {
-                                                // Retrieve and set the missing fields
-                                                Long daysLong = borrowedBookSnapshot.getLong("days");
-                                                report.setDays(daysLong != null ? daysLong.intValue() : 0); // Set days
+                                            // Retrieve the dateBorrowed as a String
+                                            String dateBorrowed = borrowedBookSnapshot.getString("dateBorrowed");
 
-                                                String name = borrowedBookSnapshot.getString("name");
-                                                report.setName(name != null ? name : "Unknown"); // Set borrower name
+                                            if (dateBorrowed != null) {
+                                                // Compare the borrowedDate string with the selected date string
+                                                if (dateBorrowed.equals(formattedDate)) {
+                                                    // Only add books that match the selected date
+                                                    ReportClass report = borrowedBookSnapshot.toObject(ReportClass.class);
+                                                    if (report != null) {
+                                                        report.setDays(borrowedBookSnapshot.getLong("days") != null ? borrowedBookSnapshot.getLong("days").intValue() : 0);
+                                                        report.setBookTitle(borrowedBookSnapshot.getString("name") != null ? borrowedBookSnapshot.getString("name") : "Unknown");
+                                                        report.setBookTitle(borrowedBookSnapshot.getString("bookTitle") != null ? borrowedBookSnapshot.getString("bookTitle") : "No Title");
+                                                        reportList.add(report);
 
-                                                String title = borrowedBookSnapshot.getString("bookTitle");
-                                                report.setBookTitle(title != null ? title : "No Title"); // Set book title
-
-                                                String thumbnailUrl = borrowedBookSnapshot.getString("thumbnailUrl");
-                                                report.setThumbnailUrl(thumbnailUrl != null ? thumbnailUrl : ""); // Set thumbnail URL
-
-                                                String date = borrowedBookSnapshot.getString("dateBorrowed");
-                                                report.setDateBorrowed(date != null ? date : ""); // Set borrower name
-
-                                                reportList.add(report); // Add to report list
-
-                                                // Update borrower counts
-                                                if (name != null) {
-                                                    borrowerCounts.put(name, borrowerCounts.getOrDefault(name, 0) + 1);
+                                                        borrowerCounts.put(report.getBookTitle(), borrowerCounts.getOrDefault(report.getBookTitle(), 0) + 1);
+                                                    }
                                                 }
                                             }
                                         }
 
-                                        // Notify adapter of data change
                                         if (adapter != null) {
-                                            adapter.notifyDataSetChanged();
+                                            adapter.notifyDataSetChanged(); // Notify adapter of data change
                                         }
                                     }
                                 } else {
@@ -317,11 +401,20 @@ public class Reports extends AppCompatActivity {
         });
     }
 
+
+
+
+    private void updateDateText(LocalDate date, String relativeDay) {
+        String month = date.getMonth().toString();
+        month = month.substring(0, 1).toUpperCase() + month.substring(1).toLowerCase();
+        dateText.setText(MessageFormat.format("{0}: {1} {2}", relativeDay, date.getDayOfMonth(), month));
+    }
+
     private void resetViews() {
-        // Clear and reset all data views
         reportList.clear();
-        adapter.notifyDataSetChanged();
-        favourite.setText("");
-        cartItems.setText("");
+        borrowerCounts.clear();
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
     }
 }
