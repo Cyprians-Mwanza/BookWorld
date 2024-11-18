@@ -17,7 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
+import com.example.bookworld.bookdata.AnimationAdapter;
 import com.example.bookworld.bookdata.ArtAdapter;
 import com.example.bookworld.bookdata.Book;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -28,7 +28,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -67,10 +66,11 @@ public class Art extends AppCompatActivity implements ArtAdapter.OnBookClickList
         LinearLayout moreLayout = findViewById(R.id.moretech);
         LinearLayout myBooksLayout = findViewById(R.id.mybookstech);
         auth = FirebaseAuth.getInstance();
-        favouriteButton = findViewById(R.id.favourite);
+        favouriteButton = findViewById(R.id.favourite); // Initialize the button
 
         // Setup RecyclerView
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2); // Set horizontal layout
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2); // 2 columns
+        recyclerView.setLayoutManager(gridLayoutManager);// Set horizontal layout
         bookList = new ArrayList<>();
         trendingAdapter = new ArtAdapter(bookList, this);
         recyclerView.setAdapter(trendingAdapter);
@@ -85,41 +85,22 @@ public class Art extends AppCompatActivity implements ArtAdapter.OnBookClickList
                 String genreName = "Art"; // Replace with the actual genre if it's dynamic
                 String userId = auth.getCurrentUser().getUid();
 
-                if (!TextUtils.isEmpty(genreName)) {
-                    // Reference to the Favourite genre collection
-                    db.collection("users").document(userId).collection("Favourite genre")
-                            .whereEqualTo("genreName", genreName)
-                            .get()
-                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        if (!task.getResult().isEmpty()) {
-                                            // Genre already exists
-                                            Toast.makeText(Art.this, "Genre already added to favourite", Toast.LENGTH_SHORT).show();
-                                        } else {
-                                            // Create a map to store the genre data with the date added
-                                            Map<String, Object> genreData = new HashMap<>();
-                                            genreData.put("genreName", genreName);
-                                            genreData.put("dateAdded", LocalDate.now().toString()); // Add current date as a string
 
-                                            // Add the genre to the "Favourite genre" collection for the current user
-                                            db.collection("users").document(userId).collection("Favourite genre")
-                                                    .add(genreData)
-                                                    .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
-                                                        @Override
-                                                        public void onComplete(@NonNull Task<DocumentReference> task) {
-                                                            if (task.isSuccessful()) {
-                                                                Toast.makeText(Art.this, "Genre added successfully", Toast.LENGTH_SHORT).show();
-                                                            } else {
-                                                                Toast.makeText(Art.this, "Failed to add genre", Toast.LENGTH_SHORT).show();
-                                                            }
-                                                        }
-                                                    });
-                                        }
+                if (!TextUtils.isEmpty(genreName)) {
+                    // Create a map to store the genre data
+                    Map<String, Object> genreData = new HashMap<>();
+                    genreData.put("genreName", genreName);
+
+                    // Add the genre to the "Favourite genre" collection for the current user
+                    db.collection("users").document(userId).collection("Favourite genre")
+                            .add(genreData)
+                            .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentReference> task) {
+                                    if (task.isSuccessful()) {
+                                        Toast.makeText(Art.this, "Genre added successfully", Toast.LENGTH_SHORT).show();
                                     } else {
-                                        // Handle the error
-                                        Toast.makeText(Art.this, "Error checking for existing genre", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(Art.this, "Failed to add genre", Toast.LENGTH_SHORT).show();
                                     }
                                 }
                             });
@@ -128,6 +109,7 @@ public class Art extends AppCompatActivity implements ArtAdapter.OnBookClickList
                 }
             }
         });
+
         // Set onClick listeners
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -228,7 +210,6 @@ public class Art extends AppCompatActivity implements ArtAdapter.OnBookClickList
         }
     }
 
-
     private void retrieveBooks() {
         db.collection("Art")
                 .get()
@@ -244,11 +225,9 @@ public class Art extends AppCompatActivity implements ArtAdapter.OnBookClickList
                                 String author = document.getString("author");
                                 String description = document.getString("description");
                                 String pdfUrl = document.getString("pdfUrl");
-
                                 // Fetch the daysToBorrow value and ensure it's not null
                                 Long daysToBorrowLong = document.getLong("daysToBorrow");
                                 int daysToBorrow = (daysToBorrowLong != null) ? daysToBorrowLong.intValue() : 0;  // Default to 0 if null
-
 
                                 // Retrieve price as a string (ensure it's stored as string in Firestore)
                                 String price = document.getString("price");
@@ -294,6 +273,7 @@ public class Art extends AppCompatActivity implements ArtAdapter.OnBookClickList
                             // Fetch the daysToBorrow value and ensure it's not null
                             Long daysToBorrowLong = document.getLong("daysToBorrow");
                             int daysToBorrow = (daysToBorrowLong != null) ? daysToBorrowLong.intValue() : 0;  // Default to 0 if null
+
 
 
                             // Retrieve price as a string (ensure it's stored as string in Firestore)

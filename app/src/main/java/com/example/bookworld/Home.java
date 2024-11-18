@@ -156,29 +156,90 @@ public class Home extends AppCompatActivity implements FictionAdapter.OnBookClic
 
 
     private void retrieveBooks() {
-        db.collection("Fiction")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+        // List of collection names to query
+        String[] collections = {"Fiction", "Non-Fiction", "Business"};
+
+        // Clear the existing list
+        bookList.clear();
+
+        // Loop through each collection and fetch documents
+        for (String collection : collections) {
+            db.collection(collection)
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    String id = document.getId();
+                                    String thumbnailUrl = document.getString("thumbnailUrl");
+                                    String title = document.getString("title");
+                                    String author = document.getString("author");
+                                    String description = document.getString("description");
+                                    String pdfUrl = document.getString("pdfUrl");
+
+                                    // Fetch the daysToBorrow value and ensure it's not null
+                                    Long daysToBorrowLong = document.getLong("daysToBorrow");
+                                    int daysToBorrow = (daysToBorrowLong != null) ? daysToBorrowLong.intValue() : 0;  // Default to 0 if null
+
+                                    // Retrieve price as a string (ensure it's stored as string in Firestore)
+                                    String price = document.getString("price");
+
+                                    float rating = 0.0f; // Default value if not found or conversion fails
+                                    Object ratingObj = document.get("rating");
+                                    if (ratingObj instanceof Double) {
+                                        rating = ((Double) ratingObj).floatValue();
+                                    } else if (ratingObj instanceof Float) {
+                                        rating = (Float) ratingObj;
+                                    }
+
+                                    // Create a Book object and add it to the list
+                                    Book book = new Book(id, thumbnailUrl, title, author, description, price, rating, pdfUrl, daysToBorrow);
+                                    bookList.add(book);
+                                }
+
+                                // Notify the adapter after all collections are processed
+                                trendingAdapter.notifyDataSetChanged();
+                            } else {
+                                // Handle errors
+                                Log.e("FirestoreError", "Error getting books from " + collection + ": ", task.getException());
+                                Toast.makeText(Home.this, "Error fetching books from " + collection, Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+        }
+    }
+
+
+    private void searchBooks(String query) {
+        // List of collection names to search
+        String[] collections = {"Comics", "Fantasy", "Fiction", "Non-Fiction", "Technology", "Art", "Business", "Health Sciences", "History"};
+
+        // Clear the existing list before adding new results
+        bookList.clear();
+
+        for (String collection : collections) {
+            db.collection(collection)
+                    .whereGreaterThanOrEqualTo("title", query)
+                    .whereLessThanOrEqualTo("title", query + "\uf8ff")
+                    .get()
+                    .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
-                            bookList.clear();
                             for (QueryDocumentSnapshot document : task.getResult()) {
+                                // Retrieve book details
                                 String id = document.getId();
                                 String thumbnailUrl = document.getString("thumbnailUrl");
                                 String title = document.getString("title");
                                 String author = document.getString("author");
                                 String description = document.getString("description");
                                 String pdfUrl = document.getString("pdfUrl");
-
-                                // Fetch the daysToBorrow value and ensure it's not null
                                 Long daysToBorrowLong = document.getLong("daysToBorrow");
-                                int daysToBorrow = (daysToBorrowLong != null) ? daysToBorrowLong.intValue() : 0;  // Default to 0 if null
+                                int daysToBorrow = (daysToBorrowLong != null) ? daysToBorrowLong.intValue() : 0;
 
-                                // Retrieve price as a string (ensure it's stored as string in Firestore)
+                                // Retrieve price as a string
                                 String price = document.getString("price");
 
-                                float rating = 0.0f; // Default value if not found or conversion fails
+                                float rating = 0.0f;
                                 Object ratingObj = document.get("rating");
                                 if (ratingObj instanceof Double) {
                                     rating = ((Double) ratingObj).floatValue();
@@ -186,67 +247,83 @@ public class Home extends AppCompatActivity implements FictionAdapter.OnBookClic
                                     rating = (Float) ratingObj;
                                 }
 
-                                // Create a Book object and add it to the list
+                                // Create and add the Book object to the list
                                 Book book = new Book(id, thumbnailUrl, title, author, description, price, rating, pdfUrl, daysToBorrow);
                                 bookList.add(book);
                             }
-                            // Notify the adapter that the data set has changed
+
+                            // Notify adapter after processing each collection
                             trendingAdapter.notifyDataSetChanged();
-                        } else {
-                            // Handle errors
-                            Log.e("FirestoreError", "Error getting books: ", task.getException());
-                            Toast.makeText(Home.this, "Error fetching books", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-    }
 
-    private void searchBooks(String query) {
-        db.collection("Comics")
-                .whereEqualTo("title", query)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        bookList.clear();
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            String id = document.getId();
-                            String thumbnailUrl = document.getString("thumbnailUrl");
-                            String title = document.getString("title");
-                            String author = document.getString("author");
-                            String description = document.getString("description");
-                            String pdfUrl = document.getString("pdfUrl");
-                            int daysToBorrow = document.getLong("daysToBorrow").intValue();  // Use intValue() to convert Long to int
-
-
-                            // Retrieve price as a string (ensure it's stored as string in Firestore)
-                            String price = document.getString("price");
-
-                            float rating = 0.0f; // Default value if not found or conversion fails
-                            Object ratingObj = document.get("rating");
-                            if (ratingObj instanceof Double) {
-                                rating = ((Double) ratingObj).floatValue();
-                            } else if (ratingObj instanceof Float) {
-                                rating = (Float) ratingObj;
+                            // Show or hide messageTextView based on search results
+                            if (bookList.isEmpty()) {
+                                messageTextView.setText("No books found matching your query.");
+                                messageTextView.setVisibility(View.VISIBLE);
+                            } else {
+                                messageTextView.setVisibility(View.GONE);
                             }
-
-                            // Create a Book object and add it to the list
-                            Book book = new Book(id, thumbnailUrl, title, author, description, price, rating, pdfUrl, daysToBorrow);
-                            bookList.add(book);
-                        }
-                        // Notify adapter of data change
-                        trendingAdapter.notifyDataSetChanged();
-
-                        // Show/hide messageTextView based on search result
-                        if (bookList.isEmpty()) {
-                            messageTextView.setText("Book not available");
-                            messageTextView.setVisibility(View.VISIBLE);
                         } else {
-                            messageTextView.setVisibility(View.GONE);
+                            Log.e("FirestoreError", "Error searching books in " + collection + ": ", task.getException());
+                            Toast.makeText(getApplicationContext(), "Error fetching data from " + collection, Toast.LENGTH_SHORT).show();
                         }
-                    } else {
-                        Log.e("FirestoreError", "Error getting documents: ", task.getException());
-                        Toast.makeText(getApplicationContext(), "Error fetching data", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                    });
+
+            // Repeat search logic for author field
+            db.collection(collection)
+                    .whereGreaterThanOrEqualTo("author", query)
+                    .whereLessThanOrEqualTo("author", query + "\uf8ff")
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                // Check if the book is already in the list to avoid duplicates
+                                String id = document.getId();
+                                boolean exists = false;
+                                for (Book book : bookList) {
+                                    if (book.getId().equals(id)) {
+                                        exists = true;
+                                        break;
+                                    }
+                                }
+                                if (!exists) {
+                                    // Retrieve book details
+                                    String thumbnailUrl = document.getString("thumbnailUrl");
+                                    String title = document.getString("title");
+                                    String author = document.getString("author");
+                                    String description = document.getString("description");
+                                    String pdfUrl = document.getString("pdfUrl");
+                                    Long daysToBorrowLong = document.getLong("daysToBorrow");
+                                    int daysToBorrow = (daysToBorrowLong != null) ? daysToBorrowLong.intValue() : 0;
+
+                                    String price = document.getString("price");
+
+                                    float rating = 0.0f;
+                                    Object ratingObj = document.get("rating");
+                                    if (ratingObj instanceof Double) {
+                                        rating = ((Double) ratingObj).floatValue();
+                                    } else if (ratingObj instanceof Float) {
+                                        rating = (Float) ratingObj;
+                                    }
+
+                                    // Create and add the Book object to the list
+                                    Book book = new Book(id, thumbnailUrl, title, author, description, price, rating, pdfUrl, daysToBorrow);
+                                    bookList.add(book);
+                                }
+                            }
+                            // Notify the adapter and show/hide messageTextView as before
+                            trendingAdapter.notifyDataSetChanged();
+                            if (bookList.isEmpty()) {
+                                messageTextView.setText("No books found matching your query.");
+                                messageTextView.setVisibility(View.VISIBLE);
+                            } else {
+                                messageTextView.setVisibility(View.GONE);
+                            }
+                        } else {
+                            Log.e("FirestoreError", "Error searching books in " + collection + ": ", task.getException());
+                            Toast.makeText(getApplicationContext(), "Error fetching data from " + collection, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
     }
+
 }

@@ -134,6 +134,7 @@ public class Non_Fiction extends AppCompatActivity implements NonFictionAdapter.
                 }
             }
         });
+
         // Set onClick listeners
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override

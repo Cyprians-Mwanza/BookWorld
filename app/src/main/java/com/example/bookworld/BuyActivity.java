@@ -56,7 +56,7 @@ public class BuyActivity extends AppCompatActivity implements View.OnClickListen
 
         binding.btnPay.setOnClickListener(this);
 
-        // Initialize read button and make it invisible at the start
+        // Initialize the read button and make it invisible initially
         readButton = binding.readButton;
         readButton.setVisibility(View.GONE);
 
@@ -201,28 +201,28 @@ public class BuyActivity extends AppCompatActivity implements View.OnClickListen
 
                     if (stkCallbackResponse.getResultCode().equals("0")) {
                         // Transaction successful
-                        Toast.makeText(BuyActivity.this, "Transaction successful!", Toast.LENGTH_SHORT).show();
-
-                        // Show the "Read" button after a successful transaction
-                        readButton.setVisibility(View.VISIBLE);
+                        runOnUiThread(() -> {
+                            Toast.makeText(BuyActivity.this, "Transaction successful!", Toast.LENGTH_SHORT).show();
+                            readButton.setVisibility(View.VISIBLE);
+                        });
 
                         // Save purchase details to Firestore
                         savePurchaseDetails();
                     } else {
                         // Transaction failed
-                        Toast.makeText(BuyActivity.this, "Transaction failed. Please try again.", Toast.LENGTH_SHORT).show();
+                        runOnUiThread(() -> Toast.makeText(BuyActivity.this, "Transaction failed. Please try again.", Toast.LENGTH_SHORT).show());
                     }
                 }
 
                 @Override
                 public void onFailure(String error) {
                     Timber.e("Failed to get transaction status: %s", error);
-                    Toast.makeText(BuyActivity.this, "Failed to confirm transaction. Please check your network connection.", Toast.LENGTH_SHORT).show();
+                    runOnUiThread(() -> Toast.makeText(BuyActivity.this, "Failed to confirm transaction. Please check your network connection.", Toast.LENGTH_SHORT).show());
                 }
+
             });
         }, 30000); // Check after 30 seconds
     }
-
 
     private void savePurchaseDetails() {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();

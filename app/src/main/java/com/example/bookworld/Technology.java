@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -23,12 +24,17 @@ import com.example.bookworld.bookdata.FictionAdapter;
 import com.example.bookworld.bookdata.TechnologyAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Technology extends AppCompatActivity implements TechnologyAdapter.OnBookClickListener {
 
@@ -40,6 +46,8 @@ public class Technology extends AppCompatActivity implements TechnologyAdapter.O
     private TextView messageTextView;
     private ImageView backButton;
     private ImageView threeDotsButton;
+    private FirebaseAuth auth;
+    private Button favouriteButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +67,8 @@ public class Technology extends AppCompatActivity implements TechnologyAdapter.O
         LinearLayout searchLayout = findViewById(R.id.searchtech);
         LinearLayout moreLayout = findViewById(R.id.moretech);
         LinearLayout myBooksLayout = findViewById(R.id.mybookstech);
+        auth = FirebaseAuth.getInstance();
+        favouriteButton = findViewById(R.id.favourite); // Initialize the button
 
         // Setup RecyclerView
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2); // 2 columns
@@ -69,6 +79,58 @@ public class Technology extends AppCompatActivity implements TechnologyAdapter.O
 
         // Retrieve book details from Firestore
         retrieveBooks();
+
+        // Set onClick listener for the "Add to Favourite Genre" button
+        favouriteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String genreName = "Non_Fiction"; // Replace with the actual genre if it's dynamic
+                String userId = auth.getCurrentUser().getUid();
+
+                if (!TextUtils.isEmpty(genreName)) {
+                    // Reference to the Favourite genre collection
+                    db.collection("users").document(userId).collection("Favourite genre")
+                            .whereEqualTo("genreName", genreName)
+                            .get()
+                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        if (!task.getResult().isEmpty()) {
+                                            // Genre already exists
+                                            Toast.makeText(Technology.this, "Genre already added to favourite", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            // Create a map to store the genre data with the date added
+                                            Map<String, Object> genreData = new HashMap<>();
+                                            genreData.put("genreName", genreName);
+                                            genreData.put("dateAdded", LocalDate.now().toString()); // Add current date as a string
+
+                                            // Add the genre to the "Favourite genre" collection for the current user
+                                            db.collection("users").document(userId).collection("Favourite genre")
+                                                    .add(genreData)
+                                                    .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<DocumentReference> task) {
+                                                            if (task.isSuccessful()) {
+                                                                Toast.makeText(Technology.this, "Genre added successfully", Toast.LENGTH_SHORT).show();
+                                                            } else {
+                                                                Toast.makeText(Technology.this, "Failed to add genre", Toast.LENGTH_SHORT).show();
+                                                            }
+                                                        }
+                                                    });
+                                        }
+                                    } else {
+                                        // Handle the error
+                                        Toast.makeText(Technology.this, "Error checking for existing genre", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+                } else {
+                    Toast.makeText(Technology.this, "Genre name cannot be empty", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
 
         // Set onClick listeners
         searchButton.setOnClickListener(new View.OnClickListener() {

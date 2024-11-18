@@ -55,7 +55,7 @@
                     android:elevation="14dp"
                     android:drawableStart="@drawable/email"
                     android:inputType="textWebEmailAddress"
-                    android:hint="Email"/>
+                    android:hint="@string/email"/>
 
             </LinearLayout>
             <LinearLayout
@@ -78,8 +78,8 @@
                     android:background="@drawable/cardview"
                     android:elevation="14dp"
                     android:drawableStart="@drawable/baseline_person_24"
-                    android:inputType="textWebEmailAddress"
-                    android:hint="@string/username"/>
+                    android:inputType="textPersonName"
+                    android:hint="@string/full_names"/>
 
             </LinearLayout>
             <LinearLayout
@@ -167,6 +167,7 @@
 
 
             <RelativeLayout
+                android:layout_marginTop="15dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">

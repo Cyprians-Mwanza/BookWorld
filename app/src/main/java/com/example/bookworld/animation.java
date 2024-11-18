@@ -81,7 +81,7 @@ public class animation extends AppCompatActivity implements AnimationAdapter.OnB
         favouriteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String genreName = "Comics"; // Replace with the actual genre if it's dynamic
+                String genreName = "Animation"; // Replace with the actual genre if it's dynamic
                 String userId = auth.getCurrentUser().getUid();
 
 
