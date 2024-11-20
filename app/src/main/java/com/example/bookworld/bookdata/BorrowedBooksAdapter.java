@@ -16,7 +16,11 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 public class BorrowedBooksAdapter extends RecyclerView.Adapter<BorrowedBooksAdapter.ViewHolder> {
 
@@ -45,12 +49,20 @@ public class BorrowedBooksAdapter extends RecyclerView.Adapter<BorrowedBooksAdap
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         BorrowedBooks borrowedBook = borrowedBooksList.get(position);
+
+        // Set book and borrower information
         holder.bookTitleTextView.setText(borrowedBook.getBookTitle());
         holder.borrowerNameTextView.setText(borrowedBook.getName());
         holder.daysTextView.setText(String.valueOf(borrowedBook.getDays()));
         Picasso.get().load(borrowedBook.getThumbnailUrl()).into(holder.bookThumbnailImageView);
 
-
+        // Calculate and display remaining days
+        long remainingDays = calculateRemainingDays(borrowedBook.getReturnDate());
+        if (remainingDays >= 0) {
+            holder.countdownTextView.setText(remainingDays + " days remaining");
+        } else {
+            holder.countdownTextView.setText("Overdue by " + Math.abs(remainingDays) + " days");
+        }
     }
 
     @Override
@@ -65,7 +77,6 @@ public class BorrowedBooksAdapter extends RecyclerView.Adapter<BorrowedBooksAdap
     }
 
     private void removeBookFromUser(BorrowedBooks borrowedBook) {
-        // Implement logic to remove the book from the user's collection in Firestore
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         DocumentReference userDoc = firestore.collection("users").document("userId"); // replace "userId" with actual user ID
         userDoc.collection("borrowedBooks").document(borrowedBook.getBookTitle()).delete()
@@ -75,6 +86,22 @@ public class BorrowedBooksAdapter extends RecyclerView.Adapter<BorrowedBooksAdap
                 .addOnFailureListener(e -> {
                     // Handle error
                 });
+    }
+
+    private long calculateRemainingDays(String returnDate) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        try {
+            Calendar returnCalendar = Calendar.getInstance();
+            returnCalendar.setTime(sdf.parse(returnDate));
+
+            Calendar currentCalendar = Calendar.getInstance();
+            long diffMillis = returnCalendar.getTimeInMillis() - currentCalendar.getTimeInMillis();
+
+            return TimeUnit.MILLISECONDS.toDays(diffMillis);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0; // Default to 0 if there is an error in parsing
+        }
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

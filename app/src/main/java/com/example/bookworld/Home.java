@@ -157,7 +157,7 @@ public class Home extends AppCompatActivity implements FictionAdapter.OnBookClic
 
     private void retrieveBooks() {
         // List of collection names to query
-        String[] collections = {"Fiction", "Non-Fiction", "Business"};
+        String[] collections = {"Fiction", "Non-Fiction", "Fantasy"};
 
         // Clear the existing list
         bookList.clear();

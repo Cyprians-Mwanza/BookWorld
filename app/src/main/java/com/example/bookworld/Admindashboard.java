@@ -153,86 +153,37 @@ public class Admindashboard extends AppCompatActivity {
 
     private void updateCountdowns() {
         LocalDate currentDate = LocalDate.now();
-
-        for (BorrowedBooks borrowedBook : borrowedBooksList) {
-            try {
-                // Get the borrow start date from the timestamp (borrowStartDateMillis stored as long)
-                long borrowStartMillis = borrowedBook.getBorrowStartDateMillis();
-                if (borrowStartMillis != 0) {
-                    // Convert borrowStartMillis to LocalDate
-                    LocalDate borrowStartDate = LocalDate.ofEpochDay(borrowStartMillis / (24 * 60 * 60 * 1000)); // Convert millis to days
-                    long daysPassed = ChronoUnit.DAYS.between(borrowStartDate, currentDate);
-                    int totalDays = borrowedBook.getDays(); // Number of days allowed for borrowing
-                    long daysLeft = totalDays - daysPassed;
-
-                    if (daysLeft > 0) {
-                        // Display the remaining days if positive
-                        borrowedBook.setCountdown(String.format("%d day%s remaining", daysLeft, daysLeft > 1 ? "s" : ""));
-                    } else {
-                        // Set countdown to "Expired" if the time has passed
-                        borrowedBook.setCountdown("Expired");
-                    }
-                } else {
-                    borrowedBook.setCountdown("Unknown Start Date");
-                }
-            } catch (Exception e) {
-                borrowedBook.setCountdown("Error in Date Calculation");
-                Log.e(TAG, "Error calculating days remaining for: " + borrowedBook.getName(), e);
+        for (BorrowedBooks book : borrowedBooksList) {
+            if (book.getReturnDateMillis() > 0) {
+                LocalDate returnDate = LocalDate.ofEpochDay(book.getReturnDateMillis() / (24 * 60 * 60 * 1000));
+                long daysLeft = ChronoUnit.DAYS.between(currentDate, returnDate);
+                String countdown = "Due in " + daysLeft + " days";
+                book.setCountdown(countdown);
             }
         }
-        adapter.notifyDataSetChanged();
+        adapter.notifyDataSetChanged(); // Notify adapter about countdown changes
     }
 
     private void updateCharts() {
-        // Prepare data for the line chart
-        List<BorrowedBooks> topBorrowedBooks = getTopBorrowedBooks(borrowedBooksList);
-
-        // Clear existing series from the line chart
-        lineChart.removeAllSeries();
-
-        // Create LineGraphSeries for each top borrowed book
-        int colorIndex = 0;
-        for (BorrowedBooks book : topBorrowedBooks) {
-            LineGraphSeries<DataPoint> lineSeries = new LineGraphSeries<>();
-            int index = 0;
-
-            // Example data: Use actual data points from your data
-            for (int i = 0; i < 10; i++) { // Replace with actual data
-                lineSeries.appendData(new DataPoint(index++, Math.random() * 10), true, 10);
-            }
-
-            // Set a different color for each series
-            lineSeries.setColor(getLineColor(colorIndex));
-            lineSeries.setTitle(book.getBookTitle()); // Ensure this method exists
-            lineChart.addSeries(lineSeries);
-            colorIndex++;
+        // Setup for graph chart
+        List<DataPoint> dataPoints = new ArrayList<>();
+        int i = 0;
+        for (String borrower : borrowerCounts.keySet()) {
+            dataPoints.add(new DataPoint(i++, borrowerCounts.get(borrower)));
         }
 
-        lineChart.setTitle("Top Borrowed Books");
+        LineGraphSeries<DataPoint> series = new LineGraphSeries<>(dataPoints.toArray(new DataPoint[0]));
+        lineChart.addSeries(series);
+
+        // Set chart properties
+        lineChart.getViewport().setScalable(true);
+        lineChart.getViewport().setScrollable(true);
         lineChart.getLegendRenderer().setVisible(true);
-        lineChart.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
-    }
-
-    private List<BorrowedBooks> getTopBorrowedBooks(List<BorrowedBooks> borrowedBooksList) {
-        // Example logic: sort books by borrow count and return top N
-        borrowedBooksList.sort((b1, b2) -> Integer.compare(b2.getBorrowCount(), b1.getBorrowCount()));
-        return borrowedBooksList.subList(0, Math.min(5, borrowedBooksList.size()));
-    }
-
-    private int getLineColor(int index) {
-        int[] colors = {
-                android.graphics.Color.RED,
-                android.graphics.Color.GREEN,
-                android.graphics.Color.BLUE,
-                android.graphics.Color.YELLOW,
-                android.graphics.Color.CYAN
-        };
-        return colors[index % colors.length];
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        handler.removeCallbacks(updateCountdownRunnable); // Stop countdown updates when activity is destroyed
+        handler.removeCallbacks(updateCountdownRunnable); // Remove countdown update when activity is destroyed
     }
 }

@@ -28,11 +28,11 @@
 
 <ScrollView
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_marginStart="7dp">
 
     <TextView
         android:layout_marginTop="2dp"
-       android:layout_marginStart="6dp"
         android:id="@+id/contentTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

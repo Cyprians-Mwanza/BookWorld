@@ -1,157 +1,157 @@
 package com.example.bookworld.bookdata;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
+public class BorrowedBooks {
 
-public class BorrowedBooks implements Parcelable {
+    private String name;
+    private int days;
+    private String bookId;
     private String bookTitle;
-    private String userId;  // Assuming you have a userId field
-    private String name; // Borrower's name
-    private long borrowStartDate; // Timestamp for when the book was borrowed in milliseconds
-    private int days; // Number of days the book is borrowed for (stored as int)
+    private String pdfUrl;
     private String thumbnailUrl;
-    private int borrowCount; // Count of times borrowed
-    private String countdown; // Countdown string
+    private String author;
+    private String description;
+    private String price;
+    private String dateBorrowed;  // Formatted date as a string
+    private long returnDateMillis; // Return date as a timestamp
+    private String returnDate; // Formatted return date as a string
+    private String countdown; // Field to store the countdown string
+    private int borrowCount; // Add a borrow count field
 
-    // Default constructor
+    // Default constructor required for Firestore
     public BorrowedBooks() {
     }
 
-    // Constructor with parameters
-    public BorrowedBooks(String bookTitle, String name, long borrowStartDate, int days, String thumbnailUrl, int borrowCount) {
-        this.bookTitle = bookTitle;
+    // Constructor for initialization
+    public BorrowedBooks(String name, int days, String bookId, String bookTitle, String pdfUrl,
+                         String thumbnailUrl, String author, String description, String price,
+                         String dateBorrowed, long returnDateMillis, String returnDate, int borrowCount) {
         this.name = name;
-        this.borrowStartDate = borrowStartDate;
         this.days = days;
+        this.bookId = bookId;
+        this.bookTitle = bookTitle;
+        this.pdfUrl = pdfUrl;
         this.thumbnailUrl = thumbnailUrl;
-        this.borrowCount = borrowCount;
+        this.author = author;
+        this.description = description;
+        this.price = price;
+        this.dateBorrowed = dateBorrowed;
+        this.returnDateMillis = returnDateMillis;
+        this.returnDate = returnDate;
+        this.borrowCount = borrowCount; // Initialize borrow count
     }
 
-    protected BorrowedBooks(Parcel in) {
-        bookTitle = in.readString();
-        name = in.readString();
-        borrowStartDate = in.readLong();
-        days = in.readInt(); // Read as int
-        thumbnailUrl = in.readString();
-        borrowCount = in.readInt();
-    }
-
-    // Method to return borrow start date as LocalDate
-    public LocalDate getBorrowStartDate() {
-        return Instant.ofEpochMilli(borrowStartDate)
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate();
-    }
-
-    // Calculate the remaining days based on the borrow start date and total allowed days
-    public String calculateRemainingDays() {
-        LocalDate currentDate = LocalDate.now();
-        LocalDate borrowStartDateLocal = getBorrowStartDate();
-        long daysPassed = ChronoUnit.DAYS.between(borrowStartDateLocal, currentDate);
-        long daysLeft = days - daysPassed;
-
-        if (daysLeft > 0) {
-            return String.format("%d day%s remaining", daysLeft, daysLeft > 1 ? "s" : "");
-        } else {
-            return "Expired";
-        }
-    }
-
-    // Getter methods
-    public String getBookTitle() {
-        return bookTitle;
-    }
-
+    // Getters and setters
     public String getName() {
         return name;
-    }
-
-    public long getBorrowStartDateMillis() {
-        return borrowStartDate;
-    }
-
-    public int getDays() {
-        return days;
-    }
-    // Getters and Setters for all fields, including userId
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public String getThumbnailUrl() {
-        return thumbnailUrl;
-    }
-
-    public int getBorrowCount() {
-        return borrowCount;
-    }
-
-    public String getCountdown() {
-        return countdown;
-    }
-
-    // Setter methods
-    public void setBookTitle(String bookTitle) {
-        this.bookTitle = bookTitle;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public void setBorrowStartDate(long borrowStartDate) {
-        this.borrowStartDate = borrowStartDate;
+    public int getDays() {
+        return days;
     }
 
     public void setDays(int days) {
         this.days = days;
     }
 
+    public String getBookId() {
+        return bookId;
+    }
+
+    public void setBookId(String bookId) {
+        this.bookId = bookId;
+    }
+
+    public String getBookTitle() {
+        return bookTitle;
+    }
+
+    public void setBookTitle(String bookTitle) {
+        this.bookTitle = bookTitle;
+    }
+
+    public String getPdfUrl() {
+        return pdfUrl;
+    }
+
+    public void setPdfUrl(String pdfUrl) {
+        this.pdfUrl = pdfUrl;
+    }
+
+    public String getThumbnailUrl() {
+        return thumbnailUrl;
+    }
+
     public void setThumbnailUrl(String thumbnailUrl) {
         this.thumbnailUrl = thumbnailUrl;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getPrice() {
+        return price;
+    }
+
+    public void setPrice(String price) {
+        this.price = price;
+    }
+
+    public String getDateBorrowed() {
+        return dateBorrowed;
+    }
+
+    public void setDateBorrowed(String dateBorrowed) {
+        this.dateBorrowed = dateBorrowed;
+    }
+
+    public long getReturnDateMillis() {
+        return returnDateMillis;
+    }
+
+    public void setReturnDateMillis(long returnDateMillis) {
+        this.returnDateMillis = returnDateMillis;
+    }
+
+    public String getReturnDate() {
+        return returnDate;
+    }
+
+    public void setReturnDate(String returnDate) {
+        this.returnDate = returnDate;
+    }
+
+    // Getter and Setter for borrowCount
+    public int getBorrowCount() {
+        return borrowCount;
     }
 
     public void setBorrowCount(int borrowCount) {
         this.borrowCount = borrowCount;
     }
 
+    // Getter and Setter for countdown
+    public String getCountdown() {
+        return countdown;
+    }
+
     public void setCountdown(String countdown) {
         this.countdown = countdown;
     }
-
-    // Parcelable methods
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(bookTitle);
-        dest.writeString(name);
-        dest.writeLong(borrowStartDate);
-        dest.writeInt(days); // Write as int
-        dest.writeString(thumbnailUrl);
-        dest.writeInt(borrowCount);
-    }
-
-    public static final Creator<BorrowedBooks> CREATOR = new Creator<BorrowedBooks>() {
-        @Override
-        public BorrowedBooks createFromParcel(Parcel in) {
-            return new BorrowedBooks(in);
-        }
-
-        @Override
-        public BorrowedBooks[] newArray(int size) {
-            return new BorrowedBooks[size];
-        }
-    };
 }

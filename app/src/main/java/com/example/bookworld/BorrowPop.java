@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
@@ -233,12 +234,21 @@ public class BorrowPop extends AppCompatActivity {
     }
 
     private void storeBorrowingDetails(String name, int days) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-        String formattedDate = dateFormat.format(new Date());
+        // Get the current time in milliseconds (timestamp)
+        long currentDateMillis = System.currentTimeMillis(); // Get the current date as a long (timestamp)
 
+        // Calculate the return date by adding the number of days to the current date
+        long returnDateMillis = currentDateMillis + (days * 24L * 60 * 60 * 1000); // Convert days to milliseconds
+
+        // Format the current date and return date into a readable format
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String borrowedDate = sdf.format(new Date(currentDateMillis)); // Current date as string
+        String returnDate = sdf.format(new Date(returnDateMillis)); // Return date as string
+
+        // Create a map to store borrowing details
         Map<String, Object> borrowData = new HashMap<>();
         borrowData.put("name", name);
-        borrowData.put("days", days);
+        borrowData.put("days", days);  // Store the number of days directly as an integer
         borrowData.put("bookId", bookId);
         borrowData.put("bookTitle", bookTitle);
         borrowData.put("pdfUrl", pdfUrl);
@@ -246,14 +256,28 @@ public class BorrowPop extends AppCompatActivity {
         borrowData.put("author", author);
         borrowData.put("description", description);
         borrowData.put("price", price);
-        borrowData.put("dateBorrowed", formattedDate);
+        borrowData.put("dateBorrowed", borrowedDate); // Store the formatted borrowing date
+        borrowData.put("returnDateMillis", returnDateMillis); // Store the return date as a timestamp
+        borrowData.put("returnDate", returnDate); // Store the formatted return date
 
+        // Add the borrowData to Firestore
         db.collection("users").document(userId).collection("borrowedBooks").add(borrowData)
                 .addOnSuccessListener(documentReference -> {
                     Toast.makeText(BorrowPop.this, "Book borrowed successfully", Toast.LENGTH_SHORT).show();
-                    readButton.setVisibility(View.VISIBLE);
+                    readButton.setVisibility(View.VISIBLE);  // Show the read button
                 })
-                .addOnFailureListener(e -> Toast.makeText(BorrowPop.this, "Error borrowing book: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> {
+                    if (e instanceof FirebaseFirestoreException) {
+                        FirebaseFirestoreException firestoreException = (FirebaseFirestoreException) e;
+                        if (firestoreException.getCode() == FirebaseFirestoreException.Code.PERMISSION_DENIED) {
+                            Toast.makeText(BorrowPop.this, "You do not have permission to perform this operation", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(BorrowPop.this, "Error borrowing book: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(BorrowPop.this, "Error borrowing book: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     public static class ChapterAdapter extends RecyclerView.Adapter<ChapterAdapter.ChapterViewHolder> {
