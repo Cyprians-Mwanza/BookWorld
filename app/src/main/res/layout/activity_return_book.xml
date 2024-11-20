@@ -61,7 +61,7 @@
             <ImageView
                 android:id="@+id/bookThumbnail"
                 android:layout_width="320dp"
-                android:layout_height="430dp"
+                android:layout_height="400dp"
                 android:layout_marginStart="25dp"
                 android:background="@drawable/book_background"
                 android:src="@drawable/placeholder_image" />
@@ -71,7 +71,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_below="@id/bookThumbnail"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="4dp"
                 android:layout_marginBottom="8dp"
                 android:background="@android:color/darker_gray" />
 
@@ -81,7 +81,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/thumbview"
                 android:layout_centerInParent="true"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="5dp"
                 android:gravity="center"
                 android:text="Book Title"
                 android:textColor="@color/warm_orange"
@@ -104,7 +104,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_below="@id/bookAuthor"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="4dp"
                 android:layout_marginBottom="8dp"
                 android:background="@android:color/darker_gray" />
 
@@ -113,7 +113,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/authorview"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="3dp"
                 android:text="Book Description"
                 android:textColor="@android:color/black"
                 android:textSize="14sp"
@@ -126,7 +126,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="150dp"
                 android:layout_below="@id/bookDescription"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="10dp"
                 android:text="Book Price"
                 android:textSize="17sp"
                 android:textColor="@color/warm_orange"
@@ -143,6 +143,15 @@
                 android:textColor="@color/amber"
                 android:layout_height="wrap_content"
                 android:text="Read"/>
+
+            <!-- RecyclerView to display chapters (added) -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/RecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/borrowButton"
+                android:layout_marginTop="5dp"
+                android:padding="8dp" />
 
         </RelativeLayout>
     </ScrollView>

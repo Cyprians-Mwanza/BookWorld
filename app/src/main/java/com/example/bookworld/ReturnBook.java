@@ -8,15 +8,25 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.bookworld.bookdata.Book;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.example.bookworld.bookdata.ChapterAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfReader;
+import com.itextpdf.kernel.pdf.canvas.parser.PdfTextExtractor;
 import com.squareup.picasso.Picasso;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ReturnBook extends AppCompatActivity {
 
@@ -24,6 +34,8 @@ public class ReturnBook extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
     private CollectionReference borrowedBooksRef;
+    private RecyclerView chaptersRecyclerView;
+    private List<String> chaptersList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,8 +46,7 @@ public class ReturnBook extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         currentUser = mAuth.getCurrentUser();
-        String userId = currentUser.getUid();
-        userId = currentUser != null ? currentUser.getUid() : null;
+        String userId = currentUser != null ? currentUser.getUid() : null;
         borrowedBooksRef = db.collection("users").document(userId).collection("borrowedBooks");
 
         // Initialize views
@@ -47,6 +58,7 @@ public class ReturnBook extends AppCompatActivity {
         Button readButton = findViewById(R.id.borrowButton);
         ImageView backButton = findViewById(R.id.backButton);
         ImageView threeDotsButton = findViewById(R.id.three_dotButton);
+        chaptersRecyclerView = findViewById(R.id.RecyclerView);
 
         // Set back button click listener
         backButton.setOnClickListener(v -> finish());
@@ -75,16 +87,69 @@ public class ReturnBook extends AppCompatActivity {
             priceTextView.setText("Ksh " + price);
             Picasso.get().load(thumbnailUrl).into(thumbnailImageView);
 
-
-            // Set "Read" button click listener
             readButton.setOnClickListener(v -> {
-                Intent intent = new Intent(ReturnBook.this, ContentActivity.class);
-                intent.putExtra("PDF_URL", pdfUrl); // Pass the PDF URL to ContentActivity
-                startActivity(intent);
+                if (pdfUrl != null) {
+                    extractChaptersFromPdf(pdfUrl);
+                } else {
+                    Toast.makeText(ReturnBook.this, "PDF URL not available", Toast.LENGTH_SHORT).show();
+                }
             });
         }
     }
 
+    private void extractChaptersFromPdf(String pdfUrl) {
+        new Thread(() -> {
+            InputStream inputStream = null;
+            try {
+                URL url = new URL(pdfUrl);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.connect();
 
-    // No need for refreshData method in this case
+                inputStream = connection.getInputStream();
+                PdfReader reader = new PdfReader(inputStream);
+                PdfDocument pdfDoc = new PdfDocument(reader);
+
+                int totalPages = pdfDoc.getNumberOfPages();
+                chaptersList = new ArrayList<>();
+                for (int page = 1; page <= totalPages; page++) {
+                    String pageContent = PdfTextExtractor.getTextFromPage(pdfDoc.getPage(page));
+                    if (pageContent.contains("Chapter")) {
+                        String[] lines = pageContent.split("\n");
+                        for (String line : lines) {
+                            if (line.contains("Chapter")) {
+                                chaptersList.add(line.trim());
+                            }
+                        }
+                    }
+                }
+
+                runOnUiThread(() -> {
+                    chaptersRecyclerView.setLayoutManager(new LinearLayoutManager(ReturnBook.this));
+                    BorrowPop.ChapterAdapter adapter = new BorrowPop.ChapterAdapter(chaptersList, position -> {
+                        Intent intent = new Intent(ReturnBook.this, ContentActivity.class);
+                        intent.putExtra("PDF_URL", pdfUrl);
+                        intent.putExtra("CHAPTER_INDEX", position);
+                        startActivity(intent);
+                    });
+                    chaptersRecyclerView.setAdapter(adapter);
+                    Toast.makeText(ReturnBook.this, "Chapters/topics extracted!", Toast.LENGTH_SHORT).show();
+                });
+
+                pdfDoc.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+                runOnUiThread(() -> Toast.makeText(ReturnBook.this, "Error extracting PDF: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            } finally {
+                try {
+                    if (inputStream != null) {
+                        inputStream.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
 }
+

@@ -26,11 +26,22 @@
 
     </RelativeLayout>
 
+<ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 
-    <WebView
-        android:id="@+id/webView"
+    <TextView
+        android:layout_marginTop="2dp"
+       android:layout_marginStart="6dp"
+        android:id="@+id/contentTextView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:scrollbars="horizontal"
         tools:ignore="MissingClass" />
+
+</ScrollView>
+
 </LinearLayout>
+
+
+
