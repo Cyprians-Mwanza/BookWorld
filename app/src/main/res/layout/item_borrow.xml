@@ -1,7 +1,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="180dp"
-    android:layout_height="310dp"
+    android:layout_height="302dp"
     android:layout_margin="6dp"
     android:background="@drawable/cardview_book"
     android:orientation="vertical"
@@ -55,29 +55,37 @@
             android:text="Book Price"
             android:textColor="@color/warm_orange"
             android:textSize="17sp" />
+
+        <!-- Remaining Days Countdown -->
         <TextView
             android:id="@+id/daysCountTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="Remaining: 0 day"
+            android:textColor="@color/art_red"
+            android:textStyle="bold"
             android:layout_gravity="center"
             android:layout_marginTop="4dp"
             android:paddingStart="8dp"
             android:paddingTop="4dp"
             android:paddingEnd="8dp"
             android:paddingBottom="4dp"
-            android:text="Countdown"
-            android:textColor="@color/warm_orange"
-            android:textSize="17sp" />
+            android:textSize="14sp"
+            android:layout_marginBottom="4dp" />
 
-        <ImageButton
+
+        <Button
             android:id="@+id/delete_button"
-            android:layout_width="35dp"
+            android:layout_width="130dp"
             android:layout_height="40dp"
-            android:layout_gravity="center"
-            android:layout_marginStart="70dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="delete"
-            android:src="@drawable/return_icon"
-            app:tint="@android:color/holo_red_dark" />
-    </LinearLayout>
+            android:layout_gravity="center_horizontal"
+            android:text="Return Book"
+            android:textColor="@color/white"
+            android:gravity="center_horizontal"
+            android:textStyle="bold"
+            android:contextClickable="true"
+            android:textSize="14sp"
+            android:background="@drawable/genre_cardview"/>
+
+           </LinearLayout>
 </LinearLayout>

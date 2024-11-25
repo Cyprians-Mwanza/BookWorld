@@ -18,6 +18,16 @@
             android:layout_marginTop="18dp"
             android:background="@drawable/baseline_arrow_back_24"
             android:layout_alignParentTop="true" />
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="My Cart"
+            android:textSize="28sp"
+            android:layout_marginStart="39dp"
+            android:layout_marginTop="14dp" />
+
     </RelativeLayout>
 
     <!-- SwipeRefreshLayout wrapping RecyclerView -->

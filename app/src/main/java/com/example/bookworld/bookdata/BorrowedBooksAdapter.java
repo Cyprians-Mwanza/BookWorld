@@ -50,30 +50,35 @@ public class BorrowedBooksAdapter extends RecyclerView.Adapter<BorrowedBooksAdap
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         BorrowedBooks borrowedBook = borrowedBooksList.get(position);
 
-        // Set book and borrower information
-        holder.bookTitleTextView.setText(borrowedBook.getBookTitle());
-        holder.borrowerNameTextView.setText(borrowedBook.getName());
-        holder.daysTextView.setText(String.valueOf(borrowedBook.getDays()));
-        Picasso.get().load(borrowedBook.getThumbnailUrl()).into(holder.bookThumbnailImageView);
+        if (borrowedBook != null) {
+            // Set book and borrower information
+            holder.bookTitleTextView.setText(borrowedBook.getBookTitle() != null ? borrowedBook.getBookTitle() : "Unknown Title");
+            holder.borrowerNameTextView.setText(borrowedBook.getName() != null ? borrowedBook.getName() : "Unknown Borrower");
+            holder.daysTextView.setText(String.valueOf(borrowedBook.getDays()));
+            Picasso.get().load(borrowedBook.getThumbnailUrl()).into(holder.bookThumbnailImageView);
 
-        // Calculate and display remaining days
-        long remainingDays = calculateRemainingDays(borrowedBook.getReturnDate());
-        if (remainingDays >= 0) {
-            holder.countdownTextView.setText(remainingDays + " days remaining");
-        } else {
-            holder.countdownTextView.setText("Overdue by " + Math.abs(remainingDays) + " days");
+            // Calculate and display remaining time
+
+            long[] remainingTime = calculateRemainingTime(borrowedBook.getReturnDate());
+            if (remainingTime[0] >= 0) {
+                holder.countdownTextView.setText(remainingTime[0] + " days " + remainingTime[1] + " hours remaining");
+            } else {
+                holder.countdownTextView.setText("Overdue by " + Math.abs(remainingTime[0]) + " days " + Math.abs(remainingTime[1]) + " hours");
+            }
         }
     }
 
     @Override
     public int getItemCount() {
-        return borrowedBooksList.size();
+        return borrowedBooksList != null ? borrowedBooksList.size() : 0;
     }
 
     public void updateData(List<BorrowedBooks> newBorrowedBooksList) {
-        this.borrowedBooksList.clear();
-        this.borrowedBooksList.addAll(newBorrowedBooksList);
-        notifyDataSetChanged();
+        if (borrowedBooksList != null) {
+            borrowedBooksList.clear();
+            borrowedBooksList.addAll(newBorrowedBooksList);
+            notifyDataSetChanged();
+        }
     }
 
     private void removeBookFromUser(BorrowedBooks borrowedBook) {
@@ -88,21 +93,43 @@ public class BorrowedBooksAdapter extends RecyclerView.Adapter<BorrowedBooksAdap
                 });
     }
 
-    private long calculateRemainingDays(String returnDate) {
+    /**
+     * Calculates the remaining time until the return date in days and hours.
+     * @param returnDate The return date as a string in "yyyy-MM-dd" format.
+     * @return A long array where [0] is days and [1] is hours remaining.
+     */
+    private long[] calculateRemainingTime(String returnDate) {
+        if (returnDate == null || returnDate.isEmpty()) {
+            return new long[]{-1, -1}; // Invalid date
+        }
+
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         try {
             Calendar returnCalendar = Calendar.getInstance();
             returnCalendar.setTime(sdf.parse(returnDate));
 
-            Calendar currentCalendar = Calendar.getInstance();
-            long diffMillis = returnCalendar.getTimeInMillis() - currentCalendar.getTimeInMillis();
+            long currentMillis = System.currentTimeMillis();
+            long returnMillis = returnCalendar.getTimeInMillis();
 
-            return TimeUnit.MILLISECONDS.toDays(diffMillis);
+            long diffMillis = returnMillis - currentMillis;
+
+            // Calculate full days
+            long days = TimeUnit.MILLISECONDS.toDays(diffMillis);
+
+            // Calculate remaining milliseconds after subtracting full days
+            long remainingMillisAfterDays = diffMillis - TimeUnit.DAYS.toMillis(days);
+
+            // Calculate hours from the remaining milliseconds
+            long hours = TimeUnit.MILLISECONDS.toHours(remainingMillisAfterDays);
+
+            return new long[]{days, hours};
         } catch (Exception e) {
             e.printStackTrace();
-            return 0; // Default to 0 if there is an error in parsing
+            return new long[]{-1, -1}; // Default to invalid time on error
         }
     }
+
+
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public ImageView bookThumbnailImageView;

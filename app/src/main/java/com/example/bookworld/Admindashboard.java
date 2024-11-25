@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class Admindashboard extends AppCompatActivity {
 
@@ -152,17 +153,36 @@ public class Admindashboard extends AppCompatActivity {
     }
 
     private void updateCountdowns() {
-        LocalDate currentDate = LocalDate.now();
         for (BorrowedBooks book : borrowedBooksList) {
             if (book.getReturnDateMillis() > 0) {
-                LocalDate returnDate = LocalDate.ofEpochDay(book.getReturnDateMillis() / (24 * 60 * 60 * 1000));
-                long daysLeft = ChronoUnit.DAYS.between(currentDate, returnDate);
-                String countdown = "Due in " + daysLeft + " days";
-                book.setCountdown(countdown);
+                long returnDateMillis = book.getReturnDateMillis();
+                long currentMillis = System.currentTimeMillis();
+
+                long diffMillis = returnDateMillis - currentMillis;
+
+                // Calculate remaining days
+                long daysLeft = TimeUnit.MILLISECONDS.toDays(diffMillis);
+
+                // Calculate remaining milliseconds after removing full days
+                long remainingMillisAfterDays = diffMillis - TimeUnit.DAYS.toMillis(daysLeft);
+
+                // Calculate remaining hours within the day
+                long hoursLeft = TimeUnit.MILLISECONDS.toHours(remainingMillisAfterDays);
+
+                // Prepare the countdown string
+                String countdown;
+                if (diffMillis >= 0) {
+                    countdown = daysLeft + " days " + hoursLeft + " hours remaining";
+                } else {
+                    countdown = "Overdue by " + Math.abs(daysLeft) + " days " + Math.abs(hoursLeft) + " hours";
+                }
+
+                book.setCountdown(countdown); // Update the countdown for the book
             }
         }
         adapter.notifyDataSetChanged(); // Notify adapter about countdown changes
     }
+
 
     private void updateCharts() {
         // Setup for graph chart

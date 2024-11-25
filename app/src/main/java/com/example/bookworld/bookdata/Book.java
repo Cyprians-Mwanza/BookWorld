@@ -12,13 +12,17 @@ public class Book implements Parcelable {
     private String price;
     private float rating;
     private int daysToBorrow;
-    private String pdfUrl; // Ensure pdfUrl is included
+    private String pdfUrl;
+    private long returnDateMillis;
+    private String returnDate;
+    private String countdown;
+    private int borrowCount;
 
     // No-argument constructor required for Firestore
     public Book() {
     }
 
-    // Constructor with arguments
+    // Constructor with all parameters
     public Book(String id, String thumbnailUrl, String title, String author, String description, String price, float rating, String pdfUrl, int daysToBorrow) {
         this.id = id;
         this.thumbnailUrl = thumbnailUrl;
@@ -31,6 +35,18 @@ public class Book implements Parcelable {
         this.daysToBorrow = daysToBorrow;
     }
 
+    // **New Constructor**
+    public Book(String id, String thumbnailUrl, String title, String author, String description, String price, int daysToBorrow, String pdfUrl) {
+        this.id = id;
+        this.thumbnailUrl = thumbnailUrl;
+        this.title = title;
+        this.author = author;
+        this.description = description;
+        this.price = price;
+        this.daysToBorrow = daysToBorrow;
+        this.pdfUrl = pdfUrl;
+    }
+
     // Parcelable implementation
     protected Book(Parcel in) {
         id = in.readString();
@@ -41,6 +57,11 @@ public class Book implements Parcelable {
         price = in.readString();
         rating = in.readFloat();
         pdfUrl = in.readString();
+        daysToBorrow = in.readInt();
+        returnDateMillis = in.readLong();
+        returnDate = in.readString();
+        countdown = in.readString();
+        borrowCount = in.readInt();
     }
 
     public static final Creator<Book> CREATOR = new Creator<Book>() {
@@ -65,6 +86,11 @@ public class Book implements Parcelable {
         dest.writeString(price);
         dest.writeFloat(rating);
         dest.writeString(pdfUrl);
+        dest.writeInt(daysToBorrow);
+        dest.writeLong(returnDateMillis);
+        dest.writeString(returnDate);
+        dest.writeString(countdown);
+        dest.writeInt(borrowCount);
     }
 
     @Override
@@ -145,4 +171,35 @@ public class Book implements Parcelable {
         this.daysToBorrow = daysToBorrow;
     }
 
+    public long getReturnDateMillis() {
+        return returnDateMillis;
+    }
+
+    public void setReturnDateMillis(long returnDateMillis) {
+        this.returnDateMillis = returnDateMillis;
+    }
+
+    public String getReturnDate() {
+        return returnDate;
+    }
+
+    public void setReturnDate(String returnDate) {
+        this.returnDate = returnDate;
+    }
+
+    public String getCountdown() {
+        return countdown;
+    }
+
+    public void setCountdown(String countdown) {
+        this.countdown = countdown;
+    }
+
+    public int getBorrowCount() {
+        return borrowCount;
+    }
+
+    public void setBorrowCount(int borrowCount) {
+        this.borrowCount = borrowCount;
+    }
 }
