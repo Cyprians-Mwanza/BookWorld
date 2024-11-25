@@ -2,6 +2,9 @@ package com.example.bookworld;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -11,7 +14,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.bookworld.bookdata.ChapterAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -126,7 +128,7 @@ public class ReturnBook extends AppCompatActivity {
 
                 runOnUiThread(() -> {
                     chaptersRecyclerView.setLayoutManager(new LinearLayoutManager(ReturnBook.this));
-                    BorrowPop.ChapterAdapter adapter = new BorrowPop.ChapterAdapter(chaptersList, position -> {
+                    ChapterAdapter adapter = new ChapterAdapter(chaptersList, position -> {
                         Intent intent = new Intent(ReturnBook.this, ContentActivity.class);
                         intent.putExtra("PDF_URL", pdfUrl);
                         intent.putExtra("CHAPTER_INDEX", position);
@@ -151,5 +153,45 @@ public class ReturnBook extends AppCompatActivity {
             }
         }).start();
     }
-}
 
+    public static class ChapterAdapter extends RecyclerView.Adapter<ChapterAdapter.ChapterViewHolder> {
+        private List<String> chapters;
+        private OnChapterClickListener listener;
+
+        public interface OnChapterClickListener {
+            void onChapterClick(int position);
+        }
+
+        public ChapterAdapter(List<String> chapters, OnChapterClickListener listener) {
+            this.chapters = chapters;
+            this.listener = listener;
+        }
+
+        @Override
+        public ChapterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(android.R.layout.simple_list_item_1, parent, false);
+            return new ChapterViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(ChapterViewHolder holder, int position) {
+            String chapter = chapters.get(position);
+            holder.chapterTextView.setText(chapter);
+            holder.itemView.setOnClickListener(v -> listener.onChapterClick(position));
+        }
+
+        @Override
+        public int getItemCount() {
+            return chapters.size();
+        }
+
+        public static class ChapterViewHolder extends RecyclerView.ViewHolder {
+            TextView chapterTextView;
+
+            public ChapterViewHolder(View itemView) {
+                super(itemView);
+                chapterTextView = itemView.findViewById(android.R.id.text1);
+            }
+        }
+    }
+}
