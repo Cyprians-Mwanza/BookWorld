@@ -61,7 +61,6 @@
             android:id="@+id/daysCountTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Remaining: 0 day"
             android:textColor="@color/art_red"
             android:textStyle="bold"
             android:layout_gravity="center"

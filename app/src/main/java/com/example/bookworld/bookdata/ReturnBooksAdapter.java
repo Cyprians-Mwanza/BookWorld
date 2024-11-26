@@ -65,6 +65,7 @@ public class ReturnBooksAdapter extends RecyclerView.Adapter<ReturnBooksAdapter.
         private TextView priceTextView;
         private TextView countdownTextView; // Countdown TextView
         private Button deleteButton;
+        private Button returnBookButton; // Button to return the book
 
         public CartViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -74,6 +75,7 @@ public class ReturnBooksAdapter extends RecyclerView.Adapter<ReturnBooksAdapter.
             priceTextView = itemView.findViewById(R.id.bookPrice);
             countdownTextView = itemView.findViewById(R.id.daysCountTextView); // Initialize Countdown TextView
             deleteButton = itemView.findViewById(R.id.delete_button);
+            returnBookButton = itemView.findViewById(R.id.delete_button); // Initialize returnBookButton
         }
 
         public void bind(int position) {
@@ -92,12 +94,18 @@ public class ReturnBooksAdapter extends RecyclerView.Adapter<ReturnBooksAdapter.
                     if (returnDate != null) {
                         long[] remainingTime = calculateRemainingTime(returnDate);
                         if (remainingTime[0] >= 0) {
-                            countdownTextView.setText(remainingTime[0] + " days " + remainingTime[1] + " hours remaining");
+                            countdownTextView.setText(remainingTime[0] + " days ");
                         } else {
-                            countdownTextView.setText("Overdue by " + Math.abs(remainingTime[0]) + " days " + Math.abs(remainingTime[1]) + " hours");
+                            countdownTextView.setText("Overdue by " + Math.abs(remainingTime[0]) + " days ");
                         }
+                    }
+
+                    // Set the visibility of the "Return Book" button
+                    Long returnDateMillis = book.getReturnDateMillis();
+                    if (returnDateMillis != null && returnDateMillis > System.currentTimeMillis()) {
+                        returnBookButton.setVisibility(View.VISIBLE); // Show the button if the book has a valid return date
                     } else {
-                        countdownTextView.setText("Unknown return date");
+                        returnBookButton.setVisibility(View.INVISIBLE); // Hide the button if no return date or overdue
                     }
 
                     // Add click listener for navigating to ReturnBook activity
@@ -139,10 +147,7 @@ public class ReturnBooksAdapter extends RecyclerView.Adapter<ReturnBooksAdapter.
             // Calculate remaining milliseconds after subtracting full days
             long remainingMillisAfterDays = diffMillis - TimeUnit.DAYS.toMillis(days);
 
-            // Calculate hours from the remaining milliseconds
-            long hours = TimeUnit.MILLISECONDS.toHours(remainingMillisAfterDays);
-
-            return new long[]{days, hours};
+            return new long[]{days};
         } catch (Exception e) {
             e.printStackTrace();
             return new long[]{-1, -1}; // Default to invalid time on error

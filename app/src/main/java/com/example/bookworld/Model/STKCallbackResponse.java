@@ -1,6 +1,7 @@
 package com.example.bookworld.Model;
 
 import com.google.gson.annotations.SerializedName;
+import java.util.List;
 
 public class STKCallbackResponse {
 
@@ -10,16 +11,16 @@ public class STKCallbackResponse {
     private String resultDesc;
     @SerializedName("CheckoutRequestID")
     private String checkoutRequestID;
-    // Add more like responseCode, responseDescription,merchantRequestID,
     @SerializedName("ResponseCode")
     private String responseCode;
     @SerializedName("ResponseDescription")
     private String responseDescription;
     @SerializedName("MerchantRequestID")
     private String merchantRequestID;
+    @SerializedName("CallbackMetadata")
+    private CallbackMetadata callbackMetadata;
 
-
-
+    // Getters and Setters
     public String getResultCode() {
         return resultCode;
     }
@@ -68,5 +69,53 @@ public class STKCallbackResponse {
         this.merchantRequestID = merchantRequestID;
     }
 
+    public CallbackMetadata getCallbackMetadata() {
+        return callbackMetadata;
+    }
 
+    public void setCallbackMetadata(CallbackMetadata callbackMetadata) {
+        this.callbackMetadata = callbackMetadata;
+    }
+
+    // Utility Method to Check Payment Status
+    public boolean isPaymentSuccessful() {
+        return "0".equals(resultCode);
+    }
+
+    // CallbackMetadata Class
+    public static class CallbackMetadata {
+        @SerializedName("Item")
+        private List<MetadataItem> items;
+
+        public List<MetadataItem> getItems() {
+            return items;
+        }
+
+        public void setItems(List<MetadataItem> items) {
+            this.items = items;
+        }
+
+        public static class MetadataItem {
+            @SerializedName("Name")
+            private String name;
+            @SerializedName("Value")
+            private String value;
+
+            public String getName() {
+                return name;
+            }
+
+            public void setName(String name) {
+                this.name = name;
+            }
+
+            public String getValue() {
+                return value;
+            }
+
+            public void setValue(String value) {
+                this.value = value;
+            }
+        }
+    }
 }

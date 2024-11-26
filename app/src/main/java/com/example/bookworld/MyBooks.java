@@ -75,6 +75,7 @@ public class MyBooks extends AppCompatActivity implements ReturnBooksAdapter.OnB
             // Fetch books and display user info
             fetchBooksFromFirestore();
             fetchUsernameAndDisplay();
+            fetchBoughtBooks();
         } else {
             Toast.makeText(this, "User not authenticated.", Toast.LENGTH_SHORT).show();
         }
@@ -141,6 +142,35 @@ public class MyBooks extends AppCompatActivity implements ReturnBooksAdapter.OnB
         });
     }
 
+
+    private void fetchBoughtBooks() {
+        if (userId == null) {
+            Toast.makeText(MyBooks.this, "User ID is null", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        CollectionReference boughtBooksRef = db.collection("users").document(userId).collection("BoughtBooks");
+
+        boughtBooksRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    String bookId = document.getString("bookId");
+                    String bookTitle = document.getString("bookTitle");
+                    String pdfUrl = document.getString("pdfUrl");
+                    String price = document.getString("price");
+
+                    if (bookId != null && bookTitle != null) {
+                        Book book = new Book(bookId, null, bookTitle, null, null, price, 0, pdfUrl);
+                        bookList.add(book);
+                    }
+                }
+                adapter.notifyDataSetChanged();
+            } else {
+                Toast.makeText(MyBooks.this, "Failed to fetch bought books: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     private void updateCountdowns() {
         for (Book book : bookList) {
             if (book.getReturnDateMillis() > 0) {
@@ -157,9 +187,9 @@ public class MyBooks extends AppCompatActivity implements ReturnBooksAdapter.OnB
                 // Set countdown text
                 String countdown;
                 if (diffMillis >= 0) {
-                    countdown = daysLeft + " days " + hoursLeft + " hours remaining";
+                    countdown = daysLeft + " days ";
                 } else {
-                    countdown = "Overdue by " + Math.abs(daysLeft) + " days " + Math.abs(hoursLeft) + " hours";
+                    countdown = "Overdue by " + Math.abs(daysLeft) + " days ";
                 }
 
                 book.setCountdown(countdown); // Update book countdown

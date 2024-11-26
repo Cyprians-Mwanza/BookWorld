@@ -42,7 +42,7 @@ public class BuyActivity extends AppCompatActivity implements View.OnClickListen
     private String token, encodedPassword, timestamp;
     private EditText amount;
     private Button readButton;
-    private String bookId, bookTitle, pdfUrl, price;
+    private String bookId, bookTitle, pdfUrl, price, author, thumbnailUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,12 +66,14 @@ public class BuyActivity extends AppCompatActivity implements View.OnClickListen
         bookTitle = intent.getStringExtra("BOOK_TITLE");
         pdfUrl = intent.getStringExtra("PDF_URL");
         price = intent.getStringExtra("BOOK_PRICE");
-
+        thumbnailUrl = intent.getStringExtra("BOOK_THUMBNAIL"); // Thumbnail URL
+        author = intent.getStringExtra("BOOK_AUTHOR");          // Book Author
         // Log book details for debugging
         Log.d("BuyActivity", "Book ID: " + bookId);
         Log.d("BuyActivity", "Book Title: " + bookTitle);
         Log.d("BuyActivity", "PDF URL: " + pdfUrl);
         Log.d("BuyActivity", "Price: " + price);
+        Log.d("BuyActivity", "Thumbnail URL is missing or invalid");
 
         // Set the price in the amount EditText
         amount = binding.amount;
@@ -227,14 +229,19 @@ public class BuyActivity extends AppCompatActivity implements View.OnClickListen
     private void savePurchaseDetails() {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        CollectionReference userBooks = db.collection("Users").document(userId).collection("BoughtBooks");
 
+        // Reference to the borrowedBooks collection
+        CollectionReference userBooks = db.collection("users").document(userId).collection("borrowedBooks");
+
+        // Create a map to hold the book details
         Map<String, Object> bookDetails = new HashMap<>();
-        bookDetails.put("bookId", bookId);
-        bookDetails.put("bookTitle", bookTitle);
-        bookDetails.put("pdfUrl", pdfUrl);
-        bookDetails.put("price", price);
+        bookDetails.put("bookId", bookId);                // Book ID
+        bookDetails.put("bookTitle", bookTitle);          // Book title
+        bookDetails.put("pdfUrl", pdfUrl);                // PDF URL
+        bookDetails.put("thumbnail", thumbnailUrl);       // Book thumbnail URL
+        bookDetails.put("author", author);                // Book author
 
+        // Add the book details to the borrowedBooks collection
         userBooks.add(bookDetails)
                 .addOnSuccessListener(documentReference -> {
                     Log.d("BuyActivity", "Book purchase details saved successfully");
@@ -243,4 +250,5 @@ public class BuyActivity extends AppCompatActivity implements View.OnClickListen
                     Log.e("BuyActivity", "Failed to save book purchase details", e);
                 });
     }
+
 }
