@@ -47,11 +47,10 @@ public class BorrowPop extends AppCompatActivity {
     private String userId;
     private String bookId;
     private String bookTitle;
-    private String pdfUrl;
+    private String pdfUrl, price;
     private String thumbnailUrl;
     private String author;
     private String description;
-    private String price;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

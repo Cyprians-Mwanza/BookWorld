@@ -1,68 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:layout_marginBottom="8dp"
-    android:background="@drawable/cardview_book"
-    android:padding="12dp">
+    android:padding="10dp"
+    android:layout_marginBottom="8dp">
 
-    <!-- Book Thumbnail -->
-    <ImageView
-        android:id="@+id/bookThumbnailImageView"
-        android:layout_width="70dp"
-        android:layout_height="100dp"
-        android:layout_marginEnd="12dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/placeholder_image" />
-
-    <!-- Book Details Container -->
-    <LinearLayout
+    <!-- Borrower Name -->
+    <TextView
+        android:textColor="@color/black"
+        android:id="@+id/borrower"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
         android:layout_weight="1"
-        android:orientation="vertical">
+        android:text="Borrower"
+        android:paddingEnd="8dp"/>
 
-        <!-- Book Title -->
-        <TextView
-            android:id="@+id/bookTitleTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Book Title"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:textColor="@color/deep_blue"
-            android:layout_marginBottom="6dp" />
+    <!-- Book Title -->
+    <TextView
+        android:textColor="@color/black"
+        android:id="@+id/title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_weight="1"
+        android:text="Title"
+        android:paddingEnd="8dp"/>
 
-        <!-- Borrower Name -->
-        <TextView
-            android:id="@+id/borrowerNameTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Borrower Name"
-            android:textSize="14sp"
-            android:textColor="@color/deep_blue"
-            android:layout_marginBottom="6dp" />
+    <!-- Return Date -->
+    <TextView
+        android:id="@+id/returnDate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_weight="1"
+        android:text="Return Date"
+        android:textColor="@color/black"
+        android:paddingEnd="5dp"/>
 
-        <!-- Days Borrowed -->
-        <TextView
-            android:id="@+id/daysTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Days Borrowed: 0"
-            android:textSize="14sp"
-            android:textColor="@color/deep_blue"
-            android:layout_marginBottom="6dp" />
-
-        <!-- Remaining Days Countdown -->
-        <TextView
-            android:id="@+id/countdownTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Remaining: 0 days"
-            android:textColor="@color/art_red"
-            android:textStyle="bold"
-            android:textSize="14sp"
-            android:layout_marginBottom="4dp" />
-    </LinearLayout>
+    <!-- Price -->
+    <TextView
+        android:textColor="@color/black"
+        android:id="@+id/price"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Price"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:paddingEnd="8dp"/>
 </LinearLayout>

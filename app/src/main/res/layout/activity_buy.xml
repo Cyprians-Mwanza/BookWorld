@@ -32,6 +32,8 @@
             android:background="@drawable/ic_dot" />
     </RelativeLayout>
 
+
+
     <!-- Phone Number Input -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/phone2"

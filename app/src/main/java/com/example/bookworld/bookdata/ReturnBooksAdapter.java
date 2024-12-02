@@ -2,6 +2,7 @@ package com.example.bookworld.bookdata;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,7 +65,6 @@ public class ReturnBooksAdapter extends RecyclerView.Adapter<ReturnBooksAdapter.
         private TextView authorTextView;
         private TextView priceTextView;
         private TextView countdownTextView; // Countdown TextView
-        private Button deleteButton;
         private Button returnBookButton; // Button to return the book
 
         public CartViewHolder(@NonNull View itemView) {
@@ -74,7 +74,6 @@ public class ReturnBooksAdapter extends RecyclerView.Adapter<ReturnBooksAdapter.
             authorTextView = itemView.findViewById(R.id.bookAuthor);
             priceTextView = itemView.findViewById(R.id.bookPrice);
             countdownTextView = itemView.findViewById(R.id.daysCountTextView); // Initialize Countdown TextView
-            deleteButton = itemView.findViewById(R.id.delete_button);
             returnBookButton = itemView.findViewById(R.id.delete_button); // Initialize returnBookButton
         }
 
@@ -83,13 +82,31 @@ public class ReturnBooksAdapter extends RecyclerView.Adapter<ReturnBooksAdapter.
                 Book book = mCartItems.get(position);
                 if (book != null) {
                     Picasso.get().load(book.getThumbnailUrl()).into(thumbnailImageView);
+                    Log.d("Book Title", "Title: " + book.getTitle());
                     titleTextView.setText(book.getTitle());
                     authorTextView.setText("by " + book.getAuthor());
                     priceTextView.setText("Ksh " + book.getPrice());
 
-                    deleteButton.setOnClickListener(v -> removeItem(position, book));
+                    returnBookButton.setOnClickListener(v -> removeItem(position, book));
 
-                    // Calculate and display countdown
+                    // Assuming `book.getPrice()` returns the price of the book as a String
+                    String price = book.getPrice(); // Assuming Book class has getPrice()
+
+// Check if the price is "Not for sale" for the current book
+                    if ("Not for sale".equals(price)) {
+                        // Make sure the delete button is visible if the price is "Not for sale"
+                        returnBookButton.setVisibility(View.VISIBLE);
+                    } else {
+                        // Hide the delete button if the price is not "Not for sale"
+                        returnBookButton.setVisibility(View.GONE);
+                    }
+
+// Always display the thumbnail, title, and author (no changes needed here)
+                    thumbnailImageView.setVisibility(View.VISIBLE); // Ensure the thumbnail is visible
+                    titleTextView.setVisibility(View.VISIBLE); // Ensure the title is visible
+                    authorTextView.setVisibility(View.VISIBLE); // Ensure the author is visible
+
+// Calculate and display countdown
                     String returnDate = book.getReturnDate(); // Assuming Book class has getReturnDate()
                     if (returnDate != null) {
                         long[] remainingTime = calculateRemainingTime(returnDate);
@@ -99,6 +116,7 @@ public class ReturnBooksAdapter extends RecyclerView.Adapter<ReturnBooksAdapter.
                             countdownTextView.setText("Overdue by " + Math.abs(remainingTime[0]) + " days ");
                         }
                     }
+
 
                     // Set the visibility of the "Return Book" button
                     Long returnDateMillis = book.getReturnDateMillis();

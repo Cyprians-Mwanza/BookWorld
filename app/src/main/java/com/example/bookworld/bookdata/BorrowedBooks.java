@@ -14,11 +14,14 @@ public class BorrowedBooks {
     private String dateBorrowed;  // Formatted date as a string
     private long returnDateMillis; // Return date as a timestamp
     private String returnDate; // Formatted return date as a string
-    private String countdown; // Field to store the countdown string
-    private int borrowCount; // Add a borrow count field
+      private int borrowCount; // Add a borrow count field
 
-    // Default constructor required for Firestore
-    public BorrowedBooks() {
+    // New constructor for partial initialization (returnDate, name, price, bookTitle, and days)
+    public BorrowedBooks(String name, String bookTitle, String price, String returnDate) {
+        this.name = name;
+        this.bookTitle = bookTitle;
+        this.price = price;
+        this.returnDate = returnDate;
     }
 
     // Constructor for initialization
@@ -146,12 +149,4 @@ public class BorrowedBooks {
         this.borrowCount = borrowCount;
     }
 
-    // Getter and Setter for countdown
-    public String getCountdown() {
-        return countdown;
-    }
-
-    public void setCountdown(String countdown) {
-        this.countdown = countdown;
-    }
 }

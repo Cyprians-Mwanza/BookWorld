@@ -20,8 +20,10 @@ import com.example.bookworld.Model.AccessToken;
 import com.example.bookworld.Model.STKPush;
 import com.example.bookworld.Model.MpesaRequest;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.gson.Gson;
 
 import java.nio.charset.StandardCharsets;
@@ -66,7 +68,9 @@ public class BuyActivity extends AppCompatActivity implements View.OnClickListen
         bookTitle = intent.getStringExtra("BOOK_TITLE");
         pdfUrl = intent.getStringExtra("PDF_URL");
         price = intent.getStringExtra("BOOK_PRICE");
-        thumbnailUrl = intent.getStringExtra("BOOK_THUMBNAIL"); // Thumbnail URL
+        thumbnailUrl = intent.getStringExtra("BOOK_THUMBNAIL_URL");
+
+
         author = intent.getStringExtra("BOOK_AUTHOR");          // Book Author
         // Log book details for debugging
         Log.d("BuyActivity", "Book ID: " + bookId);
@@ -230,7 +234,11 @@ public class BuyActivity extends AppCompatActivity implements View.OnClickListen
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        // Reference to the borrowedBooks collection
+        // Get the current user's username from Firebase Authentication
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        String username = currentUser != null ? currentUser.getDisplayName() : "No name"; // Fallback to "Unknown" if no display name is set
+
+        // Create a reference to the user's borrowedBooks collection
         CollectionReference userBooks = db.collection("users").document(userId).collection("borrowedBooks");
 
         // Create a map to hold the book details
@@ -238,16 +246,29 @@ public class BuyActivity extends AppCompatActivity implements View.OnClickListen
         bookDetails.put("bookId", bookId);                // Book ID
         bookDetails.put("bookTitle", bookTitle);          // Book title
         bookDetails.put("pdfUrl", pdfUrl);                // PDF URL
-        bookDetails.put("thumbnail", thumbnailUrl);       // Book thumbnail URL
+        bookDetails.put("thumbnailUrl", thumbnailUrl);    // Book thumbnail URL
         bookDetails.put("author", author);                // Book author
+        bookDetails.put("price", price);                  // Book price
+        bookDetails.put("name", username);                // Store the username as 'name'
 
         // Add the book details to the borrowedBooks collection
         userBooks.add(bookDetails)
                 .addOnSuccessListener(documentReference -> {
-                    Log.d("BuyActivity", "Book purchase details saved successfully");
+                    Toast.makeText(BuyActivity.this, "Book Bought successfully", Toast.LENGTH_SHORT).show();
+                    readButton.setVisibility(View.VISIBLE);  // Show the read button
                 })
                 .addOnFailureListener(e -> {
-                    Log.e("BuyActivity", "Failed to save book purchase details", e);
+                    // Handle Firestore exceptions
+                    if (e instanceof FirebaseFirestoreException) {
+                        FirebaseFirestoreException firestoreException = (FirebaseFirestoreException) e;
+                        if (firestoreException.getCode() == FirebaseFirestoreException.Code.PERMISSION_DENIED) {
+                            Toast.makeText(BuyActivity.this, "You do not have permission to perform this operation", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(BuyActivity.this, "Error buying book: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(BuyActivity.this, "Error buying book: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
                 });
     }
 

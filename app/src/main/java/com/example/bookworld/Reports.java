@@ -127,17 +127,17 @@ public class Reports extends AppCompatActivity {
 
         // Set onclick listeners
         previousDay.setOnClickListener(v -> {
-            count++;
+            count++; // Increment count for previous days
             if (count < 6) {
-                // Get the current date
-                LocalDate currentDate1 = LocalDate.parse(date);
-                LocalDate previousDate = currentDate1.minusDays(count);  // Calculate previous date based on count
+                // Get the base date and calculate the previous date
+                LocalDate currentDate1 = LocalDate.now(); // Use today's date as the base
+                LocalDate previousDate = currentDate1.minusDays(count); // Subtract count days
 
-                // Update the date text to show previous date
+                // Update the date text to show the previous date
                 String month = previousDate.getMonth().toString();
                 month = month.substring(0, 1).toUpperCase() + month.substring(1).toLowerCase();
                 int previousDay = previousDate.getDayOfMonth();
-                date = previousDate.toString();
+                date = previousDate.toString(); // Update the global date variable
 
                 if (count == 1) {
                     dateText.setText(MessageFormat.format("Yesterday: {0} {1}", previousDay, month));
@@ -151,24 +151,24 @@ public class Reports extends AppCompatActivity {
                 adapter.notifyDataSetChanged();
 
                 // Fetch data for the selected previous date
-                fetchBorrowedBooks(previousDate);  // Pass the previous date as LocalDate
+                fetchBorrowedBooks(previousDate); // Pass the previous date as LocalDate
             } else {
-                count = 6;
+                count = 6; // Prevent exceeding the limit
             }
         });
 
         currentDay.setOnClickListener(v -> {
-            count--;
-            if (count >= 0) {
-                // Get the current date
-                LocalDate currentDate1 = LocalDate.now();
-                LocalDate nextDate = currentDate1.minusDays(count);  // Calculate next date based on count
+            if (count > 0) { // Ensure count stays within bounds
+                count--; // Decrement count for moving forward
+                // Get the base date and calculate the next date
+                LocalDate currentDate1 = LocalDate.now(); // Use today's date as the base
+                LocalDate nextDate = currentDate1.minusDays(count); // Subtract count days
 
-                // Update the date text to show next date
+                // Update the date text to show the next date
                 String month = nextDate.getMonth().toString();
                 month = month.substring(0, 1).toUpperCase() + month.substring(1).toLowerCase();
                 int nextDay = nextDate.getDayOfMonth();
-                date = nextDate.toString();
+                date = nextDate.toString(); // Update the global date variable
 
                 if (count == 0) {
                     dateText.setText(MessageFormat.format("Today: {0} {1}", nextDay, month));
@@ -184,11 +184,12 @@ public class Reports extends AppCompatActivity {
                 adapter.notifyDataSetChanged();
 
                 // Fetch data for the selected next date
-                fetchBorrowedBooks(nextDate);  // Pass the next date as LocalDate
+                fetchBorrowedBooks(nextDate); // Pass the next date as LocalDate
             } else {
-                count = 0;
+                count = 0; // Prevent exceeding the limit
             }
         });
+
 
 
 

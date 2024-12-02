@@ -2,78 +2,65 @@ package com.example.bookworld;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
-import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.series.LineGraphSeries;
-import com.jjoe64.graphview.series.DataPoint;
-import com.jjoe64.graphview.LegendRenderer;
 import com.example.bookworld.bookdata.BorrowedBooks;
 import com.example.bookworld.bookdata.BorrowedBooksAdapter;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.series.BarGraphSeries;
+import com.jjoe64.graphview.series.DataPoint;
 
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class Admindashboard extends AppCompatActivity {
 
     private static final String TAG = "Admindashboard";
-
     private FirebaseFirestore db;
-    private ImageView threeDotsButton;
-    private BorrowedBooksAdapter adapter;
     private List<BorrowedBooks> borrowedBooksList;
-    private Map<String, Integer> borrowerCounts = new HashMap<>();
-    private GraphView lineChart;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private Handler handler = new Handler(Looper.getMainLooper());
-    private Runnable updateCountdownRunnable = new Runnable() {
-        @Override
-        public void run() {
-            updateCountdowns();
-            handler.postDelayed(this, 60000); // Update every minute
-        }
-    };
+    private RecyclerView recyclerView;
+    private BorrowedBooksAdapter adapter;
+    private ProgressBar progressBar;
+    private ImageView threeDotsButton;
+    private GraphView lineChart;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admindashboard);
 
-        // Initialize Firestore
+        // Initialize Views
+        recyclerView = findViewById(R.id.recyclerView); // Ensure RecyclerView is initialized first
+        progressBar = findViewById(R.id.progressBar);
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        threeDotsButton = findViewById(R.id.threeDotButton);
+
+        // Initialize Firebase
         db = FirebaseFirestore.getInstance();
 
-        // Initialize views
-        RecyclerView recyclerBorrowedBooks = findViewById(R.id.recyclerBorrowedBooks);
-        recyclerBorrowedBooks.setLayoutManager(new GridLayoutManager(this, 2));
-
+        // Initialize borrowedBooksList and RecyclerView Adapter
         borrowedBooksList = new ArrayList<>();
         adapter = new BorrowedBooksAdapter(borrowedBooksList);
-        threeDotsButton = findViewById(R.id.threeDotButton);
-        recyclerBorrowedBooks.setAdapter(adapter);
 
-        // Initialize GraphView
-        lineChart = findViewById(R.id.lineChart);
-        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        // Set up RecyclerView with LayoutManager and Adapter
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(adapter);
+
 
         // Add Book button
         Button buttonAddBook = findViewById(R.id.addBookButton);
@@ -83,127 +70,98 @@ public class Admindashboard extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // Set up swipe-to-refresh
-        swipeRefreshLayout.setOnRefreshListener(() -> fetchBorrowedBooks());
-
-        threeDotsButton.setOnClickListener(v -> {
-            // Navigate to the "three dots" activity
-            Intent intent = new Intent(Admindashboard.this, three_dots.class);
-            startActivity(intent);
+        threeDotsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Navigate to the "three dots" activity
+                Intent intent = new Intent(Admindashboard.this, three_dots.class);
+                startActivity(intent);
+            }
         });
 
-        // Fetch borrowed books immediately after login
+        // Set up swipe-to-refresh functionality
+        swipeRefreshLayout.setOnRefreshListener(() -> fetchBorrowedBooks());
+
+        // Fetch borrowed books when the activity starts
         fetchBorrowedBooks();
 
-        // Start the countdown update loop
-        handler.post(updateCountdownRunnable);
+
     }
 
     private void fetchBorrowedBooks() {
-        db.collection("users").get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                QuerySnapshot querySnapshot = task.getResult();
-                if (querySnapshot != null) {
-                    borrowedBooksList.clear(); // Clear existing data
-                    borrowerCounts.clear(); // Clear borrower counts
+        progressBar.setVisibility(View.VISIBLE);
 
-                    for (DocumentSnapshot userSnapshot : querySnapshot.getDocuments()) {
-                        DocumentReference userDocRef = userSnapshot.getReference();
-                        userDocRef.collection("borrowedBooks").get().addOnCompleteListener(borrowedBooksTask -> {
-                            if (borrowedBooksTask.isSuccessful()) {
-                                QuerySnapshot borrowedBooksSnapshot = borrowedBooksTask.getResult();
-                                if (borrowedBooksSnapshot != null) {
-                                    for (DocumentSnapshot borrowedBookSnapshot : borrowedBooksSnapshot.getDocuments()) {
-                                        BorrowedBooks borrowedBook = borrowedBookSnapshot.toObject(BorrowedBooks.class);
-                                        if (borrowedBook != null) {
-                                            // Ensure days is retrieved as an int
-                                            Long daysLong = borrowedBookSnapshot.getLong("days");
-                                            if (daysLong != null) {
-                                                borrowedBook.setDays(daysLong.intValue());
-                                            } else {
-                                                borrowedBook.setDays(0); // Default value if not present
+        db.collection("users")  // Fetch all users
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        List<BorrowedBooks> allBooksList = new ArrayList<>();
+
+                        // Loop through each user
+                        for (DocumentSnapshot userDoc : task.getResult()) {
+                            String userId = userDoc.getId();
+
+                            // Fetch borrowedBooks for each user
+                            db.collection("users")
+                                    .document(userId)
+                                    .collection("borrowedBooks")
+                                    .get()
+                                    .addOnCompleteListener(bookTask -> {
+                                        if (bookTask.isSuccessful()) {
+                                            // Loop through borrowed books
+                                            for (DocumentSnapshot borrowedBookSnapshot : bookTask.getResult()) {
+                                                String borrowerName = borrowedBookSnapshot.getString("name");
+                                                String bookTitle = borrowedBookSnapshot.getString("bookTitle");
+                                                String price = borrowedBookSnapshot.getString("price");
+                                                String returnDate = borrowedBookSnapshot.getString("returnDate");
+
+                                                // Create BorrowedBooks object
+                                                BorrowedBooks borrowedBook = new BorrowedBooks(borrowerName, bookTitle, price, returnDate);
+                                                allBooksList.add(borrowedBook);
                                             }
-                                            borrowedBooksList.add(borrowedBook);
 
-                                            // Update borrower counts
-                                            String borrower = borrowedBook.getName(); // Ensure this method exists
-                                            borrowerCounts.put(borrower, borrowerCounts.getOrDefault(borrower, 0) + 1);
+                                            // Update RecyclerView with new list of borrowed books
+                                            adapter.updateData(allBooksList);
+                                        } else {
+                                            Toast.makeText(Admindashboard.this, "Error fetching borrowed books.", Toast.LENGTH_SHORT).show();
                                         }
-                                    }
 
-                                    // Notify adapter of data change
-                                    adapter.notifyDataSetChanged();
-
-                                    // Update charts after data is fetched
-                                    updateCharts();
-                                }
-                            } else {
-                                Log.w(TAG, "Error getting borrowed books.", borrowedBooksTask.getException());
-                            }
-                        });
+                                        // Stop refreshing the SwipeRefreshLayout and hide progress bar
+                                        swipeRefreshLayout.setRefreshing(false);
+                                        progressBar.setVisibility(View.GONE);
+                                    });
+                        }
+                    } else {
+                        Toast.makeText(Admindashboard.this, "Error fetching users.", Toast.LENGTH_SHORT).show();
                     }
-
-                    swipeRefreshLayout.setRefreshing(false); // Stop the refresh indicator
-                }
-            } else {
-                Toast.makeText(Admindashboard.this, "Error getting users.", Toast.LENGTH_SHORT).show();
-                Log.w(TAG, "Error getting users.", task.getException());
-            }
-        });
-    }
-
-    private void updateCountdowns() {
-        for (BorrowedBooks book : borrowedBooksList) {
-            if (book.getReturnDateMillis() > 0) {
-                long returnDateMillis = book.getReturnDateMillis();
-                long currentMillis = System.currentTimeMillis();
-
-                long diffMillis = returnDateMillis - currentMillis;
-
-                // Calculate remaining days
-                long daysLeft = TimeUnit.MILLISECONDS.toDays(diffMillis);
-
-                // Calculate remaining milliseconds after removing full days
-                long remainingMillisAfterDays = diffMillis - TimeUnit.DAYS.toMillis(daysLeft);
-
-                // Calculate remaining hours within the day
-                long hoursLeft = TimeUnit.MILLISECONDS.toHours(remainingMillisAfterDays);
-
-                // Prepare the countdown string
-                String countdown;
-                if (diffMillis >= 0) {
-                    countdown = daysLeft + " days " + hoursLeft + " hours remaining";
-                } else {
-                    countdown = "Overdue by " + Math.abs(daysLeft) + " days " + Math.abs(hoursLeft) + " hours";
-                }
-
-                book.setCountdown(countdown); // Update the countdown for the book
-            }
-        }
-        adapter.notifyDataSetChanged(); // Notify adapter about countdown changes
+                });
     }
 
 
-    private void updateCharts() {
-        // Setup for graph chart
-        List<DataPoint> dataPoints = new ArrayList<>();
-        int i = 0;
-        for (String borrower : borrowerCounts.keySet()) {
-            dataPoints.add(new DataPoint(i++, borrowerCounts.get(borrower)));
+    private void displayTopBorrowedBooks(Map<String, Integer> bookBorrowCount) {
+        // Get top 5 books sorted by borrow count
+        List<Map.Entry<String, Integer>> topBooks = bookBorrowCount.entrySet().stream()
+                .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue()))
+                .limit(5)
+                .collect(Collectors.toList());
+
+        // Prepare data points for the graph
+        DataPoint[] dataPoints = new DataPoint[topBooks.size()];
+        for (int i = 0; i < topBooks.size(); i++) {
+            Map.Entry<String, Integer> entry = topBooks.get(i);
+            dataPoints[i] = new DataPoint(i + 1, entry.getValue());
         }
 
-        LineGraphSeries<DataPoint> series = new LineGraphSeries<>(dataPoints.toArray(new DataPoint[0]));
+        // Display data on the chart
+        BarGraphSeries<DataPoint> series = new BarGraphSeries<>(dataPoints);
+        lineChart.removeAllSeries(); // Clear previous data
         lineChart.addSeries(series);
 
-        // Set chart properties
-        lineChart.getViewport().setScalable(true);
-        lineChart.getViewport().setScrollable(true);
-        lineChart.getLegendRenderer().setVisible(true);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        handler.removeCallbacks(updateCountdownRunnable); // Remove countdown update when activity is destroyed
+        // Set graph labels
+        lineChart.getGridLabelRenderer().setHorizontalAxisTitle("Books");
+        lineChart.getGridLabelRenderer().setVerticalAxisTitle("Borrow Count");
+        lineChart.getViewport().setMinX(0);
+        lineChart.getViewport().setMaxX(6);
+        lineChart.getViewport().setYAxisBoundsManual(true);
     }
 }
