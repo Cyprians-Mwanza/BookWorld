@@ -4,72 +4,54 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.BaseAdapter;
-import com.bumptech.glide.Glide;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.bookworld.R;
+
 import java.util.List;
 
-public class ReportAdapter extends BaseAdapter {
-    private final Context context;
-    private final List<ReportClass> reportList;
+public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.BookViewHolder> {
 
-    public ReportAdapter(Context context, List<ReportClass> reportList) {
+    private Context context;
+    private List<ReportClass> bookItems;
+
+    public ReportAdapter(Context context, List<ReportClass> bookItems) {
         this.context = context;
-        this.reportList = reportList;
+        this.bookItems = bookItems;
+    }
 
+    @NonNull
+    @Override
+    public BookViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(context).inflate(R.layout.list_item_book, parent, false);
+        return new BookViewHolder(view);
     }
 
     @Override
-    public int getCount() {
-        return reportList.size();
+    public void onBindViewHolder(@NonNull BookViewHolder holder, int position) {
+        ReportClass bookItem = bookItems.get(position);
+        holder.nameTextView.setText(bookItem.getName());
+        holder.titleTextView.setText(bookItem.getTitle());
+        holder.priceTextView.setText("Price: " + bookItem.getPrice());
     }
 
     @Override
-    public Object getItem(int position) {
-        return reportList.get(position);
+    public int getItemCount() {
+        return bookItems.size();
     }
 
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
+    public static class BookViewHolder extends RecyclerView.ViewHolder {
 
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder holder;
+        TextView nameTextView, titleTextView, priceTextView;
 
-        if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.item_reports_cards, parent, false);
-            holder = new ViewHolder();
-            holder.bookTitle = convertView.findViewById(R.id.bookTitle);
-            holder.days = convertView.findViewById(R.id.days);
-            convertView.setTag(holder);
-        } else {
-            holder = (ViewHolder) convertView.getTag();
+        public BookViewHolder(@NonNull View itemView) {
+            super(itemView);
+            nameTextView = itemView.findViewById(R.id.nameTextView);
+            titleTextView = itemView.findViewById(R.id.titleTextView);
+            priceTextView = itemView.findViewById(R.id.priceTextView);
         }
-
-        // Populate the data
-        ReportClass report = reportList.get(position);
-        holder.bookTitle.setText(report.getBookTitle() != null ? report.getBookTitle() : "Unknown Title");
-        holder.days.setText("Days: " + report.getDays());
-
-        return convertView;
-    }
-
-    // Method to clear the data in the list and refresh the view
-    public void clear() {
-        if (reportList != null) {
-            reportList.clear();
-            notifyDataSetChanged();
-        }
-    }
-
-    // ViewHolder pattern for caching view references
-    private static class ViewHolder {
-        TextView bookTitle;
-        TextView days;
-        ImageView thumbnail;
     }
 }

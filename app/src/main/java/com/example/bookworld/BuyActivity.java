@@ -27,7 +27,9 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.gson.Gson;
 
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.Base64;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,7 +46,7 @@ public class BuyActivity extends AppCompatActivity implements View.OnClickListen
     private String token, encodedPassword, timestamp;
     private EditText amount;
     private Button readButton;
-    private String bookId, bookTitle, pdfUrl, price, author, thumbnailUrl;
+    private String bookId, bookTitle, pdfUrl, price, author, thumbnailUrl, username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -234,41 +236,55 @@ public class BuyActivity extends AppCompatActivity implements View.OnClickListen
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        // Get the current user's username from Firebase Authentication
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        String username = currentUser != null ? currentUser.getDisplayName() : "No name"; // Fallback to "Unknown" if no display name is set
+        // Reference to the user's document in the "users" collection
+        db.collection("users").document(userId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        // Retrieve the username field from the document
+                        String username = documentSnapshot.getString("username");
 
-        // Create a reference to the user's borrowedBooks collection
-        CollectionReference userBooks = db.collection("users").document(userId).collection("borrowedBooks");
+                        if (username == null) {
+                            username = "No name"; // Fallback if username is null
+                        }
 
-        // Create a map to hold the book details
-        Map<String, Object> bookDetails = new HashMap<>();
-        bookDetails.put("bookId", bookId);                // Book ID
-        bookDetails.put("bookTitle", bookTitle);          // Book title
-        bookDetails.put("pdfUrl", pdfUrl);                // PDF URL
-        bookDetails.put("thumbnailUrl", thumbnailUrl);    // Book thumbnail URL
-        bookDetails.put("author", author);                // Book author
-        bookDetails.put("price", price);                  // Book price
-        bookDetails.put("name", username);                // Store the username as 'name'
+                        // Get the current time in milliseconds (timestamp)
+                        long currentDateMillis = System.currentTimeMillis(); // Current timestamp
 
-        // Add the book details to the borrowedBooks collection
-        userBooks.add(bookDetails)
-                .addOnSuccessListener(documentReference -> {
-                    Toast.makeText(BuyActivity.this, "Book Bought successfully", Toast.LENGTH_SHORT).show();
-                    readButton.setVisibility(View.VISIBLE);  // Show the read button
+                        // Format the current date into a readable format
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                        String dateBought = sdf.format(new Date(currentDateMillis)); // Formatted purchase date
+
+                        // Create a reference to the "BoughtBooks" collection
+                        CollectionReference boughtBooks = db.collection("users").document(userId).collection("BoughtBooks");
+
+                        // Create a map to hold the book details
+                        Map<String, Object> bookDetails = new HashMap<>();
+                        bookDetails.put("bookId", bookId);                // Book ID
+                        bookDetails.put("bookTitle", bookTitle);          // Book title
+                        bookDetails.put("pdfUrl", pdfUrl);                // PDF URL
+                        bookDetails.put("thumbnailUrl", thumbnailUrl);    // Book thumbnail URL
+                        bookDetails.put("author", author);                // Book author
+                        bookDetails.put("price", price);                  // Book price
+                        bookDetails.put("name", username);                // Store the username as 'name'
+                        bookDetails.put("dateBought", dateBought);        // Store the formatted purchase date
+                        bookDetails.put("dateBoughtMillis", currentDateMillis); // Store the purchase date as a timestamp
+
+                        // Add the book details to the "BoughtBooks" collection
+                        boughtBooks.add(bookDetails)
+                                .addOnSuccessListener(documentReference -> {
+                                    Toast.makeText(BuyActivity.this, "Book bought successfully and saved to 'BoughtBooks'.", Toast.LENGTH_SHORT).show();
+                                    readButton.setVisibility(View.VISIBLE);  // Show the read button
+                                })
+                                .addOnFailureListener(e -> {
+                                    Toast.makeText(BuyActivity.this, "Error saving book: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                });
+
+                    } else {
+                        Toast.makeText(BuyActivity.this, "User document not found.", Toast.LENGTH_SHORT).show();
+                    }
                 })
                 .addOnFailureListener(e -> {
-                    // Handle Firestore exceptions
-                    if (e instanceof FirebaseFirestoreException) {
-                        FirebaseFirestoreException firestoreException = (FirebaseFirestoreException) e;
-                        if (firestoreException.getCode() == FirebaseFirestoreException.Code.PERMISSION_DENIED) {
-                            Toast.makeText(BuyActivity.this, "You do not have permission to perform this operation", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(BuyActivity.this, "Error buying book: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        Toast.makeText(BuyActivity.this, "Error buying book: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
+                    Toast.makeText(BuyActivity.this, "Failed to retrieve user document: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 

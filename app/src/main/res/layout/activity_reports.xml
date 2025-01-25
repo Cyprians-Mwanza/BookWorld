@@ -1,30 +1,47 @@
-<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Reports">
 
-    <!-- Top navigation that remains fixed -->
+    <!-- Top navigation -->
     <RelativeLayout
         android:id="@+id/topNavigation"
         android:layout_width="match_parent"
-        android:layout_height="65dp"
+        android:layout_height="70dp"
         android:background="@drawable/cardview_background">
 
         <ImageView
             android:id="@+id/backButton"
             android:layout_width="32dp"
-            android:layout_height="30dp"
-            android:layout_marginStart="2dp"
-            android:layout_marginTop="18dp"
-            android:background="@drawable/baseline_arrow_back_24"
-            android:layout_alignParentTop="true" />
+            android:layout_height="32dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:contentDescription="Back Button"
+            android:src="@drawable/baseline_arrow_back_24" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:text="Report"
+            android:textColor="#222222"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/logoutButton"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="8dp"
+            android:contentDescription="Logout Button"
+            android:src="@drawable/ic_dot" />
     </RelativeLayout>
 
-    <!-- Scrollable content below the fixed top navigation -->
+    <!-- Scrollable content -->
     <ScrollView
         android:id="@+id/main"
         android:layout_width="match_parent"
@@ -35,146 +52,124 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="16dp">
 
+            <!-- Date Filter Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp"
+                android:weightSum="2">
+
+                <!-- From Date -->
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                    <EditText
+                        android:id="@+id/from_date"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="From Date"
+                        android:inputType="none"
+                        android:focusable="false"
+                        android:padding="10dp"
+                        android:background="@drawable/edittext_background" />
+
+                    <ImageView
+                        android:id="@+id/filter_from_button"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="8dp"
+                        android:contentDescription="Calendar Icon"
+                        android:src="@drawable/ic_calendar" />
+                </RelativeLayout>
+
+                <!-- To Date -->
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp">
+
+                    <EditText
+                        android:id="@+id/to_date"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="To Date"
+                        android:inputType="none"
+                        android:focusable="false"
+                        android:padding="10dp"
+                        android:background="@drawable/edittext_background" />
+
+                    <ImageView
+                        android:id="@+id/filter_to_button"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="8dp"
+                        android:contentDescription="Calendar Icon"
+                        android:src="@drawable/ic_calendar" />
+                </RelativeLayout>
+            </LinearLayout>
+
+            <!-- Table for Borrowed Books -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="1dp"
-                android:text="REPORTS"
-                android:layout_gravity="center"
-                android:textSize="20sp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="8dp"
+                android:textColor="@color/art_purple"
+                android:text="Borrowed Books"
+                android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="10dp"
-                android:background="@drawable/cardview_background">
-
-                <ImageButton
-                    android:id="@+id/next_date"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/previous_icon" />
-
-                <TextView
-                    android:id="@+id/date"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:layout_centerHorizontal="true"
-                    android:layout_centerVertical="true"
-                    android:text=" Today: 7 November"
-                    android:textSize="23sp"
-                    android:textStyle="bold"
-                    app:drawableStartCompat="@drawable/calender_icon" />
-
-                <ImageButton
-                    android:id="@+id/previous_date"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/next_icon"
-                    android:layout_alignParentEnd="true" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/book_layout"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginTop="12dp"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="10dp"
-                android:background="@drawable/cardview_background">
-
-                <TextView
-                    android:id="@+id/low_stock"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:text="Book Inventory"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:layout_below="@id/low_stock"
-                    android:text="Click To Explore"
-                    android:textStyle="bold" />
-            </RelativeLayout>
-
-            <RelativeLayout
+            <TableLayout
+                android:id="@+id/borrowed_books_table"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="10dp"
-                android:background="@drawable/cardview_background">
+                android:stretchColumns="*"
+                android:ellipsize="end"
+                android:singleLine="false"
+                android:background="#FFFFFF">
+            </TableLayout>
 
-                <TextView
-                    android:id="@+id/favourite_genres_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:text="Favourite Genres"
-                    android:padding="10dp"
-                    android:textStyle="bold" />
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginStart="10dp"
-                android:padding="10dp"
-                android:layout_marginEnd="10dp"
-                android:background="@drawable/cardview_background">
-
-                <TextView
-                    android:id="@+id/cartItems"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:text="Books In Cart"
-                    android:textStyle="bold" />
-
-
-                <TextView
-                    android:id="@+id/books_in_cart_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:layout_below="@id/cartItems"
-                    android:layout_marginTop="4dp"
-                    android:textStyle="bold" />
-            </RelativeLayout>
-
-
+            <!-- Table for Bought Books -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="13dp"
-                android:text="BORROWED BOOKS"
-                android:layout_gravity="center"
-                android:textSize="20sp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="8dp"
+                android:text="Bought Books"
+                android:textColor="@color/art_purple"
+                android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <ListView
-                android:id="@+id/recyclerBooks"
+            <TableLayout
+                android:id="@+id/bought_books_table"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="10dp"
-                android:layout_marginBottom="10dp"
-                android:divider="?attr/colorControlNormal"
-                android:dividerHeight="1dp"
-                android:paddingTop="5dp" />
+                android:stretchColumns="*"
+                android:padding="1dp"
+                android:background="#FFFFFF">
+            </TableLayout>
+
+            <!-- Download Report Button -->
+            <Button
+                android:id="@+id/download_report"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="#4CAF50"
+                android:text="Download Report"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold" />
         </LinearLayout>
     </ScrollView>
-
 </RelativeLayout>

@@ -92,12 +92,21 @@
                 </LinearLayout>
 
 
+                <Button
+                    android:id="@+id/generate"
+                    android:layout_width="250dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:layout_gravity="center"
+                    android:textSize="25sp"
+                    android:text="Generate Report"
+                    android:textColor="@color/warm_orange" />
                 <!-- Add Book Button -->
                 <Button
                     android:id="@+id/addBookButton"
                     android:layout_width="200dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
+                    android:layout_marginTop="120dp"
                     android:layout_gravity="center"
                     android:textSize="25sp"
                     android:text="Add a Book"

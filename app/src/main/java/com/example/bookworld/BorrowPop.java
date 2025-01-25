@@ -83,7 +83,6 @@ public class BorrowPop extends AppCompatActivity {
         price = intent.getStringExtra("BOOK_PRICE");
 
         // Set borrow button click listener
-
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -112,7 +111,7 @@ public class BorrowPop extends AppCompatActivity {
             }
 
             int days = Integer.parseInt(daysStr);
-            if (days < 1 || days > 5) {
+            if (days < 1 || days > 10) {
                 Toast.makeText(BorrowPop.this, "Maximum Number of Days Allowed is 5", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -203,6 +202,7 @@ public class BorrowPop extends AppCompatActivity {
         }).start();
     }
 
+
     private void checkBorrowConditions(String name, int days) {
         db.collection("users").document(userId).collection("borrowedBooks")
                 .get()
@@ -221,7 +221,7 @@ public class BorrowPop extends AppCompatActivity {
 
                         if (isAlreadyBorrowed) {
                             Toast.makeText(BorrowPop.this, "You have already borrowed this book", Toast.LENGTH_SHORT).show();
-                        } else if (borrowedBookCount >= 5) {
+                        } else if (borrowedBookCount >= 10) {
                             Toast.makeText(BorrowPop.this, "You cannot borrow more than 5 books", Toast.LENGTH_SHORT).show();
                         } else {
                             storeBorrowingDetails(name, days);

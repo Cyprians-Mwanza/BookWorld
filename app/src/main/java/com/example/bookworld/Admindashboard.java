@@ -6,25 +6,26 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.bookworld.bookdata.BorrowedBooks;
 import com.example.bookworld.bookdata.BorrowedBooksAdapter;
+import com.example.bookworld.bookdata.ReportAdmin;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.series.BarGraphSeries;
-import com.jjoe64.graphview.series.DataPoint;
+
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Set;
+
 
 public class Admindashboard extends AppCompatActivity {
 
@@ -35,8 +36,9 @@ public class Admindashboard extends AppCompatActivity {
     private RecyclerView recyclerView;
     private BorrowedBooksAdapter adapter;
     private ProgressBar progressBar;
-    private ImageView threeDotsButton;
-    private GraphView lineChart;
+    private ImageView threeDotsButton, generateReportButton;
+
+
 
 
     @Override
@@ -49,6 +51,7 @@ public class Admindashboard extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         threeDotsButton = findViewById(R.id.threeDotButton);
+        Button generateReportButton = findViewById(R.id.generate);  // Add the generate report button
 
         // Initialize Firebase
         db = FirebaseFirestore.getInstance();
@@ -63,6 +66,7 @@ public class Admindashboard extends AppCompatActivity {
 
 
         // Add Book button
+        generateReportButton.setOnClickListener(v -> generateReport());
         Button buttonAddBook = findViewById(R.id.addBookButton);
         buttonAddBook.setOnClickListener(v -> {
             // Navigate to AddBookActivity
@@ -137,31 +141,112 @@ public class Admindashboard extends AppCompatActivity {
                 });
     }
 
+  private void generateReport() {
+        double totalPrice = 0;
+        int borrowedBooksCount = 0;
+        Set<String> uniqueBorrowers = new HashSet<>();
 
-    private void displayTopBorrowedBooks(Map<String, Integer> bookBorrowCount) {
-        // Get top 5 books sorted by borrow count
-        List<Map.Entry<String, Integer>> topBooks = bookBorrowCount.entrySet().stream()
-                .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue()))
-                .limit(5)
-                .collect(Collectors.toList());
+        // Maps to store the frequencies of books and favorite genres
+        Map<String, Integer> bookBorrowCount = new HashMap<>();
+        Map<String, Integer> userBorrowCount = new HashMap<>();
+        Map<String, Integer> genreSelectionCount = new HashMap<>();
 
-        // Prepare data points for the graph
-        DataPoint[] dataPoints = new DataPoint[topBooks.size()];
-        for (int i = 0; i < topBooks.size(); i++) {
-            Map.Entry<String, Integer> entry = topBooks.get(i);
-            dataPoints[i] = new DataPoint(i + 1, entry.getValue());
+        // Process borrowed books list
+        for (BorrowedBooks borrowedBook : borrowedBooksList) {
+            // Sum up the prices of all borrowed books
+            try {
+                totalPrice += Double.parseDouble(borrowedBook.getPrice());
+            } catch (NumberFormatException e) {
+                e.printStackTrace(); // Handle invalid price format
+            }
+
+            // Count the number of borrowed books
+            borrowedBooksCount++;
+
+            // Track unique borrowers
+            uniqueBorrowers.add(borrowedBook.getName());
+
+            // Track book borrow frequency
+            bookBorrowCount.put(borrowedBook.getBookTitle(),
+                    bookBorrowCount.getOrDefault(borrowedBook.getBookTitle(), 0) + 1);
+
+            // Track user borrow count
+            userBorrowCount.put(borrowedBook.getName(),
+                    userBorrowCount.getOrDefault(borrowedBook.getName(), 0) + 1);
         }
 
-        // Display data on the chart
-        BarGraphSeries<DataPoint> series = new BarGraphSeries<>(dataPoints);
-        lineChart.removeAllSeries(); // Clear previous data
-        lineChart.addSeries(series);
+        // Fetch user IDs from Firestore
+      double finalTotalPrice = totalPrice;
+      int finalBorrowedBooksCount = borrowedBooksCount;
+      db.collection("users").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                List<String> userIdsList = new ArrayList<>();
+                for (DocumentSnapshot userDoc : task.getResult()) {
+                    userIdsList.add(userDoc.getId());  // Add user ID to the list
+                }
 
-        // Set graph labels
-        lineChart.getGridLabelRenderer().setHorizontalAxisTitle("Books");
-        lineChart.getGridLabelRenderer().setVerticalAxisTitle("Borrow Count");
-        lineChart.getViewport().setMinX(0);
-        lineChart.getViewport().setMaxX(6);
-        lineChart.getViewport().setYAxisBoundsManual(true);
+                // After fetching user IDs, fetch favorite genres for each user
+                for (String userId : userIdsList) {
+                    db.collection("users").document(userId).collection("Favourite genre")
+                            .get()
+                            .addOnCompleteListener(favoriteGenresTask -> {
+                                if (favoriteGenresTask.isSuccessful()) {
+                                    for (DocumentSnapshot documentSnapshot : favoriteGenresTask.getResult()) {
+                                        String genre = documentSnapshot.getString("genreName");
+                                        genreSelectionCount.put(genre,
+                                                genreSelectionCount.getOrDefault(genre, 0) + 1);
+                                    }
+                                }
+                            });
+                }
+
+                                // After all data is processed, generate the report
+                final int uniqueBorrowersCount = uniqueBorrowers.size(); // Make this variable final
+                generateReportContent(bookBorrowCount, userBorrowCount, genreSelectionCount, finalTotalPrice, finalBorrowedBooksCount, uniqueBorrowersCount);
+            }
+        });
     }
+
+
+    private void generateReportContent(Map<String, Integer> bookBorrowCount, Map<String, Integer> userBorrowCount,
+                                       Map<String, Integer> genreSelectionCount, double totalPrice, int borrowedBooksCount,
+                                       int uniqueBorrowersCount) {
+
+        // Convert the report data to strings or lists for passing through Intent
+        String totalAmount = String.format("Total Amount: %.2f", totalPrice);
+        String totalBooksBorrowed = "Total Books Borrowed: " + borrowedBooksCount;
+        String totalBorrowers = "Total Borrowers: " + uniqueBorrowersCount;
+
+        // Format top borrowed books
+        StringBuilder topBooks = new StringBuilder("\n");
+        bookBorrowCount.entrySet().stream()
+                .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue()))
+                .limit(10)
+                .forEach(entry -> topBooks.append(entry.getKey()).append(": ").append(entry.getValue()).append("\n"));
+
+        // Format top users
+        StringBuilder topUsers = new StringBuilder("\n");
+        userBorrowCount.entrySet().stream()
+                .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue()))
+                .limit(5)
+                .forEach(entry -> topUsers.append(entry.getKey()).append(": ").append(entry.getValue()).append("\n"));
+
+        // Format top genres
+        StringBuilder topGenres = new StringBuilder("\n");
+        genreSelectionCount.entrySet().stream()
+                .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue()))
+                .limit(5)
+                .forEach(entry -> topGenres.append(entry.getKey()).append(": ").append(entry.getValue()).append("\n"));
+
+        // Pass data to ReportAdmin via Intent
+        Intent intent = new Intent(Admindashboard.this, ReportAdmin.class);
+        intent.putExtra("TOTAL_AMOUNT", totalAmount);
+        intent.putExtra("TOTAL_BOOKS_BORROWED", totalBooksBorrowed);
+        intent.putExtra("TOTAL_BORROWERS", totalBorrowers);
+        intent.putExtra("TOP_BOOKS", topBooks.toString());
+        intent.putExtra("TOP_USERS", topUsers.toString());
+        intent.putExtra("TOP_GENRES", topGenres.toString());
+        startActivity(intent);
+    }
+    
 }

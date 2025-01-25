@@ -114,7 +114,7 @@ public class CartActivity extends AppCompatActivity {
             startActivity(intent);
         } else {
             // Navigate to BuyBook activity if the book has a price
-            Intent intent = new Intent(CartActivity.this, BuyDetails.class);
+            Intent intent = new Intent(CartActivity.this, BuyActivity.class);
             intent.putExtra("BOOK_ID", book.getId());
             intent.putExtra("BOOK_TITLE", book.getTitle());
             intent.putExtra("BOOK_AUTHOR", book.getAuthor());
