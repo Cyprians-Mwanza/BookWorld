@@ -1,14 +1,12 @@
 package com.example.bookworld;
 
-import android.app.DatePickerDialog;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Environment;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TableLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,9 +17,11 @@ import com.example.bookworld.bookdata.BoughtBook;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 public class Reports extends AppCompatActivity {
@@ -65,24 +65,25 @@ public class Reports extends AppCompatActivity {
         fromDateInput.setOnClickListener(v -> showDatePicker(fromDateInput));
         toDateInput.setOnClickListener(v -> showDatePicker(toDateInput));
         downloadReportButton.setOnClickListener(v -> downloadReport());
+    }
 
-        Log.d("Reports", "Activity Initialized Successfully");
+    private void showDatePicker(EditText fromDateInput) {
+    }
+
+    private void fetchTopBooks() {
+    }
+
+    private void fetchSalesTrends() {
     }
 
     private void fetchReportData() {
         db.collection("reportData").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                int totalRevenue = 0;
-                int booksSold = 0;
-                int activeUsers = 0;
                 for (QueryDocumentSnapshot document : task.getResult()) {
-                    totalRevenue += document.getLong("totalRevenue") != null ? document.getLong("totalRevenue").intValue() : 0;
-                    booksSold += document.getLong("booksSold") != null ? document.getLong("booksSold").intValue() : 0;
-                    activeUsers += document.getLong("activeUsers") != null ? document.getLong("activeUsers").intValue() : 0;
+                    totalRevenueText.setText("Total Revenue: $" + document.getString("totalRevenue"));
+                    numBooksSoldText.setText("Books Sold: " + document.getString("booksSold"));
+                    numActiveUsersText.setText("Active Users: " + document.getString("activeUsers"));
                 }
-                totalRevenueText.setText("Total Revenue: $" + totalRevenue);
-                numBooksSoldText.setText("Books Sold: " + booksSold);
-                numActiveUsersText.setText("Active Users: " + activeUsers);
             }
         });
     }
@@ -90,6 +91,7 @@ public class Reports extends AppCompatActivity {
     private void fetchBorrowedBooks() {
         db.collection("borrowedBooks").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
+                borrowedBooksTable.removeAllViews();
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     BorrowedBook book = document.toObject(BorrowedBook.class);
                     addTableRow(borrowedBooksTable, new String[]{book.getBorrower(), book.getBookTitle(), book.getDateBorrowed(), String.valueOf(book.getDaysBorrowed())});
@@ -98,9 +100,13 @@ public class Reports extends AppCompatActivity {
         });
     }
 
+    private void addTableRow(TableLayout borrowedBooksTable, String[] strings) {
+    }
+
     private void fetchBoughtBooks() {
         db.collection("boughtBooks").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
+                boughtBooksTable.removeAllViews();
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     BoughtBook book = document.toObject(BoughtBook.class);
                     addTableRow(boughtBooksTable, new String[]{book.getBuyer(), book.getBookTitle(), book.getDateOfPurchase(), String.valueOf(book.getPrice())});
@@ -109,54 +115,24 @@ public class Reports extends AppCompatActivity {
         });
     }
 
-    private void fetchSalesTrends() {
-        db.collection("salesTrends").get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                for (QueryDocumentSnapshot document : task.getResult()) {
-                    salesTrends.add(document.getString("trend"));
-                }
-                updateListView(salesTrendList, salesTrends);
-            }
-        });
-    }
-
-    private void fetchTopBooks() {
-        db.collection("topBooks").get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                for (QueryDocumentSnapshot document : task.getResult()) {
-                    topBooks.add(document.getString("title"));
-                }
-                updateListView(topBooksList, topBooks);
-            }
-        });
-    }
-
-    private void addTableRow(TableLayout tableLayout, String[] data) {
-        TableRow row = new TableRow(this);
-        for (String item : data) {
-            TextView textView = new TextView(this);
-            textView.setText(item);
-            textView.setPadding(10, 10, 10, 10);
-            row.addView(textView);
-        }
-        tableLayout.addView(row);
-    }
-
     private void updateListView(ListView listView, List<String> data) {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, data);
         listView.setAdapter(adapter);
     }
 
-    private void showDatePicker(EditText dateInput) {
-        Calendar calendar = Calendar.getInstance();
-        new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
-            String date = String.format("%04d-%02d-%02d", year, month + 1, dayOfMonth);
-            dateInput.setText(date);
-            Log.d("DatePicker", "Selected date: " + date);
-        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
-    }
-
     private void downloadReport() {
-        Toast.makeText(this, "Downloading report...", Toast.LENGTH_SHORT).show();
+        File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "Report.pdf");
+        try {
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write("Report Summary\n".getBytes());
+            fos.write(("Total Revenue: " + totalRevenueText.getText().toString() + "\n").getBytes());
+            fos.write(("Books Sold: " + numBooksSoldText.getText().toString() + "\n").getBytes());
+            fos.write(("Active Users: " + numActiveUsersText.getText().toString() + "\n").getBytes());
+            fos.close();
+            Toast.makeText(this, "Report saved in Downloads folder", Toast.LENGTH_LONG).show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Error saving PDF", Toast.LENGTH_SHORT).show();
+        }
     }
 }
