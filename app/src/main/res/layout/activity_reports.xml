@@ -26,20 +26,10 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:text="Report"
+            android:text="Report Summary"
             android:textColor="#222222"
             android:textSize="24sp"
             android:textStyle="bold" />
-
-        <ImageView
-            android:id="@+id/logoutButton"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="8dp"
-            android:contentDescription="Logout Button"
-            android:src="@drawable/ic_dot" />
     </RelativeLayout>
 
     <!-- Scrollable content -->
@@ -61,95 +51,67 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="16dp"
-                android:weightSum="2">
+                android:layout_marginBottom="16dp">
 
-                <!-- From Date -->
-                <RelativeLayout
+                <EditText
+                    android:id="@+id/from_date"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1">
-
-                    <EditText
-                        android:id="@+id/from_date"
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:hint="From Date"
-                        android:inputType="none"
-                        android:focusable="false"
-                        android:padding="10dp"
-                        android:background="@drawable/edittext_background" />
-                </RelativeLayout>
-
-                <!-- To Date -->
-                <RelativeLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginStart="8dp">
+                    android:layout_height="48dp"
+                    android:hint="From Date"
+                    android:inputType="none"
+                    android:focusable="false"
+                    android:padding="10dp"
+                    android:background="@drawable/edittext_background" />
 
-                    <EditText
-                        android:id="@+id/to_date"
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:hint="To Date"
-                        android:inputType="none"
-                        android:focusable="false"
-                        android:padding="10dp"
-                        android:background="@drawable/edittext_background" />
-                </RelativeLayout>
+                <EditText
+                    android:id="@+id/to_date"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="48dp"
+                    android:hint="To Date"
+                    android:inputType="none"
+                    android:focusable="false"
+                    android:padding="10dp"
+                    android:background="@drawable/edittext_background"
+                    android:layout_marginStart="8dp" />
             </LinearLayout>
 
-            <!-- Total Revenue -->
-            <TextView
-                android:id="@+id/totalRevenue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Total Revenue: $0"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <!-- Number of Books Sold -->
-            <TextView
-                android:id="@+id/numBooksSold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Books Sold: 0"
-                android:textSize="16sp" />
-
-            <!-- Number of Active Users -->
-            <TextView
-                android:id="@+id/numActiveUsers"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Active Users: 0"
-                android:textSize="16sp" />
-
-            <!-- Sales Trends -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Sales Trends"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <ListView
-                android:id="@+id/salesTrendList"
+            <!-- Report Table -->
+            <TableLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-            <!-- Top Books -->
-            <TextView
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Top Books"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:stretchColumns="*"
+                android:background="#FFFFFF">
 
-            <ListView
-                android:id="@+id/topBooksList"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                <TableRow android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <TextView android:text="Total Revenue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:padding="10dp" android:textStyle="bold" />
+                    <TextView android:id="@+id/totalRevenue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:padding="10dp" />
+                </TableRow>
+                <TableRow android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <TextView android:text="Books Sold" android:layout_width="wrap_content" android:layout_height="wrap_content" android:padding="10dp" android:textStyle="bold" />
+                    <TextView android:id="@+id/numBooksSold" android:layout_width="wrap_content" android:layout_height="wrap_content" android:padding="10dp" />
+                </TableRow>
+                <TableRow android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <TextView android:text="Active Users" android:layout_width="wrap_content" android:layout_height="wrap_content" android:padding="10dp" android:textStyle="bold" />
+                    <TextView android:id="@+id/numActiveUsers" android:layout_width="wrap_content" android:layout_height="wrap_content" android:padding="10dp" />
+                </TableRow>
+            </TableLayout>
+
+            <!-- Borrowed Books Table -->
+            <TextView android:text="Borrowed Books" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="18sp" android:textStyle="bold" android:layout_marginTop="10dp" />
+            <TableLayout android:id="@+id/borrowedBooksTable" android:layout_width="match_parent" android:layout_height="wrap_content" />
+
+            <!-- Bought Books Table -->
+            <TextView android:text="Bought Books" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="18sp" android:textStyle="bold" android:layout_marginTop="10dp" />
+            <TableLayout android:id="@+id/boughtBooksTable" android:layout_width="match_parent" android:layout_height="wrap_content" />
+
+            <!-- Sales Trends and Top Books -->
+            <TextView android:text="Sales Trends" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="18sp" android:textStyle="bold" android:layout_marginTop="10dp" />
+            <ListView android:id="@+id/salesTrendList" android:layout_width="match_parent" android:layout_height="wrap_content" />
+
+            <TextView android:text="Top Books" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="18sp" android:textStyle="bold" android:layout_marginTop="10dp" />
+            <ListView android:id="@+id/topBooksList" android:layout_width="match_parent" android:layout_height="wrap_content" />
 
             <!-- Download Report Button -->
             <Button
