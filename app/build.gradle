@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace 'com.example.bookworld'
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.example.bookworld"
@@ -28,12 +28,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-
     packagingOptions {
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/MANIFEST.MF'
-        exclude 'META-INF/DEPENDENCIES'
+        resources {
+            excludes += ['META-INF/LICENSE', 'META-INF/MANIFEST.MF', 'META-INF/DEPENDENCIES']
+        }
     }
+
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -60,17 +60,17 @@ dependencies {
     implementation "androidx.room:room-runtime:2.3.0"
     implementation libs.swiperefreshlayout
     implementation libs.tensorflow.lite.metadata
-    annotationProcessor "androidx.room:room-compiler:2.3.0"
+    annotationProcessor 'androidx.room:room-compiler:2.6.1'
     implementation 'androidx.room:room-ktx:2.3.0'
     implementation libs.google.firebase.auth
     implementation libs.firebase.firestore
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation libs.material.v190
-    implementation 'androidx.activity:activity:1.6.1'
+    implementation 'androidx.activity:activity:1.10.0'
     implementation libs.constraintlayout
     implementation 'com.google.android.gms:play-services-auth:19.2.0'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.5.3'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.5.3'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.8.6'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.8.6'
     implementation 'com.google.firebase:firebase-database:20.1.0'
     implementation libs.firebase.storage
     testImplementation 'junit:junit:4.13.2'
@@ -82,7 +82,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.9.0'
     implementation 'com.google.android.gms:play-services-auth:19.2.0'
     implementation 'com.google.firebase:firebase-database:20.1.0'
-    implementation 'androidx.core:core:1.10.1'
+    implementation 'androidx.core:core:1.15.0'
     testImplementation 'junit:junit:4.13.2'
     implementation 'com.itextpdf:kernel:<version>'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
