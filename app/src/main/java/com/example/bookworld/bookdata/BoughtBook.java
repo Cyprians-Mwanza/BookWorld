@@ -65,7 +65,7 @@ public class BoughtBook {
         this.dateBought = dateBought;
     }
 
-    // Convert dateBorrowed from String to Date
+    // Convert dateBought from String to Date
     public Date getDateBoughtAsDate() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd"); // Match Firestore date format
         try {
@@ -80,5 +80,15 @@ public class BoughtBook {
     public void setDateBoughtAsDate(Date date) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd"); // Adjust to match Firestore date format
         this.dateBought = sdf.format(date);
+    }
+
+    // New method to return buyer name
+    public String getBuyer() {
+        return name;
+    }
+
+    // New method to return date of purchase
+    public String getDateOfPurchase() {
+        return dateBought;
     }
 }

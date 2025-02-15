@@ -81,4 +81,14 @@ public class BorrowedBook {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy"); // Adjust format to match your Firestore format
         this.dateBorrowed = sdf.format(date);
     }
+
+    // New method to return borrower name
+    public String getBorrower() {
+        return name;
+    }
+
+    // New method to return days borrowed
+    public int getDaysBorrowed() {
+        return days;
+    }
 }
